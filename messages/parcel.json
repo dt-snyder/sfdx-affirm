@@ -1,0 +1,7 @@
+{
+  "commandDescription": "creates a parcel (package) using git diff",
+  "branchFlagDescription": "the branch other than master to diff against",
+  "includedestructiveFlagDescription": "include destructive changes in the package if any",
+  "outputdirFlagDescription": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
+  "errorNoOrgResults": "No results found for the org '%s'."
+}

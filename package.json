@@ -1,5 +1,5 @@
 {
-  "name": "validate-against",
+  "name": "affirm",
   "description": "Creates a package from git diff and validates it against a specific org.",
   "version": "0.0.0",
   "author": "Drew Snyder @drewtsnyder",
