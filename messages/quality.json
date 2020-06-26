@@ -1,6 +1,6 @@
 {
-  "commandDescription1": "",
-  "nameFlagDescription1": "",
-  "forceFlagDescription1": "",
-  "errorNoOrgResults1": ""
+  "commandDescription": "some description",
+  "nameFlagDescription": "some description",
+  "forceFlagDescription": "some description",
+  "errorNoOrgResults": "some description"
 }

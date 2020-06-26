@@ -1,0 +1,7 @@
+{
+  "commandDescription": "returns a diff against the specified branch",
+  "branchFlagDescription": "the branch other than master to diff against",
+  "onlydestructiveFlagDescription": "returns only destructive changes if true",
+  "onlyinsertionFlagDescription": "returns only new insertions changes if true",
+  "onlychangedFlagDescription": "returns only changes changes if true"
+}
