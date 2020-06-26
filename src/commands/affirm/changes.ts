@@ -1,10 +1,8 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import simpleGit, { SimpleGit, StatusResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
-import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-
-const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
+import { gitDiffSum } from '../../git_diff_sum';
+import { fsSaveJson } from '../../fs_save_json';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -40,7 +38,7 @@ export default class Changes extends SfdxCommand {
         `
     ];
 
-    public static args = [{ branch: 'file' }];
+    // public static args = [{ branch: 'file', silent: 'boolean', outfilename: 'file' }];
     // TODO: change flag names and descriptions from only to something else as it will print more than one if more than one flag is provided.
     protected static flagsConfig = {
         // flag with a value (-n, --name=VALUE)
@@ -64,34 +62,7 @@ export default class Changes extends SfdxCommand {
         // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
         // TODO: change this to force-app
         const inputdir = this.flags.inputdir || 'src';
-        const git: SimpleGit = simpleGit();
-        await git.env('GIT_SSH_COMMAND', GIT_SSH_COMMAND).status();
-        const diffSum = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch]);
-
-        const result = {
-            changed: [],
-            insertion: [],
-            destructive: []
-        };
-
-        diffSum.files.forEach(file => {
-            if (!file.file.startsWith(inputdir)) return;
-            if (file.changes === file.insertions && file.deletions === 0 && !file.file.includes('=>')) {
-                result.insertion = [...result.insertion, file.file];
-            } else if (file.changes === file.deletions && !file.file.includes('=>')) {
-                result.destructive = [...result.destructive, file.file];
-            } else if (file.file.includes('=>')) {
-                const path = file.file.substring(0, file.file.indexOf('{'));
-                const files = file.file.substring(file.file.indexOf('{'));
-                const oldFile = path + files.substring(0, files.indexOf('=')).replace('{', '').trim();
-                const newFile = path + files.substring(files.indexOf('>') + 1).replace('}', '').trim();
-                result.destructive = [...result.destructive, oldFile];
-                result.insertion = [...result.insertion, newFile];
-            } else {
-                result.changed = [...result.changed, file.file];
-            }
-        });
-
+        const result = await gitDiffSum(branch, inputdir);
         const print = !this.flags.silent;
         if (print) {
             const showAll = !this.flags.onlychanged && !this.flags.onlyinsertion && !this.flags.onlydestructive;
@@ -108,9 +79,9 @@ export default class Changes extends SfdxCommand {
                 }
             });
         }
-        const saveToFile = './' + this.flags.outfilename + '.json';
-        if(saveToFile){
-            await fs.outputJson(saveToFile, result);
+        const saveToFile = this.flags.outfilename;
+        if (saveToFile) {
+            await fsSaveJson(saveToFile, result);
         }
         return result;
     }
