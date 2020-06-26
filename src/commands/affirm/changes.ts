@@ -48,15 +48,22 @@ export default class Changes extends SfdxCommand {
         inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
         onlydestructive: flags.boolean({ char: 'd', description: messages.getMessage('onlydestructiveFlagDescription') }),
         onlyinsertion: flags.boolean({ char: 'i', description: messages.getMessage('onlyinsertionFlagDescription') }),
-        onlychanged: flags.boolean({ char: 'c', description: messages.getMessage('onlychangedFlagDescription') })
+        onlychanged: flags.boolean({ char: 'c', description: messages.getMessage('onlychangedFlagDescription') }),
+        silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription') }),
+        outfilename: flags.string({ char: 'o', description: messages.getMessage('outfilenameFlagDescription') })
     };
 
     // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
     protected static requiresProject = false;
 
     public async run(): Promise<AnyJson> {
+        // TODO: add error handling for directories without a git repo or remote.
         const branch = this.flags.branch || 'remotes/origin/master';
-        const inputdir = this.flags.inputdir || 'src'; // TODO: change this to force-app
+        // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
+        // TODO: add support for multiple directories listed in sfdx-project.packageDirectories
+        // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
+        // TODO: change this to force-app
+        const inputdir = this.flags.inputdir || 'src';
         const git: SimpleGit = simpleGit();
         await git.env('GIT_SSH_COMMAND', GIT_SSH_COMMAND).status();
         const diffSum = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch]);
@@ -84,21 +91,27 @@ export default class Changes extends SfdxCommand {
                 result.changed = [...result.changed, file.file];
             }
         });
-        
-        const showAll = !this.flags.onlychanged && !this.flags.onlyinsertion && !this.flags.onlydestructive;
-        const whatToPrint = {
-            changed: this.flags.onlychanged,
-            insertion: this.flags.onlyinsertion,
-            destructive: this.flags.onlydestructive
-        };
-        
-        Object.keys(result).forEach(key => {
-            if(result[key].length === 0 && (whatToPrint[key] || showAll)){
-                this.ux.log(key + ': None Found')
-            } else if(whatToPrint[key] || showAll){
-                this.ux.log(key + ': ' + result[key]);
-            }
-        });
+
+        const print = !this.flags.silent;
+        if (print) {
+            const showAll = !this.flags.onlychanged && !this.flags.onlyinsertion && !this.flags.onlydestructive;
+            const whatToPrint = {
+                changed: this.flags.onlychanged,
+                insertion: this.flags.onlyinsertion,
+                destructive: this.flags.onlydestructive
+            };
+            Object.keys(result).forEach(key => {
+                if (result[key].length === 0 && (whatToPrint[key] || showAll)) {
+                    this.ux.log(key + ': None Found')
+                } else if (whatToPrint[key] || showAll) {
+                    this.ux.log(key + ': ' + result[key]);
+                }
+            });
+        }
+        const saveToFile = './' + this.flags.outfilename + '.json';
+        if(saveToFile){
+            await fs.outputJson(saveToFile, result);
+        }
         return result;
     }
 }

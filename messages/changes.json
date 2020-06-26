@@ -4,5 +4,7 @@
   "inputdirFlagDescription": "the root directory to compare other than the sfdx-project.json default",
   "onlydestructiveFlagDescription": "returns only destructive changes if true",
   "onlyinsertionFlagDescription": "returns only new insertions changes if true",
-  "onlychangedFlagDescription": "returns only changes changes if true"
+  "onlychangedFlagDescription": "returns only changes changes if true",
+  "silentFlagDescription": "runs without printing to console",
+  "outfilenameFlagDescription": "if provided results will be save to a file using the provided name as json"
 }
