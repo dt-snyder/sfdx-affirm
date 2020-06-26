@@ -44,7 +44,7 @@ export default class Parcel extends SfdxCommand {
     const setSSH = await git.env('GIT_SSH_COMMAND', GIT_SSH_COMMAND).status();
     //console.log('setSSH:');
     //console.log(setSSH);
-    const processSSH = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary(['origin/master..master', '--name-only']);
+    const processSSH = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary(['remotes/origin/master']);
     console.log('processSSH:');
     console.log(processSSH);
     
