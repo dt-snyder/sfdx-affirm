@@ -64,8 +64,8 @@ export default class Parcel extends SfdxCommand {
     const command_source = ' -p ' + allFiles.toString();
     const command_outputDir = ' -d ' + outputdir;
     const convertCommand = 'sfdx force:source:convert --json' + command_outputDir + command_source;
-    //   // this.org is guaranteed because requiresUsername=true, as opposed to supportsUsername
-    // const conn = this.org.getConnection();
+    
+    // TODO: add support for creating the destructive package.
     const convertResult = await exec(convertCommand);
     // console.log(convertResult);
     this.ux.stopSpinner('Done');

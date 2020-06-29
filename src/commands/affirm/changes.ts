@@ -61,7 +61,7 @@ export default class Changes extends SfdxCommand {
         // TODO: add support for multiple directories listed in sfdx-project.packageDirectories
         // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
         // TODO: change this to force-app
-        const inputdir = this.flags.inputdir || 'src';
+        const inputdir = this.flags.inputdir || 'force-app';
         const result = await gitDiffSum(branch, inputdir);
         const print = !this.flags.silent;
         if (print) {
