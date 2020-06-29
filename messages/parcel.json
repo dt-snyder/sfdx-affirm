@@ -3,5 +3,6 @@
   "branchFlagDescription": "the branch other than master to diff against",
   "includedestructiveFlagDescription": "include destructive changes in the package if any",
   "outputdirFlagDescription": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
+  "inputdirFlagDescription": "the root directory to compare other than the sfdx-project.json default",
   "errorNoOrgResults": "No results found for the org '%s'."
 }

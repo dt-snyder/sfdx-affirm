@@ -1,7 +1,7 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum } from '../../git_diff_sum';
+import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../git_diff_sum';
 import { fsSaveJson } from '../../fs_save_json';
 
 // Initialize Messages with the current plugin directory
@@ -65,20 +65,10 @@ export default class Changes extends SfdxCommand {
         const result = await gitDiffSum(branch, inputdir);
         const print = !this.flags.silent;
         if (print) {
-            const showAll = !this.flags.onlychanged && !this.flags.onlyinsertion && !this.flags.onlydestructive;
-            const whatToPrint = {
-                changed: this.flags.onlychanged,
-                insertion: this.flags.onlyinsertion,
-                destructive: this.flags.onlydestructive
-            };
-            Object.keys(result).forEach(key => {
-                if (result[key].length === 0 && (whatToPrint[key] || showAll)) {
-                    this.ux.log(key + ': None Found')
-                } else if (whatToPrint[key] || showAll) {
-                    this.ux.log(key + ': ' + result[key]);
-                }
-            });
+            const whatToPrint = await createWhatToPrint(this.flags.onlychanged, this.flags.onlyinsertion, this.flags.onlydestructive);
+            await showDiffSum(this.ux, result, whatToPrint);
         }
+        
         const saveToFile = this.flags.outfilename;
         if (saveToFile) {
             await fsSaveJson(saveToFile, result);
