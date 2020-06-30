@@ -2,8 +2,8 @@
   "name": "affirm",
   "description": "Creates a package from git diff and validates it against a specific org.",
   "version": "0.0.0",
-  "author": "Drew Snyder @drewtsnyder",
-  "bugs": "https://gitlab.com/drewtsnyder/validate-against/-/issues",
+  "author": "Drew Snyder drew.snyder@hunterdouglas.com",
+  "bugs": "https://bitbucket.org/hunterdouglas/sfdx-affirm/issues",
   "dependencies": {
     "@oclif/command": "^1",
     "@oclif/config": "^1",
@@ -38,7 +38,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://gitlab.com/drewtsnyder/validate-against",
+  "homepage": "https://bitbucket.org/hunterdouglas/sfdx-affirm/src/master/",
   "keywords": [
     "sfdx-plugin"
   ],
@@ -46,16 +46,11 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "sfdx",
-    "topics": {
-      "hello": {
-        "description": "Commands to say hello."
-      }
-    },
     "devPlugins": [
       "@oclif/plugin-help"
     ]
   },
-  "repository": "drewtsnyder/validate-against",
+  "repository": "hunterdouglas/sfdx-affirm",
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
     "posttest": "tslint -p test -t stylish",
