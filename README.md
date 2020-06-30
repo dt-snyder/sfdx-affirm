@@ -3,42 +3,16 @@
 
 Commands for creating a package from git diff and validating it against a specific org.
 
-<!-- [![Version](https://img.shields.io/npm/v/sfdx-affirm.svg)](https://npmjs.org/package/sfdx-affirm)
-[![CircleCI](https://circleci.com/gh/DeeTrueSnyder/sfdx-affirm/tree/master.svg?style=shield)](https://circleci.com/gh/DeeTrueSnyder/sfdx-affirm/tree/master)
-[![Appveyor CI](https://ci.appveyor.com/api/projects/status/github/DeeTrueSnyder/sfdx-affirm?branch=master&svg=true)](https://ci.appveyor.com/project/heroku/sfdx-affirm/branch/master)
-[![Codecov](https://codecov.io/gh/DeeTrueSnyder/sfdx-affirm/branch/master/graph/badge.svg)](https://codecov.io/gh/DeeTrueSnyder/sfdx-affirm)
-[![Greenkeeper](https://badges.greenkeeper.io/DeeTrueSnyder/sfdx-affirm.svg)](https://greenkeeper.io/)
-[![Known Vulnerabilities](https://snyk.io/test/github/DeeTrueSnyder/sfdx-affirm/badge.svg)](https://snyk.io/test/github/DeeTrueSnyder/sfdx-affirm)
-[![Downloads/week](https://img.shields.io/npm/dw/sfdx-affirm.svg)](https://npmjs.org/package/sfdx-affirm)
-[![License](https://img.shields.io/npm/l/sfdx-affirm.svg)](https://github.com/DeeTrueSnyder/sfdx-affirm/blob/master/package.json) -->
-
-<!-- toc -->
-<!-- * [Debugging your plugin](#debugging-your-plugin) -->
-<!-- tocstop -->
-<!-- install -->
-## Install for use in sfdx project
+### Install for use in sfdx project
 1. clone repo to your local and cd into repo directory
 2. run `yarn`
 3. run `sfdx plugins:link`
 4. navigate to salesforce project and run `sfdx affirm --help`
-<!-- usage -->
-<!-- ```sh-session
-$ npm install -g sfdx-affirm
-$ sfdx COMMAND
-running command...
-$ sfdx (-v|--version|version)
-sfdx-affirm/0.0.0 win32-x64 node-v12.14.1
-$ sfdx --help [COMMAND]
-USAGE
-  $ sfdx COMMAND
-...
-``` -->
-<!-- usagestop -->
-<!-- commands -->
-<!-- * [`sfdx hello:org [-n <string>] [-f] [-v <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-helloorg--n-string--f--v-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal) -->
 
-## `sfdx affirm:changes`
+## Commands
+List of working commands
 
+### sfdx affirm:changes
 print the git diff between your last commit and a specific remote branch (default remote branch: remotes/origin/master)
 
 ```
@@ -70,18 +44,17 @@ EXAMPLES
       CHANGED: MyClass.cls
   `
 ```
-<!-- commandsstop -->
-<!-- debugging-your-plugin -->
-# Development
+
+## Development
 You can run the commands from this projects directory without linking the plugin to sfdx. This is helpful for development but as this project doesn't have test files that simulate a sfdx project yet it's mostly useful for debugging small functionality before linking and trying out in a sfdx project. At some point a directory that simulates a sfdx project will need to be added to the test folder and tests will need to be created for each of the commands.
 
-## Helpful Links
+### Helpful Links
 - [Create Your First Salesforce CLI Plugin](https://developer.salesforce.com/blogs/2018/05/create-your-first-salesforce-cli-plugin.html)
 - [Plugin Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_plugins.meta/sfdx_cli_plugins/cli_plugins.htm)
 - [salesforce/core](https://forcedotcom.github.io/sfdx-core/globals.html)
 - [SimpleGit.js](https://github.com/steveukx/git-js#readme)
 
-## Debugging your plugin
+### Debugging your plugin
 We recommend using the Visual Studio Code (VS Code) IDE for your plugin development. Included in the `.vscode` directory of this plugin is a `launch.json` config file, which allows you to attach a debugger to the node process when running your commands.
 
 To debug the `hello:org` command: 
