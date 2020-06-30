@@ -2,9 +2,11 @@
   "commandDescription": "returns a diff against the specified branch",
   "branchFlagDescription": "the branch other than remotes/origin/master to diff against",
   "inputdirFlagDescription": "the root directory to compare other than the sfdx-project.json default",
-  "onlydestructiveFlagDescription": "returns only destructive changes if true",
-  "onlyinsertionFlagDescription": "returns only new insertions changes if true",
-  "onlychangedFlagDescription": "returns only changes changes if true",
+  "showdestructiveFlagDescription": "If provided alone shows destructive changes only.",
+  "showinsertionFlagDescription": "If provided alone shows insertion changes only.",
+  "showchangedFlagDescription": "If provided alone shows changes only.",
   "silentFlagDescription": "runs without printing to console",
-  "outfilenameFlagDescription": "if provided results will be save to a file using the provided name as json"
+  "outfilenameFlagDescription": "if provided results will be save to a file using the provided name as json",
+  "errorNoGitRepo": "Your current directory does not have a git repo setup.",
+  "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."
 }
