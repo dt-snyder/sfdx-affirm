@@ -17,36 +17,29 @@ export default class Changes extends SfdxCommand {
 
     public static examples = [
         `$ sfdx affirm:changes
-            changed:
-            MyClass.cls
-            insertion:
-            MyTestClass.cls
-            destructive:
-            MyOldClass.cls
+            CHANGED: MyClass.cls,MySecondClass.cls
+            INSERTION: MyTestClass.cls
+            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
         `,
-        `$ sfdx affirm:changes --onlydestructive
-            destructive:
-            MyOldClass.cls
+        `$ sfdx affirm:changes --showdestructive
+            DESTRUCTIVE: MyOldClass.cls
         `,
-        `$ sfdx affirm:changes --onlyinsertion
-            insertion:
-            MyTestClass.cls
+        `$ sfdx affirm:changes --showinsertion
+            INSERTION: MyTestClass.cls
         `,
-        `$ sfdx affirm:changes --onlychanged
-            changed:
-            MyClass.cls
+        `$ sfdx affirm:changes --showchanged
+            CHANGED: MyClass.cls
         `
     ];
 
     // public static args = [{ branch: 'file', silent: 'boolean', outfilename: 'file' }];
-    // TODO: change flag names and descriptions from only to something else as it will print more than one if more than one flag is provided.
     protected static flagsConfig = {
         // flag with a value (-n, --name=VALUE)
         branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
         inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
-        onlydestructive: flags.boolean({ char: 'd', description: messages.getMessage('onlydestructiveFlagDescription') }),
-        onlyinsertion: flags.boolean({ char: 'i', description: messages.getMessage('onlyinsertionFlagDescription') }),
-        onlychanged: flags.boolean({ char: 'c', description: messages.getMessage('onlychangedFlagDescription') }),
+        showdestructive: flags.boolean({ char: 'd', description: messages.getMessage('showdestructiveFlagDescription') }),
+        showinsertion: flags.boolean({ char: 'i', description: messages.getMessage('showinsertionFlagDescription') }),
+        showchanged: flags.boolean({ char: 'c', description: messages.getMessage('showchangedFlagDescription') }),
         silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription') }),
         outfilename: flags.string({ char: 'o', description: messages.getMessage('outfilenameFlagDescription') })
     };
@@ -56,7 +49,9 @@ export default class Changes extends SfdxCommand {
 
     public async run(): Promise<AnyJson> {
         // TODO: add error handling for directories without a git repo or remote.
+        // if(no git repo configured) throw new SfdxError(messages.getMessage('errorNoGitRepo'));
         const branch = this.flags.branch || 'remotes/origin/master';
+        // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
         // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
         // TODO: add support for multiple directories listed in sfdx-project.packageDirectories
         // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
@@ -65,7 +60,7 @@ export default class Changes extends SfdxCommand {
         const result = await gitDiffSum(branch, inputdir);
         const print = !this.flags.silent;
         if (print) {
-            const whatToPrint = await createWhatToPrint(this.flags.onlychanged, this.flags.onlyinsertion, this.flags.onlydestructive);
+            const whatToPrint = await createWhatToPrint(this.flags.showchanged, this.flags.showinsertion, this.flags.showdestructive);
             await showDiffSum(this.ux, result, whatToPrint);
         }
         

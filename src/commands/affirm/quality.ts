@@ -21,7 +21,7 @@ export default class Quality extends SfdxCommand {
   Hello world! This is org: MyOrg and I will be around until Tue Mar 20 2018!
   My hub org id is: 00Dxx000000001234
   `,
-  `$ sfdx hello:org --name myname --targetusername myOrg@example.com
+  `$ sfdx affirm:quality --name myname --targetusername myOrg@example.com
   Hello myname! This is org: MyOrg and I will be around until Tue Mar 20 2018!
   `
   ];
@@ -31,7 +31,13 @@ export default class Quality extends SfdxCommand {
   protected static flagsConfig = {
     // flag with a value (-n, --name=VALUE)
     name: flags.string({char: 'n', description: messages.getMessage('nameFlagDescription')}),
-    force: flags.boolean({char: 'f', description: messages.getMessage('forceFlagDescription')})
+    branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
+    // TODO: change inputdirFlagDescription to use sfdx-project.json default instead of force-app
+    inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
+    outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
+    includetructive: flags.boolean({ char: 'd', description: messages.getMessage('includetructiveFlagDescription') }),
+    excludetests: flags.boolean({ char: 't', description: messages.getMessage('excludetestsFlagDescription') }),
+    specifictests: flags.string({ char: 'n', description: messages.getMessage('specifictestsFlagDescription') })
   };
 
   // Comment this out if your command does not require an org username
@@ -44,9 +50,17 @@ export default class Quality extends SfdxCommand {
   protected static requiresProject = false;
 
   public async run(): Promise<AnyJson> {
-    const git: SimpleGit = simpleGit();
-    const status: StatusResult = await git.status();
-
+    // TODO: add error handling for directories without a git repo or remote.
+    // if(no git repo configured) throw new SfdxError(messages.getMessage('errorNoGitRepo'));
+    const branch = this.flags.branch || 'remotes/origin/master';
+    // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
+    // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
+    // TODO: add support for multiple directories listed in sfdx-project.packageDirectories
+    // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
+    // TODO: add support for testing.
+    const inputdir = this.flags.inputdir || 'force-app';
+    const outputdir = this.flags.outputdir || 'parcel';
+    // ! everything below this is default from the creation of the plugin generator. Some of it is useful for this command but this method is still a work in progress.
     const name = this.flags.name || 'world';
 
     // this.org is guaranteed because requiresUsername=true, as opposed to supportsUsername

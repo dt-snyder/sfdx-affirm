@@ -18,13 +18,20 @@ export default class Parcel extends SfdxCommand {
   public static description = messages.getMessage('commandDescription');
 
   public static examples = [
-    `$ sfdx affirm:parcel --targetusername myOrg@example.com --targetdevhubusername devhub@org.com
-  Hello world! This is org: MyOrg and I will be around until Tue Mar 20 2018!
-  My hub org id is: 00Dxx000000001234
-  `,
-    `$ sfdx hello:org --name myname --targetusername myOrg@example.com
-  Hello myname! This is org: MyOrg and I will be around until Tue Mar 20 2018!
-  `
+    `$ sfdx affirm:parcel
+      Files being Converted to Package: 
+      CHANGED: MyClass.cls,MySecondClass.cls
+      INSERTION: MyTestClass.cls
+      DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
+      Converting...Done
+    `,
+    `$ sfdx affirm:parcel -d
+      Files being Converted to Package: 
+      CHANGED: MyClass.cls,MySecondClass.cls
+      INSERTION: MyTestClass.cls
+      DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
+      Converting...Done
+    `
   ];
 
   public static args = [{ branch: 'file' }];
@@ -32,9 +39,10 @@ export default class Parcel extends SfdxCommand {
   protected static flagsConfig = {
     // flag with a value (-n, --name=VALUE)
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
+    // TODO: change inputdirFlagDescription to use sfdx-project.json default instead of force-app
+    inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
-    includedestructive: flags.boolean({ char: 'd', description: messages.getMessage('includedestructiveFlagDescription') }),
-    inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') })
+    includetructive: flags.boolean({ char: 'd', description: messages.getMessage('includetructiveFlagDescription') })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -42,17 +50,19 @@ export default class Parcel extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     // TODO: add error handling for directories without a git repo or remote.
+    // if(no git repo configured) throw new SfdxError(messages.getMessage('errorNoGitRepo'));
     const branch = this.flags.branch || 'remotes/origin/master';
+    // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
     // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
     // TODO: add support for multiple directories listed in sfdx-project.packageDirectories
     // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
     // TODO: add support for testing.
     const inputdir = this.flags.inputdir || 'force-app';
     const outputdir = this.flags.outputdir || 'parcel';
-    
+
     const result = await gitDiffSum(branch, inputdir);
     this.ux.log('Files being Converted to Package: ');
-    const whatToPrint = await createWhatToPrint(true, true, this.flags.includedestructive);
+    const whatToPrint = await createWhatToPrint(true, true, this.flags.includetructive);
     await showDiffSum(this.ux, result, whatToPrint);
     let allFiles = [];
     Object.keys(result).forEach(key => {
@@ -64,7 +74,7 @@ export default class Parcel extends SfdxCommand {
     const command_source = ' -p ' + allFiles.toString();
     const command_outputDir = ' -d ' + outputdir;
     const convertCommand = 'sfdx force:source:convert --json' + command_outputDir + command_source;
-    
+
     // TODO: add support for creating the destructive package.
     const convertResult = await exec(convertCommand);
     // console.log(convertResult);
