@@ -67,13 +67,14 @@ export default class Parcel extends SfdxCommand {
     let allFiles = [];
     Object.keys(result).forEach(key => {
       result[key].forEach(element => {
-        allFiles = [...allFiles, element];
+        const fileName = '"'+element+'"';
+        allFiles = [...allFiles, fileName];
       });
     });
     this.ux.startSpinner('Converting');
     const command_source = ' -p ' + allFiles.toString();
     const command_outputDir = ' -d ' + outputdir;
-    const convertCommand = 'sfdx force:source:convert --json' + command_outputDir + command_source;
+    const convertCommand = 'sfdx force:source:convert --json --loglevel error' + command_outputDir + command_source;
 
     // TODO: add support for creating the destructive package.
     const convertResult = await exec(convertCommand);
