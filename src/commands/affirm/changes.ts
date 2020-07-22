@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError } from '@salesforce/core';
+import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, createWhatToPrint, showDiffSum, checkForRepoAndRemote } from '../../git_commands';
 import { fsSaveJson } from '../../fs_save_json';
@@ -48,8 +48,9 @@ export default class Changes extends SfdxCommand {
     protected static requiresProject = false;
 
     public async run(): Promise<AnyJson> {
-        await checkForRepoAndRemote(this.ux);
+        await checkForRepoAndRemote(this.ux, true);
         const branch = this.flags.branch || 'remotes/origin/master';
+        const project = await SfdxProject.resolve();
         // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
         // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
         // TODO: add support for multiple directories listed in sfdx-project.packageDirectories

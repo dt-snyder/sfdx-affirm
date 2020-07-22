@@ -29,7 +29,7 @@ interface WhatToPrint {
     showAll: Boolean
 };
 
-export async function checkForRepoAndRemote(ux: UX) {
+export async function checkForRepoAndRemote(ux: UX, shouldPrint: boolean) {
     const isRepo = git.checkIsRepo();
     if (!isRepo) {
         throw SfdxError.create('affirm', 'git_commands', 'errorNoGitRepo');
@@ -39,10 +39,12 @@ export async function checkForRepoAndRemote(ux: UX) {
             throw SfdxError.create('affirm', 'git_commands', 'errorNoGitRemote');
         }
         const repoStatus = await git.status();
-        ux.log(remotes[0].name + ': ' + remotes[0].refs.push);
+        if(shouldPrint){
+            ux.log(remotes[0].name + ': ' + remotes[0].refs.push);
+            ux.log('current branch: ' + repoStatus.current);
+        }
         // console.log(JSON.stringify(remotes));
         // console.log(JSON.stringify(repoStatus));
-        ux.log('current branch: ' + repoStatus.current);
     }
 }
 

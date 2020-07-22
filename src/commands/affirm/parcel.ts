@@ -49,7 +49,7 @@ export default class Parcel extends SfdxCommand {
   protected static requiresProject = false;
 
   public async run(): Promise<AnyJson> {
-    await checkForRepoAndRemote(this.ux);
+    await checkForRepoAndRemote(this.ux, true);
     const branch = this.flags.branch || 'remotes/origin/master';
     // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
     // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
