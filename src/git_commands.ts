@@ -1,12 +1,18 @@
 import simpleGit, { SimpleGit, StatusResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
+import { Messages, SfdxError } from '@salesforce/core';
+const filesToIgnore = ['**/jsconfig.json', '**/.eslintrc.json'];
 
-const filesToIgnore = ['**/jsconfig.json','**/.eslintrc.json'];
+Messages.importMessagesDirectory(__dirname);
+
+const messages: Messages = Messages.loadMessages('affirm', 'git_commands');
+
+const git: SimpleGit = simpleGit();
 
 function ignoreFile(file: string) {
-    if(filesToIgnore.includes(file)) return true;
-    const fileNameOnly = '**'+file.substring(file.lastIndexOf('/'));
-    if(filesToIgnore.includes(fileNameOnly)) return true;
+    if (filesToIgnore.includes(file)) return true;
+    const fileNameOnly = '**' + file.substring(file.lastIndexOf('/'));
+    if (filesToIgnore.includes(fileNameOnly)) return true;
     return false;
 }
 
@@ -23,8 +29,24 @@ interface WhatToPrint {
     showAll: Boolean
 };
 
+export async function checkForRepoAndRemote(ux: UX) {
+    const isRepo = git.checkIsRepo();
+    if (!isRepo) {
+        throw SfdxError.create('affirm', 'git_commands', 'errorNoGitRepo');
+    } else {
+        const remotes = await git.getRemotes(true);
+        if (!remotes) {
+            throw SfdxError.create('affirm', 'git_commands', 'errorNoGitRemote');
+        }
+        const repoStatus = await git.status();
+        ux.log(remotes[0].name + ': ' + remotes[0].refs.push);
+        // console.log(JSON.stringify(remotes));
+        // console.log(JSON.stringify(repoStatus));
+        ux.log('current branch: ' + repoStatus.current);
+    }
+}
+
 export async function gitDiffSum(branch: string, inputdir: string) {
-    const git: SimpleGit = simpleGit();
     await git.env('GIT_SSH_COMMAND', GIT_SSH_COMMAND).status();
     const diffSum = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch]);
     // console.log(diffSum);
@@ -38,7 +60,7 @@ export async function gitDiffSum(branch: string, inputdir: string) {
         if (!file.file.startsWith(inputdir) || ignoreFile(file.file)) return;
         if (file.changes === file.insertions && file.deletions === 0 && !file.file.includes('=>')) {
             result.insertion = [...result.insertion, file.file];
-        } 
+        }
         // TODO: this bit of logic for finding destructive changes doesn't work correctly. 
         // else if (file.changes === file.deletions && !file.file.includes('=>')) {
         //     result.destructive = [...result.destructive, file.file];

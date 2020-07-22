@@ -1,0 +1,4 @@
+{
+  "errorNoGitRepo": "Your current directory does not have a git repo setup.",
+  "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."
+}

@@ -1,7 +1,7 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../git_diff_sum';
+import { gitDiffSum, createWhatToPrint, showDiffSum, checkForRepoAndRemote } from '../../git_commands';
 import { fsSaveJson } from '../../fs_save_json';
 
 // Initialize Messages with the current plugin directory
@@ -48,8 +48,7 @@ export default class Changes extends SfdxCommand {
     protected static requiresProject = false;
 
     public async run(): Promise<AnyJson> {
-        // TODO: add error handling for directories without a git repo or remote.
-        // if(no git repo configured) throw new SfdxError(messages.getMessage('errorNoGitRepo'));
+        await checkForRepoAndRemote(this.ux);
         const branch = this.flags.branch || 'remotes/origin/master';
         // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
         // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
