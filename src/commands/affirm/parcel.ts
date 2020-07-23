@@ -4,7 +4,7 @@ import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../git_diff_sum';
 import * as child from 'child_process';
 import * as util from 'util';
-import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
+import { fsCopyChangesToNewDir } from '../../fs_save_json';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -64,15 +64,17 @@ export default class Parcel extends SfdxCommand {
     this.ux.log('Files being Converted to Package: ');
     const whatToPrint = await createWhatToPrint(true, true, this.flags.includetructive);
     await showDiffSum(this.ux, result, whatToPrint);
-    let allFiles = [];
-    Object.keys(result).forEach(key => {
-      result[key].forEach(element => {
-        const fileName = '"'+element+'"';
-        allFiles = [...allFiles, fileName];
-      });
-    });
+    await fsCopyChangesToNewDir(result);
+    // let allFiles = [];
+    // Object.keys(result).forEach(key => {
+    //   result[key].forEach(element => {
+    //     // const fileName = '"'+element+'"';
+    //     allFiles = [...allFiles, element];
+    //   });
+    // });
     this.ux.startSpinner('Converting');
-    const command_source = ' -p ' + allFiles.toString();
+
+    const command_source = ' -r tempParcel/force-app';
     const command_outputDir = ' -d ' + outputdir;
     const convertCommand = 'sfdx force:source:convert --json --loglevel error' + command_outputDir + command_source;
 
