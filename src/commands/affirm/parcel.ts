@@ -1,7 +1,7 @@
 import { flags, SfdxCommand, SfdxProject } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../affirm_simple_git';
+import { gitDiffSum, createWhatToPrint, showDiffSum, checkForRepoAndRemote } from '../../affirm_simple_git';
 import * as child from 'child_process';
 import * as util from 'util';
 import { fsCopyChangesToNewDir, cleanupTempDirectory } from '../../affirm_fs_extra';
@@ -49,8 +49,7 @@ export default class Parcel extends SfdxCommand {
   protected static requiresProject = false;
 
   public async run(): Promise<AnyJson> {
-    // TODO: add error handling for directories without a git repo or remote.
-    // if(no git repo configured) throw new SfdxError(messages.getMessage('errorNoGitRepo'));
+    await checkForRepoAndRemote(this.ux, true);
     const branch = this.flags.branch || 'remotes/origin/master';
     // if(No Remote repo configured) throw new SfdxError(messages.getMessage('errorNoGitRemote'));
     // TODO: add support for getting sfdx-project.json as sfdx-project from the current directory
