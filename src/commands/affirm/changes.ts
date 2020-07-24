@@ -1,8 +1,8 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../git_diff_sum';
-import { fsSaveJson } from '../../fs_save_json';
+import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../affirm_simple_git';
+import { fsSaveJson } from '../../affirm_fs_extra';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);

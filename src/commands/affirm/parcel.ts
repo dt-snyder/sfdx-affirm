@@ -1,10 +1,10 @@
 import { flags, SfdxCommand, SfdxProject } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../git_diff_sum';
+import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../affirm_simple_git';
 import * as child from 'child_process';
 import * as util from 'util';
-import { fsCopyChangesToNewDir, cleanupTempDirectory } from '../../fs_save_json';
+import { fsCopyChangesToNewDir, cleanupTempDirectory } from '../../affirm_fs_extra';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
