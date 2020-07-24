@@ -39,7 +39,11 @@ export async function fsCopyChangesToNewDir(diff: DiffObj) {
         if(!copiedPaths.has(element)) copiedPaths.add(element);
     });
     copiedPaths.forEach(element => {
-        const newLocation = 'tempParcel/'+ element;
+        const newLocation = '.releaseArtifacts/tempParcel/'+ element;
         fs.copySync(element, newLocation);
     });
+}
+
+export async function cleanupTempDirectory() {
+    await fs.remove('.releaseArtifacts/tempParcel/');
 }
