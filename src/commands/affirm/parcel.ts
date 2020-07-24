@@ -1,10 +1,10 @@
 import { flags, SfdxCommand, SfdxProject } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum, checkForRepoAndRemote } from '../../git_commands';
+import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../affirm_simple_git';
 import * as child from 'child_process';
 import * as util from 'util';
-import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
+import { fsCopyChangesToNewDir, cleanupTempDirectory } from '../../affirm_fs_extra';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -57,28 +57,42 @@ export default class Parcel extends SfdxCommand {
     // TODO: add support for comma seperated list of input directories other than what's in sfdx-project.packageDirectories
     // TODO: add support for testing.
     const inputdir = this.flags.inputdir || 'force-app';
-    const outputdir = this.flags.outputdir || 'parcel';
-
+    const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
+    this.ux.startSpinner('Diff Against: ' + branch);
     const result = await gitDiffSum(branch, inputdir);
-    this.ux.log('Files being Converted to Package: ');
-    const whatToPrint = await createWhatToPrint(true, true, this.flags.includetructive);
-    await showDiffSum(this.ux, result, whatToPrint);
-    let allFiles = [];
-    Object.keys(result).forEach(key => {
-      result[key].forEach(element => {
-        const fileName = '"'+element+'"';
-        allFiles = [...allFiles, fileName];
-      });
-    });
-    this.ux.startSpinner('Converting');
-    const command_source = ' -p ' + allFiles.toString();
+    this.ux.stopSpinner('Success');
+    this.ux.startSpinner('Cloning Files');
+    await fsCopyChangesToNewDir(result);
+    this.ux.stopSpinner('Success');
+
+    this.ux.startSpinner('Converting to Package');
+    const command_source = ' -r .releaseArtifacts/tempParcel/force-app';
     const command_outputDir = ' -d ' + outputdir;
     const convertCommand = 'sfdx force:source:convert --json --loglevel error' + command_outputDir + command_source;
 
     // TODO: add support for creating the destructive package.
-    const convertResult = await exec(convertCommand);
-    // console.log(convertResult);
-    this.ux.stopSpinner('Done');
-    return convertResult;
+    let finalResult;
+    // try {
+    //   finalResult = await exec(convertCommand);
+    // } catch (error) {
+    //   console.log(finalResult);
+    //   console.log(error.stdout.message);
+    // }
+    await exec(convertCommand)
+      .then((resp) => {
+        finalResult = resp;
+        this.ux.stopSpinner('Success');
+      })
+      .catch((err) => {
+        finalResult = JSON.parse(err.stdout);
+        this.ux.stopSpinner('Error');
+        this.ux.log(finalResult.message);
+        this.ux.log(finalResult.stack);
+      });
+
+    this.ux.startSpinner('Cleaning Up');
+    await cleanupTempDirectory();
+    this.ux.stopSpinner('Success');
+    return finalResult;
   }
 }
