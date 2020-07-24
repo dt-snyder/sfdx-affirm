@@ -1,7 +1,7 @@
 import { flags, SfdxCommand, SfdxProject } from '@salesforce/command';
 import { Messages, SfdxError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum } from '../../affirm_simple_git';
+import { gitDiffSum, createWhatToPrint, showDiffSum, checkForRepoAndRemote } from '../../affirm_simple_git';
 import * as child from 'child_process';
 import * as util from 'util';
 import { fsCopyChangesToNewDir, cleanupTempDirectory } from '../../affirm_fs_extra';
