@@ -1,6 +1,8 @@
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { SfdxError } from '@salesforce/core';
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
+
 const foldersNeedingFolder = ['aura', 'lwc'];
 const customObjectChildren = {
   fields: "CustomField",
@@ -12,23 +14,6 @@ const customObjectChildren = {
   sharingReasons: "SharingReason",
   listViews: "ListView",
   fieldSets: "FieldSet"
-};
-// TODO: move all interfaces to a common file and import where needed
-interface DiffObj {
-  changed: Set<String>;
-  insertion: Set<String>;
-  destructive: Set<String>;
-};
-interface DestructiveXMLMain {
-  package: DestructiveXMLType,
-};
-interface DestructiveXMLType {
-  types: DestructiveXMLTypeEntry[]
-  '@xmlns': string,
-};
-interface DestructiveXMLTypeEntry {
-  members: string[]
-  name: string
 };
 
 export async function fsSaveJson(fileName: string, json: object) {
@@ -88,14 +73,12 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
     const newLocation = '.releaseArtifacts/tempParcel/' + element;
     fs.copySync(element, newLocation);
   });
+  return copiedPaths.size || 0;
 }
 
-// TODO: method for creation the descructive package.xml
 // TODO: don't assume specific lengths for checking metadata type and subfolder. Pipelines adds path values
-// force-app\main\default\objects\Account\Account.object-meta.xml
-// force-app\main\default\objects\Account\fields\AAI_Website_Status__c.field-meta.xml
-// force-app\main\default\objects\Account\fieldSets\Alliance_Website.fieldSet-meta.xml
-export async function fsCreateDescructiveChangeFile(files: Set<String>, metaDataTypes: object, savePath: string, deployAfter?: boolean) {
+// TODO: break this out into smaller methods and add more error handling
+export async function fsCreateDestructiveChangeFile(files: Set<String>, metaDataTypes: object, savePath: string, deployAfter: boolean) {
   const shouldBeAfter: boolean = deployAfter || false;
   let destructiveChanges = {};
   for (const file of files.values()) {
@@ -162,8 +145,22 @@ export async function fsCreateDescructiveChangeFile(files: Set<String>, metaData
   });
   const xmlFile: DestructiveXMLMain = { package: newTypes };
   const newDestructivePackage = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
-  console.log(savePath);
-  await fs.outputFile(savePath + '/destructiveChanges.xml', newDestructivePackage.end({ prettyPrint: true, group: true }));
+  await fs.ensureDir(savePath);
+  const outputFileName: string = shouldBeAfter ? savePath + '/destructiveChangesPost.xml' : savePath + '/destructiveChangesPre.xml';
+  await fs.outputFile(outputFileName, newDestructivePackage.end({ prettyPrint: true, group: true }));
+  const packageExists = await fs.pathExists(savePath + '/package.xml');
+  if (!packageExists) {
+    // TODO: get the api version from SfdxProjectJson instead of hard coding here
+    const emptyPackageObj = {
+      package: {
+        '@xmlns': 'http://soap.sforce.com/2006/04/metadata',
+        version: '49.0'
+      }
+    };
+    const emptyPackageFile = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(emptyPackageObj));
+    await fs.outputFile(savePath + '/package.xml', emptyPackageFile.end({ prettyPrint: true, group: true }));
+  }
+  return outputFileName;
 }
 
 export async function fsCleanupTempDirectory() {

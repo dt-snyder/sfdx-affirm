@@ -30,19 +30,60 @@ OPTIONS
 
 EXAMPLES
   `$ sfdx affirm:changes
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Git Diff For: remotes/origin/master...pilot/affirm
       CHANGED: MyClass.cls,MySecondClass.cls
       INSERTION: MyTestClass.cls
       DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
   `,
   `$ sfdx affirm:changes --showdestructive
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Git Diff For: remotes/origin/master...pilot/affirm
       DESTRUCTIVE: MyOldClass.cls
   `,
   `$ sfdx affirm:changes --showinsertion
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Git Diff For: remotes/origin/master...pilot/affirm
       INSERTION: MyTestClass.cls
   `,
   `$ sfdx affirm:changes --showchanged
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Git Diff For: remotes/origin/master...pilot/affirm
       CHANGED: MyClass.cls
   `
+```
+### sfdx affirm:parcel
+Creates a package using the git diff between your current local branch and remotes/origin/master. If there are any destructive changes it will also create a destructive change package.
+
+```
+USAGE
+  $ sfdx affirm:parcel [--branch <string>, default: remotes/origin/master] [--inputdir <string>, default: force-app] [--outputdir <string>, default: ./releaseArtifacts/parcel] [--excludedestructive] [--destructiveafter] ]
+
+OPTIONS
+  -b, --branch=BranchName                                                                       String: Target Branch for Git Diff. default is remotes/origin/master
+  -n, --inputdir=nameOfRootDirectory                                                            String: Root Directory of files to include in package. default is ./force-app
+  -o, --outputdir=nameOfTargetOutputDirectory                                                   String: If provided the package folder will be saved to .releaseArtifacts/nameOfTargetOutputDirectory. Default is .releaseArtifacts/parcel
+  -e, --excludedestructive                                                                      Boolean: If provided the process will NOT create a destructive change file if there are destructive changes. destructive change file is only created is there are destructive changes.
+  -a, --destructiveafter                                                                        Boolean: If provided the destructive package name will be destructiveChangesPost.xml. Default is destructiveChangesPre.xml.
+
+EXAMPLES
+  `$ sfdx affirm:parcel
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Diff Against: remotes/origin/master...pilot/affirm... Success:
+      Changes: 5, Insertions: 93, Destructive: 7
+      Cloning Files... Success: 100 files ready for convert
+      Converting... Success
+      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Cleaning Up... Success
+    `,
+    `$ sfdx affirm:parcel -e
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Diff Against: remotes/origin/master...pilot/affirm... Success:
+      Changes: 5, Insertions: 93, Destructive: 7
+      Cloning Files... Success: 100 files ready for convert
+      Converting... Success
+      Cleaning Up... Success
+    `
 ```
 
 ## Development

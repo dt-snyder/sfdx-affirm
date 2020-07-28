@@ -1,7 +1,7 @@
 import * as child from 'child_process';
 import * as util from 'util';
 import { SfdxError } from '@salesforce/core';
-
+// import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
 const exec = util.promisify(child.exec);
 
 export async function sfdxMdapiConvert(ux: UX, outputdir: string) {

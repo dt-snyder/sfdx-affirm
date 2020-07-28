@@ -3,7 +3,8 @@
   "branchFlagDescription": "the branch other than remotes/origin/master to diff against",
   "inputdirFlagDescription": "the root directory to compare other than the force-app default",
   "outputdirFlagDescription": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
-  "includetructiveFlagDescription": "include destructive changes in the package if any",
+  "excludedestructiveFlagDescription": "exclude destructive changes in the package if any",
+  "destructiveafterFlagDescription": "included to delete components after adding or updating other components. Default is before adding or updating other components.",
   "errorNoOrgResults": "No results found for the org '%s'.",
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
   "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."
