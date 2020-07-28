@@ -1,7 +1,7 @@
 {
   "name": "affirm",
   "description": "Creates a package from git diff and validates it against a specific org.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Drew Snyder drew.snyder@hunterdouglas.com",
   "bugs": "https://bitbucket.org/hunterdouglas/sfdx-affirm/issues",
   "dependencies": {
@@ -11,7 +11,8 @@
     "@salesforce/command": "^2",
     "@salesforce/core": "^2",
     "simple-git": "^2.10.0",
-    "tslib": "^1"
+    "tslib": "^1",
+    "xmlbuilder2": "^2.2.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",

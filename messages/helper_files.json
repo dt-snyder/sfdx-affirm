@@ -2,5 +2,7 @@
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
   "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo.",
   "errorNoDefaultPath": "Your SFDX project has no default path. Please indicate a default path when using the command or update your sfdx-project.json file.",
-  "errorPathIsNotProject": "The path that you provided is not a SFDX project path. Make sure that the path is defined in your sfdx-project.json file."
+  "errorPathIsNotProject": "The path that you provided is not a SFDX project path. Make sure that the path is defined in your sfdx-project.json file.",
+  "errorMdapiCallFailed": "Was unable to retrieve metadata type.",
+  "errorMdapiFindFailed": "The type of metadata you are trying to delete is currently not supported."
 }

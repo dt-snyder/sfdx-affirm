@@ -1,11 +1,34 @@
-import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-
+import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
+const { create } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
+import { SfdxError } from '@salesforce/core';
 const foldersNeedingFolder = ['aura', 'lwc'];
-const foldersNeedingMetaXml = ['components', 'classes', 'contentassets', 'email', 'pages', 'triggers'];
+const customObjectChildren = {
+  fields: "CustomField",
+  businessProcesses: "BusinessProcess",
+  recordTypes: "RecordType",
+  compactLayouts: "CompactLayout",
+  webLinks: "WebLink",
+  validationRules: "ValidationRule",
+  sharingReasons: "SharingReason",
+  listViews: "ListView",
+  fieldSets: "FieldSet"
+};
+// TODO: move all interfaces to a common file and import where needed
 interface DiffObj {
-  changed: Array<String>;
-  insertion: Array<String>;
-  destructive: Array<String>;
+  changed: Set<String>;
+  insertion: Set<String>;
+  destructive: Set<String>;
+};
+interface DestructiveXMLMain {
+  package: DestructiveXMLType,
+};
+interface DestructiveXMLType {
+  types: DestructiveXMLTypeEntry[]
+  '@xmlns': string,
+};
+interface DestructiveXMLTypeEntry {
+  members: string[]
+  name: string
 };
 
 export async function fsSaveJson(fileName: string, json: object) {
@@ -13,39 +36,140 @@ export async function fsSaveJson(fileName: string, json: object) {
   await fs.outputJson(saveToFile, json);
 }
 
-export async function fsCopyChangesToNewDir(diff: DiffObj) {
+export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
   let fileSet = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
-    diff[key].forEach(element => {
-      fileSet.add(element);
+    diff[key].forEach(fileName => {
+      fileSet.add(fileName);
     });
   });
   let copiedPaths = new Set();
-  fileSet.forEach(element => {
-    const folder = element.replace('force-app/main/default/', '').substring(0, element.replace('force-app/main/default/', '').indexOf('/'));
-    const folderPath = element.substring(0, element.indexOf(folder)) + folder + '/';
-    // console.log('folder: ' + folder);
+  for (const file of fileSet.values()) {
+    const pathCrums = file.split('/');
+    const folder = pathCrums[3];
+    const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
+    const fileName = pathCrums[pathCrums.length - 1];
     if (foldersNeedingFolder.includes(folder)) {
-      const subfolder = element.replace(folderPath, '').substring(0, element.replace(folderPath, '').indexOf('/'));
-      const newPath = element.substring(0, element.indexOf(folder)) + folder + '/' + subfolder;
+      const newPath = file.substring(0, file.indexOf(fileName));
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
-      return;
+      continue;
     }
-    if (foldersNeedingMetaXml.includes(folder)) {
-      const metaDataPath = element + '-meta.xml';
+    if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0) {
+      const metaDataPath = file + '-meta.xml';
       if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
-      if (!copiedPaths.has(element)) copiedPaths.add(element);
-      return;
+      if (!copiedPaths.has(file)) copiedPaths.add(file);
+      continue;
     }
-    if (!copiedPaths.has(element)) copiedPaths.add(element);
-  });
+    if (!copiedPaths.has(file)) copiedPaths.add(file);
+  };
+  const checkDirs: Set<string> = new Set();
+  for (const file of diff.destructive.values()) {
+    const pathCrums = file.split('/');
+    const folder = pathCrums[3];
+    const fileName = pathCrums[pathCrums.length - 1];
+    if (pathCrums.length === 6 && foldersNeedingFolder.includes(folder)) {
+      const newPath = file.substring(0, file.indexOf(fileName));
+      if (checkDirs.has(newPath) || copiedPaths.has(newPath)) continue;
+      const folderStillExists = await fs.pathExists(newPath);
+      if (!folderStillExists) {
+        checkDirs.add(newPath);
+        continue;
+      }
+      const files = await fs.readdir(newPath);
+      console.log(files);
+      if (files.length > 0) {
+        copiedPaths.add(newPath);
+        checkDirs.has(newPath)
+      }
+    }
+  }
   copiedPaths.forEach(element => {
     const newLocation = '.releaseArtifacts/tempParcel/' + element;
     fs.copySync(element, newLocation);
   });
 }
 
-export async function cleanupTempDirectory() {
+// TODO: method for creation the descructive package.xml
+// TODO: don't assume specific lengths for checking metadata type and subfolder. Pipelines adds path values
+// force-app\main\default\objects\Account\Account.object-meta.xml
+// force-app\main\default\objects\Account\fields\AAI_Website_Status__c.field-meta.xml
+// force-app\main\default\objects\Account\fieldSets\Alliance_Website.fieldSet-meta.xml
+export async function fsCreateDescructiveChangeFile(files: Set<String>, metaDataTypes: object, savePath: string, deployAfter?: boolean) {
+  const shouldBeAfter: boolean = deployAfter || false;
+  let destructiveChanges = {};
+  for (const file of files.values()) {
+    const pathCrums = file.split('/');
+    const fileName = pathCrums[pathCrums.length - 1];
+    const folder = pathCrums[3];
+    const folderMdtInfo = metaDataTypes.metadataObjects.find(mdt => mdt.directoryName === folder);
+    if (!folderMdtInfo) throw SfdxError.create('affirm', 'helper_files', 'errorMdapiFindFailed');
+    if (fileName.indexOf('-meta.xml') >= 0 && folderMdtInfo.metaFile) continue;
+    let xmlName;
+    let newMembers;
+    if (pathCrums.length === 6 && foldersNeedingFolder.includes(folder)) {
+      // check if the folder still exists
+      const pathToBundle = file.substring(0, file.indexOf(fileName));
+      const exists = await fs.pathExists(pathToBundle);
+      // if it does and there are files in it then this is a change not destructive: return
+      if (exists) {
+        const files = await fs.readdir(pathToBundle);
+        if (files.length > 0) continue;
+      }
+      const bundleName = pathCrums[pathCrums.length - 2];
+      // add the subfolder name to types array by name
+      xmlName = folderMdtInfo.xmlName;
+      newMembers = [bundleName];
+    } else if (folder === 'objects' && pathCrums.length === 6) {
+      // get name of object
+      const objName = pathCrums[pathCrums.length - 2];
+      xmlName = folderMdtInfo.xmlName;
+      // add the object name to type array by name CustomObject
+      newMembers = [objName];
+    } else if (folder === 'objects' && pathCrums.length === 7) {
+      // get name of object
+      const objName = pathCrums[pathCrums.length - 3];
+      // get name of metaData Type using subObjFolder ie fields = CustomField
+      xmlName = customObjectChildren[pathCrums[pathCrums.length - 2]];
+      // get name of metaData combined with object name
+      const memberName = objName + '.' + fileName.substring(0, fileName.indexOf('.'));
+      // add combined name to types array by name
+      newMembers = [memberName];
+    } else {
+      //  get name of metaData
+      xmlName = folderMdtInfo.xmlName;
+      //  add file name to types array by name.
+      const memberName = fileName.substring(0, fileName.indexOf('.'));
+      newMembers = [memberName];
+    }
+
+    if (xmlName && newMembers && Object.keys(destructiveChanges).includes(xmlName)) {
+      if (destructiveChanges[xmlName].includes(newMembers[0])) continue;
+      const members = [...destructiveChanges[xmlName], ...newMembers];
+      destructiveChanges[xmlName] = members;
+    } else if (xmlName && newMembers) {
+      const members = [...newMembers];
+      destructiveChanges[xmlName] = members;
+    }
+  }
+  const newTypes: DestructiveXMLType = { types: [], '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
+  Object.keys(destructiveChanges).forEach(mdt => {
+    const entry: DestructiveXMLTypeEntry = { name: mdt, members: [] };
+    destructiveChanges[mdt].forEach(file => {
+      entry.members = [...entry.members, file];
+    });
+    newTypes.types = [...newTypes.types, entry];
+  });
+  const xmlFile: DestructiveXMLMain = { package: newTypes };
+  const newDestructivePackage = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
+  console.log(savePath);
+  await fs.outputFile(savePath + '/destructiveChanges.xml', newDestructivePackage.end({ prettyPrint: true, group: true }));
+}
+
+export async function fsCleanupTempDirectory() {
   await fs.remove('.releaseArtifacts/tempParcel/');
 }
+// TODO: create method that zips the provided folderPath and deletes the folderPath when done.
+// export async function zipPackageAndDeleteFolder(folderPath: string) {
+//   //
+// }
