@@ -2,10 +2,10 @@ import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
-import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDescructiveChangeFile } from '../../affirm_fs_extra';
+import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile } from '../../affirm_fs_extra';
 import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfpjt';
 import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx_commands';
-
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from '../../affirm_interfaces';
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
@@ -39,7 +39,8 @@ export default class Parcel extends SfdxCommand {
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
-    includetructive: flags.boolean({ char: 'd', description: messages.getMessage('includetructiveFlagDescription') })
+    excludedestructive: flags.boolean({ char: 'e', description: messages.getMessage('excludedestructiveFlagDescription') }),
+    destructiveafter: flags.boolean({ char: 'a', description: messages.getMessage('destructiveafterFlagDescription') })
   };
 
   // command requires a project workspace
@@ -63,23 +64,32 @@ export default class Parcel extends SfdxCommand {
     const currentBranch = await getCurrentBranchName();
     const beingCompared = branch + '...' + currentBranch;
     this.ux.startSpinner('Diff Against: ' + beingCompared);
-    const diffResult = await gitDiffSum(branch, inputdir);
-    this.ux.stopSpinner('Success');
+    const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
+    this.ux.stopSpinner('Success:');
+    this.ux.log('Changes: ' + diffResult.changed.size + ', Insertions: ' + diffResult.insertion.size + ', Destructive: ' + diffResult.destructive.size);
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
     await findOrCreateReleasePath(pjtJson);
     // clone the files to a temp folder for convert... will clean this up later
     this.ux.startSpinner('Cloning Files');
     const metaDataTypes = await sfdxMdapiDescribeMetadata(this.ux, true);
-    await fsCopyChangesToNewDir(diffResult, metaDataTypes);
-    this.ux.stopSpinner('Success');
+    const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes);
     // convert the temp folder to a package
-    // TODO: add support for deploying destructive changes first or last
-    this.ux.startSpinner('Converting to Package');
-    const convertResult = await sfdxMdapiConvert(this.ux, outputdir);
-    // TODO: add support for creating the destructive package.
-    if (diffResult.destructive.size > 0) {
-      await fsCreateDescructiveChangeFile(diffResult.destructive, metaDataTypes, outputdir);
+    if (fsFilesMoved > 0) {
+      this.ux.stopSpinner('Success: ' + fsFilesMoved + ' files ready for convert');
+      this.ux.startSpinner('Converting');
+      await sfdxMdapiConvert(this.ux, outputdir);
+      this.ux.stopSpinner('Success: Package Created at ' + outputdir);
+    } else {
+      this.ux.stopSpinner('Success: zero files needed to be cloned');
+    }
+    // get destructive package flags and create the destructive package if needed
+    const excludedestructive = this.flags.excludedestructive || false;
+    const destructiveAfter = this.flags.destructiveafter;
+    if (diffResult.destructive.size > 0 && excludedestructive == false) {
+      this.ux.startSpinner('Creating Destructive Package');
+      const outputFileName = await fsCreateDestructiveChangeFile(diffResult.destructive, metaDataTypes, outputdir, destructiveAfter);
+      this.ux.stopSpinner('Success: Created at ' + outputFileName);
     }
     // TODO: add support for zipping the package
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
@@ -88,6 +98,6 @@ export default class Parcel extends SfdxCommand {
     await cleanUpReleasePath(pjtJson);
     // TODO: delete the package folder if it's zipped cause we don't need two folders
     this.ux.stopSpinner('Success');
-    return convertResult;
+    return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, excludeDetructive: excludedestructive };
   }
 }

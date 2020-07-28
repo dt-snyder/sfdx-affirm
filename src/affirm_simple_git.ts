@@ -1,6 +1,6 @@
 import simpleGit, { SimpleGit, StatusResult, DiffSummary } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
-
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
 
@@ -12,19 +12,6 @@ function ignoreFile(file: string) {
   if (filesToIgnore.includes(fileNameOnly)) return true;
   return false;
 }
-// TODO: move all interfaces to a common file and import where needed
-interface DiffObj {
-  changed: Set<String>;
-  insertion: Set<String>;
-  destructive: Set<String>;
-};
-
-interface WhatToPrint {
-  changed: Boolean,
-  insertion: Boolean,
-  destructive: Boolean,
-  showAll: Boolean
-};
 
 export async function checkForRepoAndRemote() {
   const isRepo = git.checkIsRepo();
