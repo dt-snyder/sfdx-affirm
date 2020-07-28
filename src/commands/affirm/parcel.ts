@@ -17,18 +17,21 @@ export default class Parcel extends SfdxCommand {
 
   public static examples = [
     `$ sfdx affirm:parcel
-      Files being Converted to Package:
-      CHANGED: MyClass.cls,MySecondClass.cls
-      INSERTION: MyTestClass.cls
-      DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
-      Converting...Done
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Diff Against: remotes/origin/master...pilot/affirm... Success:
+      Changes: 5, Insertions: 93, Destructive: 7
+      Cloning Files... Success: 100 files ready for convert
+      Converting... Success
+      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Cleaning Up... Success
     `,
-    `$ sfdx affirm:parcel -d
-      Files being Converted to Package:
-      CHANGED: MyClass.cls,MySecondClass.cls
-      INSERTION: MyTestClass.cls
-      DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
-      Converting...Done
+    `$ sfdx affirm:parcel -e
+      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+      Diff Against: remotes/origin/master...pilot/affirm... Success:
+      Changes: 5, Insertions: 93, Destructive: 7
+      Cloning Files... Success: 100 files ready for convert
+      Converting... Success
+      Cleaning Up... Success
     `
   ];
 
