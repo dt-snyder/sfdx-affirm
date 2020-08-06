@@ -4,6 +4,7 @@ import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, createWhatToPrint, showDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
 import { fsSaveJson } from '../../affirm_fs_extra';
 import { getDefaultPath, checkProvidedPathIsProject } from '../../affirm_sfpjt';
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from '../../affirm_interfaces';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -70,7 +71,7 @@ export default class Changes extends SfdxCommand {
     const currentBranch = await getCurrentBranchName();
     const beingCompared = branch + '...' + currentBranch;
     this.ux.log('Git Diff For: ' + beingCompared);
-    const result = await gitDiffSum(branch, inputdir);
+    const result: DiffObj = await gitDiffSum(branch, inputdir);
     // print the changes
     const print = !this.flags.silent;
     if (print) {
