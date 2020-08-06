@@ -2,9 +2,9 @@ import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, createWhatToPrint, showDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
-import { fsSaveJson } from '../../affirm_fs_extra';
+import { fsSaveJson, getPrintableDiffObject } from '../../affirm_fs_extra';
 import { getDefaultPath, checkProvidedPathIsProject } from '../../affirm_sfpjt';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from '../../affirm_interfaces';
+import { DiffObj, PrintableDiffObj } from '../../affirm_interfaces';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -81,7 +81,8 @@ export default class Changes extends SfdxCommand {
     // save the changes to a json file if the user tell us to
     const saveToFile = this.flags.outfilename;
     if (saveToFile) {
-      await fsSaveJson(saveToFile, result);
+      const printableDiff: PrintableDiffObj = await getPrintableDiffObject(result);
+      await fsSaveJson(saveToFile, printableDiff);
     }
     return JSON.stringify(result);
   }
