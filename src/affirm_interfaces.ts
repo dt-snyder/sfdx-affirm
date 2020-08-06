@@ -3,6 +3,11 @@ export interface DiffObj {
   insertion: Set<String>;
   destructive: Set<String>;
 };
+export interface PrintableDiffObj {
+  changed: String[];
+  insertion: String[];
+  destructive: String[];
+};
 
 export interface DestructiveXMLMain {
   package: DestructiveXMLType,

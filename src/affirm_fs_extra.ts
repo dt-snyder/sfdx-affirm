@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { SfdxError } from '@salesforce/core';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj } from './affirm_interfaces';
 
 const foldersNeedingFolder = ['aura', 'lwc'];
 const customObjectChildren = {
@@ -16,6 +16,16 @@ const customObjectChildren = {
   fieldSets: "FieldSet"
 };
 
+export async function getPrintableDiffObject(diff: DiffObj){
+  const printableDiff: PrintableDiffObj = {
+    changed: Array.from(diff.changed),
+    insertion: Array.from(diff.insertion),
+    destructive: Array.from(diff.destructive)
+  };
+  return printableDiff;
+}
+
+// TODO: fix issue with saving changes to json
 export async function fsSaveJson(fileName: string, json: object) {
   const saveToFile = './' + fileName + '.json';
   await fs.outputJson(saveToFile, json);
