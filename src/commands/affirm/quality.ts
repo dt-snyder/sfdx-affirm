@@ -1,9 +1,11 @@
-import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError } from '@salesforce/core';
+import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
+import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
+import * as inquirer from 'inquirer'
 // import simpleGit, { SimpleGit, StatusResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
-// import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-
+import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
+import { sfdxMdapiValidatePackage } from '../../affirm_sfdx_commands';
+import { fsSaveJson } from '../../affirm_fs_extra';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -26,76 +28,130 @@ export default class Quality extends SfdxCommand {
   `
   ];
 
-  public static args = [{ name: 'file' }];
+  // public static args = [{ name: 'file' }];
 
   protected static flagsConfig = {
     // flag with a value (-n, --name=VALUE)
-    name: flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
-    branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
-    // TODO: change inputdirFlagDescription to use sfdx-project.json default instead of force-app
-    inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
-    outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
-    includetructive: flags.boolean({ char: 'd', description: messages.getMessage('includetructiveFlagDescription') }),
-    excludetests: flags.boolean({ char: 't', description: messages.getMessage('excludetestsFlagDescription') }),
-    specifictests: flags.string({ char: 'n', description: messages.getMessage('specifictestsFlagDescription') })
+    packagedirectory: flags.string({ char: 'd', description: messages.getMessage('packagedirectoryFlagDescription') }),
+    testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
+    waittime: flags.integer({ char: 'o', description: messages.getMessage('waittimeFlagDescription') }),
+    noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
   };
 
   // Comment this out if your command does not require an org username
-  protected static requiresUsername = false;
+  static supportsUsername = true;
 
   // Comment this out if your command does not support a hub org username
   protected static supportsDevhubUsername = false;
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = false;
+  protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
-    // ! everything below this is default from the creation of the plugin generator. Some of it is useful for this command but this method is still a work in progress.
-    // const name = this.flags.name || 'world';
+    const inputUsername = this.flags.targetusername;
+    let username;
+    if (!inputUsername) {
+      const project = await SfdxProject.resolve();
+      const pjtJson = await project.resolveProjectConfig();
+      const confirmUserName = '(y/n) Are you sure you want to validate against ' + pjtJson.defaultusername + '?';
+      const proceedWithDefault = await this.ux.confirm(confirmUserName);
+      if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
+      username = pjtJson.defaultusername;
+    } else {
+      username = inputUsername;
+    }
+    this.ux.log('Selected Org: ' + username);
+    const packagedirector = this.flags.packagedirector || '.releaseArtifacts/parcel';
+    const parcelExists = await fs.pathExists(packagedirector);
+    if (parcelExists) {
+      const confirmParcelDir = '(y/n) Are you sure you want to validate the package located in the "' + packagedirector + '" folder?';
+      const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
+      if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedirector + ' folder' };
+    } else {
+      const errorType = packagedirector === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
+      throw SfdxError.create('affirm', 'quality', errorType);
+    }
+    this.ux.log('Package Directory: "' + packagedirector + '"');
+    const testclasses = this.flags.testclasses;
+    let useTestClasses;
+    if (!testclasses) {
+      const confirmTestClasses = '(y/n) Are you sure you want to validate without running any tests?';
+      const proceedWithoutTests = await this.ux.confirm(confirmTestClasses);
+      if (!proceedWithoutTests) {
+        const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+        const finalTestClasses = providedTestClasses.trim().replace(/\s+/g, '');
+        useTestClasses = finalTestClasses;
+      }
+    } else {
+      useTestClasses = testclasses;
+    }
+    if (useTestClasses) {
+      this.ux.log('Validating Using Provided Classes: ' + useTestClasses);
+    } else {
+      this.ux.log('Validating without test classes!');
+    }
+    const waittime = this.flags.waittime;
+    this.ux.startSpinner('Validating Package');
+    const validationResult = await sfdxMdapiValidatePackage(username, packagedirector, testclasses, waittime, this.ux, true);
+    this.ux.stopSpinner(validationResult.status);
+    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace(':','-').replace(':','-').replace('T','_') + '_'+ validationResult.id;
+    this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
+    this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
+    this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);
+    this.ux.log('Component With Errors: ' + validationResult.numberComponentErrors);
+    if (useTestClasses) {
+      this.ux.log('Total Tests Run: ' + validationResult.numberTestsTotal);
+      this.ux.log('Successful Tests: ' + validationResult.numberTestsCompleted);
+      this.ux.log('Test Errors: ' + validationResult.numberTestErrors);
+    }
 
-    // this.org is guaranteed because requiresUsername=true, as opposed to supportsUsername
-    // const conn = this.org.getConnection();
-    // const query = 'Select Name, TrialExpirationDate from Organization';
+    const noresults = this.flags.noresults;
+    if (!noresults) {
+      const displayResults: any = await inquirer.prompt([{
+        name: 'selected',
+        message: 'Would you like to print or save the any of the validation results?',
+        type: 'list',
+        choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
+      }]);
 
-    // The type we are querying for
-    // interface Organization {
-    //   Name: string;
-    //   TrialExpirationDate: string;
-    // }
-
-    // Query the org
-    // const result = await conn.query<Organization>(query);
-
-    // Organization will always return one result, but this is an example of throwing an error
-    // The output and --json will automatically be handled for you.
-    // if (!result.records || result.records.length <= 0) {
-    //   throw new SfdxError(messages.getMessage('errorNoOrgResults', [this.org.getOrgId()]));
-    // }
-
-    // Organization always only returns one result
-    // const orgName = result.records[0].Name;
-    // const trialExpirationDate = result.records[0].TrialExpirationDate;
-
-    // let outputString = `Hello ${name}! This is org: ${orgName}`;
-    // if (trialExpirationDate) {
-    //   const date = new Date(trialExpirationDate).toDateString();
-    //   outputString = `${outputString} and I will be around until ${date}!`;
-    // }
-    // this.ux.log(outputString);
-    this.ux.log('Under construction. Check again soon.');
-
-    // this.hubOrg is NOT guaranteed because supportsHubOrgUsername=true, as opposed to requiresHubOrgUsername.
-    // if (this.hubOrg) {
-    //   const hubOrgId = this.hubOrg.getOrgId();
-    //   this.ux.log(`My hub org id is: ${hubOrgId}`);
-    // }
-
-    // if (this.flags.force && this.args.file) {
-    //   this.ux.log(`You input --force and a file: ${this.args.file}`);
-    // }
-
-    // Return an object to be displayed with --json
-    // return { orgId: this.org.getOrgId(), outputString };
-    return { whatDoIDo: 'nothing right now' };
+      if (displayResults.selected !== 'no') {
+        const columns = {
+          componentSuccesses: ['componentType', 'fullName', 'fileName', 'id'],
+          runTestResultSuccess: ['name', 'methodName', 'time'],
+          runTestResultFailure: ['name', 'methodName', 'time', 'stackTrace', 'message'],
+          componentFailures: ['componentType', 'fullName', 'fileName', 'problem', 'problemType']
+        }
+        const displayType = displayResults.selected.substring(0, displayResults.selected.indexOf(':'));
+        for (const resultType of Object.keys(validationResult.details)) {
+          if (validationResult.details[resultType].length <= 0) continue;
+          const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          let displayNext = true;
+          if (displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') {
+            displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
+          }
+          if (displayNext && displayType === 'print') {
+            if (resultType === 'runTestResult') {
+              this.ux.log('_______________________Start Test Result Successes_______________________');
+              this.ux.table(validationResult.details[resultType].successes, columns.runTestResultSuccess);
+              this.ux.log('_______________________End Test Result Successes_______________________');
+              if (validationResult.details[resultType].numFailures > 0) {
+                this.ux.log('_______________________Start Test Result Failures_______________________');
+                this.ux.table(validationResult.details[resultType].failures, columns.runTestResultFailure);
+                this.ux.log('_______________________End Test Result Failures_______________________');
+              }
+            } else {
+              this.ux.log('_______________________Start ' + printResultType + '_______________________');
+              await this.ux.table(validationResult.details[resultType], columns[resultType]);
+              this.ux.log('_______________________End ' + printResultType + '_______________________');
+            }
+          }
+          if (displayNext && displayType === 'save') {
+            const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
+            await fsSaveJson(fileName, validationResult.details[resultType]);
+          }
+        }
+      }
+    }
+    return validationResult;
   }
 }

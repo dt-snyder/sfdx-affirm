@@ -25,8 +25,6 @@ export async function sfdxMdapiConvert(ux: UX, outputdir: string) {
   return result;
 }
 
-
-// TODO: create method that calls describeMetadata and returns the json object for use in creating a destructive package
 export async function sfdxMdapiDescribeMetadata(ux?: UX, throwError?: boolean) {
   const command = 'sfdx force:mdapi:describemetadata --json';
   const willThrow: boolean = throwError || false;
@@ -44,6 +42,27 @@ export async function sfdxMdapiDescribeMetadata(ux?: UX, throwError?: boolean) {
         ux.log(result.stack);
         if (willThrow) throw SfdxError.create('affirm', 'helper_files', 'errorMdapiCallFailed');
       }
+    });
+  return result;
+}
+
+// TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
+export async function sfdxMdapiValidatePackage(targetusername: string, packageDir: string, testClasses?: string, waitTime?: number, ux?: UX, throwError?: boolean) {
+  const username = ' -u ' + targetusername;
+  const packageDirectory = ' -d ' + packageDir;
+  const tests = testClasses ? ' -l RunSpecifiedTests -r ' + testClasses : ' -l NoTestRun';
+  const timeToWait = waitTime ? ' -w ' + waitTime : ' -w 10';
+  const command = 'sfdx force:mdapi:deploy --json -c ' + username + packageDirectory + timeToWait + tests;
+  const willThrow: boolean = throwError || false;
+  let result;
+  await exec(command)
+    .then((resp) => {
+      const rawObj = JSON.parse(resp.stdout)
+      result = rawObj.result;
+    })
+    .catch((err) => {
+      const rawObj = JSON.parse(err.stdout)
+      result = rawObj.result;
     });
   return result;
 }

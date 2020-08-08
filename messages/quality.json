@@ -1,13 +1,11 @@
 {
-  "commandDescription": "Creates a package using git diff and validates it against a specific Org.",
-  "nameFlagDescription": "some description",
-  "branchFlagDescription": "the branch other than remotes/origin/master to diff against",
-  "inputdirFlagDescription": "the root directory to compare other than the force-app default",
-  "outputdirFlagDescription": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
-  "includetructiveFlagDescription": "include destructive changes in the package if any",
-  "excludetestsFlagDescription": "if true no tests will be run as part of the package validation.",
-  "specifictestsFlagDescription": "provide a comma separated list of tests that should be run as part of the package validation. if --excludetests is provided no tests will run.",
-  "errorNoOrgResults": "could not find the specified Org",
+  "commandDescription": "Validates a package against the provided org",
+  "packagedirectoryFlagDescription": "the full path to the package directory that will be validated. Default Path is .releaseArtifacts/parcel",
+  "testclassesFlagDescription": "comma separated list of tests to run. if none are provided no tests will run",
+  "waittimeFlagDescription": "allows you to indicate a custom wait time. Default is 10 min",
+  "noresultsFlagDescription": "if provided, you will not be asked if you would like to print the component details or test details after validation completes.",
+  "errorDefaultPathPackageMissing": "could not find a package at the default path. Make sure you run affirm:parcel first.",
+  "errorPackageMissing": "could not find a package at the specified path. Make sure the value provided --packagedirectory is spelled correctly or run affirm:parcel first.",
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
   "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."
 }
