@@ -46,6 +46,7 @@ export async function sfdxMdapiDescribeMetadata(ux?: UX, throwError?: boolean) {
   return result;
 }
 
+// TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
 export async function sfdxMdapiValidatePackage(targetusername: string, packageDir: string, testClasses?: string, waitTime?: number, ux?: UX, throwError?: boolean) {
   const username = ' -u ' + targetusername;
   const packageDirectory = ' -d ' + packageDir;
@@ -62,13 +63,6 @@ export async function sfdxMdapiValidatePackage(targetusername: string, packageDi
     .catch((err) => {
       const rawObj = JSON.parse(err.stdout)
       result = rawObj.result;
-      // result = JSON.parse(err.stdout);
-      // if (ux) {
-      //   ux.stopSpinner('Error');
-      //   ux.log(result.message);
-      //   ux.log(result.stack);
-      //   if (willThrow) throw SfdxError.create('affirm', 'helper_files', 'errorMdapiValidateFailed');
-      // }
     });
   return result;
 }

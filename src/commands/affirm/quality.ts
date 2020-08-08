@@ -1,11 +1,11 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 // import simpleGit, { SimpleGit, StatusResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 import { sfdxMdapiValidatePackage } from '../../affirm_sfdx_commands';
-
+import { fsSaveJson } from '../../affirm_fs_extra';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -53,7 +53,7 @@ export default class Quality extends SfdxCommand {
     if (!inputUsername) {
       const project = await SfdxProject.resolve();
       const pjtJson = await project.resolveProjectConfig();
-      const confirmUserName = 'Are you sure you want to validate against ' + pjtJson.defaultusername + ' (y/n)';
+      const confirmUserName = '(y/n) Are you sure you want to validate against ' + pjtJson.defaultusername + '?';
       const proceedWithDefault = await this.ux.confirm(confirmUserName);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
       username = pjtJson.defaultusername;
@@ -64,7 +64,7 @@ export default class Quality extends SfdxCommand {
     const packagedirector = this.flags.packagedirector || '.releaseArtifacts/parcel';
     const parcelExists = await fs.pathExists(packagedirector);
     if (parcelExists) {
-      const confirmParcelDir = 'Are you sure you want to validate the package located in the "' + packagedirector + '" folder (y/n)';
+      const confirmParcelDir = '(y/n) Are you sure you want to validate the package located in the "' + packagedirector + '" folder?';
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedirector + ' folder' };
     } else {
@@ -75,7 +75,7 @@ export default class Quality extends SfdxCommand {
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      const confirmTestClasses = 'Are you sure you want to validate without running any tests? (y/n)';
+      const confirmTestClasses = '(y/n) Are you sure you want to validate without running any tests?';
       const proceedWithoutTests = await this.ux.confirm(confirmTestClasses);
       if (!proceedWithoutTests) {
         const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
@@ -91,10 +91,11 @@ export default class Quality extends SfdxCommand {
       this.ux.log('Validating without test classes!');
     }
     const waittime = this.flags.waittime;
-    this.ux.startSpinner('Starting Validation');
+    this.ux.startSpinner('Validating Package');
     const validationResult = await sfdxMdapiValidatePackage(username, packagedirector, testclasses, waittime, this.ux, true);
     this.ux.stopSpinner(validationResult.status);
-    this.ux.log('Deployment Status Id: ' + validationResult.id);
+    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace(':','-').replace(':','-').replace('T','_') + '_'+ validationResult.id;
+    this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
     this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
     this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);
     this.ux.log('Component With Errors: ' + validationResult.numberComponentErrors);
@@ -103,25 +104,51 @@ export default class Quality extends SfdxCommand {
       this.ux.log('Successful Tests: ' + validationResult.numberTestsCompleted);
       this.ux.log('Test Errors: ' + validationResult.numberTestErrors);
     }
+
     const noresults = this.flags.noresults;
     if (!noresults) {
-      const printDetails = await this.ux.confirm('Would you like to print the component details? (y/n): ');
-      if (printDetails) {
-        // TODO: change to table
-        validationResult.details.componentSuccesses.forEach(element => {
-          this.ux.log(element);
-        });
-      }
-      const printTestResults = await this.ux.confirm('Would you like to print the test result details? (y/n): ');
-      if (printTestResults) {
-        // TODO: change to table
-        this.ux.log(validationResult.details.runTestResult);
-      }
-      if(validationResult.numberComponentErrors > 0){
-        const printErrorDetails = await this.ux.confirm('Would you like to print the component details? (y/n): ');
-        if (printErrorDetails) {
-          // TODO: make this work
-          this.ux.table(validationResult.details.componentFailures);
+      const displayResults: any = await inquirer.prompt([{
+        name: 'selected',
+        message: 'Would you like to print or save the any of the validation results?',
+        type: 'list',
+        choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
+      }]);
+
+      if (displayResults.selected !== 'no') {
+        const columns = {
+          componentSuccesses: ['componentType', 'fullName', 'fileName', 'id'],
+          runTestResultSuccess: ['name', 'methodName', 'time'],
+          runTestResultFailure: ['name', 'methodName', 'time', 'stackTrace', 'message'],
+          componentFailures: ['componentType', 'fullName', 'fileName', 'problem', 'problemType']
+        }
+        const displayType = displayResults.selected.substring(0, displayResults.selected.indexOf(':'));
+        for (const resultType of Object.keys(validationResult.details)) {
+          if (validationResult.details[resultType].length <= 0) continue;
+          const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          let displayNext = true;
+          if (displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') {
+            displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
+          }
+          if (displayNext && displayType === 'print') {
+            if (resultType === 'runTestResult') {
+              this.ux.log('_______________________Start Test Result Successes_______________________');
+              this.ux.table(validationResult.details[resultType].successes, columns.runTestResultSuccess);
+              this.ux.log('_______________________End Test Result Successes_______________________');
+              if (validationResult.details[resultType].numFailures > 0) {
+                this.ux.log('_______________________Start Test Result Failures_______________________');
+                this.ux.table(validationResult.details[resultType].failures, columns.runTestResultFailure);
+                this.ux.log('_______________________End Test Result Failures_______________________');
+              }
+            } else {
+              this.ux.log('_______________________Start ' + printResultType + '_______________________');
+              await this.ux.table(validationResult.details[resultType], columns[resultType]);
+              this.ux.log('_______________________End ' + printResultType + '_______________________');
+            }
+          }
+          if (displayNext && displayType === 'save') {
+            const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
+            await fsSaveJson(fileName, validationResult.details[resultType]);
+          }
         }
       }
     }
