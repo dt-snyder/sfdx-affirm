@@ -6,6 +6,7 @@ import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChang
 import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfpjt';
 import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx_commands';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from '../../affirm_interfaces';
+import * as inquirer from 'inquirer'
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
@@ -42,8 +43,8 @@ export default class Parcel extends SfdxCommand {
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
-    excludedestructive: flags.boolean({ char: 'e', description: messages.getMessage('excludedestructiveFlagDescription') }),
-    destructiveafter: flags.boolean({ char: 'a', description: messages.getMessage('destructiveafterFlagDescription') })
+    includedestructive: flags.boolean({ char: 'd', description: messages.getMessage('includedestructiveFlagDescription') }),
+    destructivetiming: flags.string({ char: 'a', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] })
   };
 
   // command requires a project workspace
@@ -87,12 +88,29 @@ export default class Parcel extends SfdxCommand {
       this.ux.stopSpinner('Success: zero files needed to be cloned');
     }
     // get destructive package flags and create the destructive package if needed
-    const excludedestructive = this.flags.excludedestructive || false;
-    const destructiveAfter = this.flags.destructiveafter;
-    if (diffResult.destructive.size > 0 && excludedestructive == false) {
-      this.ux.startSpinner('Creating Destructive Package');
-      const outputFileName = await fsCreateDestructiveChangeFile(diffResult.destructive, metaDataTypes, outputdir, destructiveAfter);
-      this.ux.stopSpinner('Success: Created at ' + outputFileName);
+    const includedestructive = this.flags.includedestructive;
+    let includeDestructivePrompt;
+    if (diffResult.destructive.size > 0) {
+      if (!includedestructive) {
+        const destructiveChangeMessage = 'There are ' + diffResult.destructive.size + ' destructive changes. Create destructive changes xml file?';
+        includeDestructivePrompt = await this.ux.confirm(destructiveChangeMessage);
+      }
+      if (includedestructive || includeDestructivePrompt) {
+        let destructivetiming = this.flags.destructivetiming;
+        if (!destructivetiming) {
+          let responses: any = await inquirer.prompt([{
+            name: 'destructivetiming',
+            message: 'select when the destructive changes should be deployed',
+            type: 'list',
+            choices: [{ name: 'before' }, { name: 'after' }],
+          }])
+          destructivetiming = responses.destructivetiming
+        }
+        const destructiveafter = destructivetiming === 'after';
+        this.ux.startSpinner('Creating Destructive Package');
+        const outputFileName = await fsCreateDestructiveChangeFile(diffResult.destructive, metaDataTypes, outputdir, destructiveafter);
+        this.ux.stopSpinner('Success: Created at ' + outputFileName);
+      }
     }
     // TODO: add support for zipping the package
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
@@ -101,6 +119,6 @@ export default class Parcel extends SfdxCommand {
     await cleanUpReleasePath(pjtJson);
     // TODO: delete the package folder if it's zipped cause we don't need two folders
     this.ux.stopSpinner('Success');
-    return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, excludeDetructive: excludedestructive };
+    return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, includeDestructive: includedestructive || includeDestructivePrompt };
   }
 }
