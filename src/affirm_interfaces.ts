@@ -30,4 +30,13 @@ export interface WhatToPrint {
   showAll: Boolean
 };
 
+export interface TestSuiteXMLMain {
+  ApexTestSuite: TestSuiteXMLTests,
+};
+
+export interface TestSuiteXMLTests {
+  testClassName: string[]
+  '@xmlns': string,
+};
+
 // TODO: add interface for force:mdapi:describemetadata

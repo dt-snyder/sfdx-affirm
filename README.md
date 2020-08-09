@@ -28,7 +28,7 @@ OPTIONS
   -i, --showinsertion                                                                           Boolean: If provided alone shows insertion changes only.
   -c, --showchanged                                                                             Boolean: If provided alone shows changed file names only.
   -s, --silent                                                                                  Boolean: If provided nothing is printed to the console.
-  -o, --outfilename=JsonFileName                                                                String: If provided results of git diff are saved to a json file with the specified name. 
+  -o, --outfilename=JsonFileName                                                                String: If provided results of git diff are saved to a json file with the specified name.
 
 EXAMPLES
   `$ sfdx affirm:changes
@@ -136,6 +136,37 @@ EXAMPLES
     `
 ```
 
+### sfdx affirm:suite
+
+Creates a testSuite-meta.xml file with the provided list of tests.
+
+```bash
+USAGE
+  $ sfdx affirm:suite [--tests <string>] [--name <string>, default: first 35 characters of the current branch name ] [--outputdir <string>, default: force-app/main/default/testSuites]
+
+OPTIONS
+  -t, --tests=tests                                                                 Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.
+  -n, --name=name                                                                   Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'
+  -o, --outputdir=outputdir                                                         Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites
+
+EXAMPLES
+  `$ sfdx affirm:suite
+    Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo
+    Creating Test Suite... Success
+    New Test Suite Written to: force-app/main/default/testSuites/pjname_####_name_of_branch.testSuite-meta.xml
+  `,
+  `$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo
+    (y/n) Are you sure you want to overwrite the existing test suite?: y
+    Creating Test Suite... Success
+    New Test Suite Written to: force-app/main/default/testSuites/pjname_####_name_of_branch.testSuite-meta.xml
+  `,
+  `$ sfdx affirm:suite -t testClassNameOne,TestClassNameTwo --name myCustomTestSuite
+    sfdx affirm:suite -t testClassNameOne,TestClassNameTwo
+    Creating Test Suite... Success
+    New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
+  `
+```
+
 ## Development
 
 You can run the commands from this projects directory without linking the plugin to sfdx. This is helpful for development but as this project doesn't have test files that simulate a sfdx project yet it's mostly useful for debugging small functionality before linking and trying out in a sfdx project. At some point a directory that simulates a sfdx project will need to be added to the test folder and tests will need to be created for each of the commands.
@@ -148,17 +179,21 @@ You can run the commands from this projects directory without linking the plugin
 - [SimpleGit.js](https://github.com/steveukx/git-js#readme)
 
 ### Debugging your plugin
+
 We recommend using the Visual Studio Code (VS Code) IDE for your plugin development. Included in the `.vscode` directory of this plugin is a `launch.json` config file, which allows you to attach a debugger to the node process when running your commands.
 
-To debug the `affirm:changes` command: 
+To debug the `affirm:changes` command:
+
 1. Start the inspector
-  
-If you linked your plugin to the sfdx cli, call your command with the `dev-suspend` switch: 
+
+If you linked your plugin to the sfdx cli, call your command with the `dev-suspend` switch:
+
 ```sh-session
 $ sfdx affirm:changes --dev-suspend
 ```
-  
+
 Alternatively, to call your command using the `bin/run` (`bin\run` on windows) script, set the `NODE_OPTIONS` environment variable to `--inspect-brk` when starting the debugger:
+
 ```sh-session
 $ NODE_OPTIONS=--inspect-brk bin/run affirm:changes
 ```
@@ -166,7 +201,7 @@ $ NODE_OPTIONS=--inspect-brk bin/run affirm:changes
 2. Set some breakpoints in your command code
 3. Click on the Debug icon in the Activity Bar on the side of VS Code to open up the Debug view.
 4. In the upper left hand corner of VS Code, verify that the "Attach to Remote" launch configuration has been chosen.
-5. Hit the green play button to the left of the "Attach to Remote" launch configuration window. The debugger should now be suspended on the first line of the program. 
+5. Hit the green play button to the left of the "Attach to Remote" launch configuration window. The debugger should now be suspended on the first line of the program.
 6. Hit the green play button at the top middle of VS Code (this play button will be to the right of the play button that you clicked in step #5).
-<br><img src=".images/vscodeScreenshot.png" width="480" height="278"><br>
-Congrats, you are debugging!
+   <br><img src=".images/vscodeScreenshot.png" width="480" height="278"><br>
+   Congrats, you are debugging!

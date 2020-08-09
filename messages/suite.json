@@ -1,0 +1,9 @@
+{
+  "commandDescription": "Creates a testSuite-meta.xml file with the provided list of tests.",
+  "testsFlagDescription": "Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.",
+  "nameFlagDescription": "Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'",
+  "outputdirFlagDescription": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites",
+  "errorNoTestsProvided": "You must provide a valid list of test class names in order to create a new suite. Try again.",
+  "errorNameIsToLong": "The provided file name is either too long or the branch name has a large string not separated by '-'. Please try again and provide a name shorter than 35 characters.",
+  "errorNoToFileName": "The provided Comma separated list of tests names includes '.cls'. This is not allowed."
+}
