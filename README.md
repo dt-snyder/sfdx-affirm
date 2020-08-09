@@ -61,7 +61,7 @@ Creates a package using the git diff between your current local branch and remot
 
 ```bash
 USAGE
-  $ sfdx affirm:parcel [--branch <string>, default: remotes/origin/master] [--inputdir <string>, default: force-app] [--outputdir <string>, default: ./releaseArtifacts/parcel] [--includedestructive] [--destructivetiming <string>, options: before,after] ]
+  $ sfdx affirm:parcel [--branch <string>, default: remotes/origin/master] [--inputdir <string>, default: force-app] [--outputdir <string>, default: ./releaseArtifacts/parcel] [--includedestructive] [--destructivetiming <string>, options: before,after]
 
 OPTIONS
   -b, --branch=BranchName                                                                       String: Target Branch for Git Diff. default is remotes/origin/master
@@ -99,7 +99,7 @@ Short hand version of [`sfdx force:mdapi:deploy`](https://developer.salesforce.c
 
 ```bash
 USAGE
-  $ sfdx affirm:quality [--targetusername  <string>, default: Default Org set in VS Code] [--packagedir <string>, default: .releaseArtifacts/parcel] [--testclasses <string>] [--waittime <integer>, default: 10] [--noresults] ]
+  $ sfdx affirm:quality [--targetusername  <string>, default: Default Org set in VS Code] [--packagedir <string>, default: .releaseArtifacts/parcel] [--testclasses <string>] [--waittime <integer>, default: 10] [--noresults]
 
 OPTIONS
   -u, --targetusername=TARGETUSERNAME                                                           String: A username or alias for the target org. Overrides the default target org.
