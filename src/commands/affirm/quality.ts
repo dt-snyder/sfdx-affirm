@@ -19,22 +19,40 @@ export default class Quality extends SfdxCommand {
   public static description = messages.getMessage('commandDescription');
 
   public static examples = [
-    `$ sfdx affirm:quality --targetusername myOrg@example.com --targetdevhubusername devhub@org.com
-  Hello world! This is org: MyOrg and I will be around until Tue Mar 20 2018!
-  My hub org id is: 00Dxx000000001234
+    `$ sfdx affirm:quality
+      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
+      Package Directory: ".releaseArtifacts/parcel"
+      (y/n) Are you sure you want to validate without running any tests?: y
+      Validating without test classes!
+      Validating Package... Succeeded
+      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
+      Total Components: 761
+      Component Deployed: 761
+      Component With Errors: 0
+      ? Would you like to print or save the any of the validation results? No
   `,
-    `$ sfdx affirm:quality --name myname --targetusername myOrg@example.com
-  Hello myname! This is org: MyOrg and I will be around until Tue Mar 20 2018!
-  `
+    `$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
+      Package Directory: ".releaseArtifacts/parcel"
+      Validating Using Provided Classes: MyTestClass,OtherTestClass
+      Validating Package... Succeeded
+      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
+      Total Components: 761
+      Component Deployed: 761
+      Component With Errors: 0
+    `
   ];
 
   // public static args = [{ name: 'file' }];
 
   protected static flagsConfig = {
     // flag with a value (-n, --name=VALUE)
-    packagedirectory: flags.string({ char: 'd', description: messages.getMessage('packagedirectoryFlagDescription') }),
+    packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
-    waittime: flags.integer({ char: 'o', description: messages.getMessage('waittimeFlagDescription') }),
+    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
     noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
   };
 
@@ -61,17 +79,17 @@ export default class Quality extends SfdxCommand {
       username = inputUsername;
     }
     this.ux.log('Selected Org: ' + username);
-    const packagedirector = this.flags.packagedirector || '.releaseArtifacts/parcel';
-    const parcelExists = await fs.pathExists(packagedirector);
+    const packagedir = this.flags.packagedir || '.releaseArtifacts/parcel';
+    const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists) {
-      const confirmParcelDir = '(y/n) Are you sure you want to validate the package located in the "' + packagedirector + '" folder?';
+      const confirmParcelDir = '(y/n) Are you sure you want to validate the package located in the "' + packagedir + '" folder?';
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
-      if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedirector + ' folder' };
+      if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
     } else {
-      const errorType = packagedirector === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
+      const errorType = packagedir === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('affirm', 'quality', errorType);
     }
-    this.ux.log('Package Directory: "' + packagedirector + '"');
+    this.ux.log('Package Directory: "' + packagedir + '"');
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
@@ -92,9 +110,9 @@ export default class Quality extends SfdxCommand {
     }
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
-    const validationResult = await sfdxMdapiValidatePackage(username, packagedirector, testclasses, waittime, this.ux, true);
+    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, testclasses, waittime, this.ux, true);
     this.ux.stopSpinner(validationResult.status);
-    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace(':','-').replace(':','-').replace('T','_') + '_'+ validationResult.id;
+    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace(':', '-').replace(':', '-').replace('T', '_') + '_' + validationResult.id;
     this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
     this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
     this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);

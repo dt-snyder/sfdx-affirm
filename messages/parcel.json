@@ -1,10 +1,10 @@
 {
-  "commandDescription": "creates a parcel (package) using git diff",
-  "branchFlagDescription": "the branch other than remotes/origin/master to diff against",
-  "inputdirFlagDescription": "the root directory to compare other than the force-app default",
+  "commandDescription": "Creates a parcel (package) using git diff",
+  "branchFlagDescription": "The branch other than remotes/origin/master to diff against",
+  "inputdirFlagDescription": "The root directory to compare other than the force-app default",
   "outputdirFlagDescription": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
-  "includedestructiveFlagDescription": "if provided and there are destructive changes you will not be asked if you want to include them",
-  "destructivetimingFlagDescription": "allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after",
+  "includedestructiveFlagDescription": "If provided and there are destructive changes you will not be asked if you want to include them",
+  "destructivetimingFlagDescription": "Allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after",
   "errorNoOrgResults": "No results found for the org '%s'.",
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
   "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."

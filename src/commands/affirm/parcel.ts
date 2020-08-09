@@ -5,8 +5,9 @@ import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_si
 import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile } from '../../affirm_fs_extra';
 import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfpjt';
 import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx_commands';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from '../../affirm_interfaces';
+import { DiffObj } from '../../affirm_interfaces';
 import * as inquirer from 'inquirer'
+
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
@@ -23,28 +24,31 @@ export default class Parcel extends SfdxCommand {
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
+      (y/n) There are 7 destructive changes. Create destructive changes xml file? y
+      ? Select when the destructive changes should be deployed: before
       Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `,
-    `$ sfdx affirm:parcel -e
+    `$ sfdx affirm:parcel -d -t before
       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
       Diff Against: remotes/origin/master...pilot/affirm... Success:
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
+      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `
   ];
 
-  public static args = [{ branch: 'file' }];
+  // public static args = [{ branch: 'file' }];
 
   protected static flagsConfig = {
     // flag with a value (-n, --name=VALUE)
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
-    inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
+    inputdir: flags.string({ char: 'i', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
     includedestructive: flags.boolean({ char: 'd', description: messages.getMessage('includedestructiveFlagDescription') }),
-    destructivetiming: flags.string({ char: 'a', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] })
+    destructivetiming: flags.string({ char: 't', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] })
   };
 
   // command requires a project workspace
@@ -92,7 +96,7 @@ export default class Parcel extends SfdxCommand {
     let includeDestructivePrompt;
     if (diffResult.destructive.size > 0) {
       if (!includedestructive) {
-        const destructiveChangeMessage = 'There are ' + diffResult.destructive.size + ' destructive changes. Create destructive changes xml file?';
+        const destructiveChangeMessage = '(y/n) There are ' + diffResult.destructive.size + ' destructive changes. Create destructive changes xml file?';
         includeDestructivePrompt = await this.ux.confirm(destructiveChangeMessage);
       }
       if (includedestructive || includeDestructivePrompt) {
@@ -100,7 +104,7 @@ export default class Parcel extends SfdxCommand {
         if (!destructivetiming) {
           let responses: any = await inquirer.prompt([{
             name: 'destructivetiming',
-            message: 'select when the destructive changes should be deployed',
+            message: 'Select when the destructive changes should be deployed:',
             type: 'list',
             choices: [{ name: 'before' }, { name: 'after' }],
           }])
