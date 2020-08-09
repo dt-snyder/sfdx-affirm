@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { SfdxError } from '@salesforce/core';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj } from './affirm_interfaces';
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests } from './affirm_interfaces';
 
 const foldersNeedingFolder = ['aura', 'lwc'];
 const customObjectChildren = {
@@ -181,6 +181,23 @@ export async function fsCleanProvidedOutputDir(outputDir: string) {
   if (dirExists) {
     await fs.remove(outputDir);
   }
+}
+
+export async function fsCreateNewTestSuite(tests: string, outputDir: string, fileName: string) {
+  const testArray = tests.split(',');
+  const newTests: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
+  const xmlFile: TestSuiteXMLMain = { ApexTestSuite: newTests };
+  const newTestSuite = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
+  await fs.ensureDir(outputDir);
+  const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
+  await fs.outputFile(outputFileName, newTestSuite.end({ prettyPrint: true, group: true }));
+  return outputFileName;
+}
+
+export async function fsCheckForExistingSuite(outputDir: string, fileName: string) {
+  const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
+  const folderStillExists = await fs.pathExists(outputFileName);
+  return folderStillExists;
 }
 
 // TODO: create method that zips the provided folderPath and deletes the folderPath when done.
