@@ -1,21 +1,23 @@
 # sfdx-affirm
-================
 
 Commands for creating a package from git diff and validating it against a specific org.
 
-### Install for use in sfdx project
+## Install for use in sfdx project
+
 1. clone repo to your local and cd into repo directory
-2. run `yarn`
+2. run `yarn` or `npm install`
 3. run `sfdx plugins:link`
 4. navigate to salesforce project and run `sfdx affirm --help`
 
 ## Commands
+
 List of working commands
 
 ### sfdx affirm:changes
+
 print the git diff between your last commit and a specific remote branch (default remote branch: remotes/origin/master)
 
-```
+```bash
 USAGE
   $ sfdx affirm:changes [--branch <string>, default: remotes/origin/master] [--inputdir <string>, default: force-app] [--showdestructive] [--showinsertion] [--showchanged] [--silent] [--outfilename <string>]
 
@@ -52,19 +54,21 @@ EXAMPLES
       CHANGED: MyClass.cls
   `
 ```
+
 ### sfdx affirm:parcel
+
 Creates a package using the git diff between your current local branch and remotes/origin/master. If there are any destructive changes it will also create a destructive change package.
 
-```
+```bash
 USAGE
-  $ sfdx affirm:parcel [--branch <string>, default: remotes/origin/master] [--inputdir <string>, default: force-app] [--outputdir <string>, default: ./releaseArtifacts/parcel] [--excludedestructive] [--destructiveafter] ]
+  $ sfdx affirm:parcel [--branch <string>, default: remotes/origin/master] [--inputdir <string>, default: force-app] [--outputdir <string>, default: ./releaseArtifacts/parcel] [--includedestructive] [--destructivetiming <string>, options: before,after] ]
 
 OPTIONS
   -b, --branch=BranchName                                                                       String: Target Branch for Git Diff. default is remotes/origin/master
-  -n, --inputdir=nameOfRootDirectory                                                            String: Root Directory of files to include in package. default is ./force-app
+  -i, --inputdir=nameOfRootDirectory                                                            String: Root Directory of files to include in package. default is ./force-app
   -o, --outputdir=nameOfTargetOutputDirectory                                                   String: If provided the package folder will be saved to .releaseArtifacts/nameOfTargetOutputDirectory. Default is .releaseArtifacts/parcel
-  -e, --excludedestructive                                                                      Boolean: If provided the process will NOT create a destructive change file if there are destructive changes. destructive change file is only created is there are destructive changes.
-  -a, --destructiveafter                                                                        Boolean: If provided the destructive package name will be destructiveChangesPost.xml. Default is destructiveChangesPre.xml.
+  -d, --includedestructive                                                                      Boolean: If provided and there are destructive changes you will be included and you will not be asked if you want to include them.
+  -t, --destructivetiming=timingOptions                                                         String: Allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after
 
 EXAMPLES
   `$ sfdx affirm:parcel
@@ -73,23 +77,71 @@ EXAMPLES
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
+      (y/n) There are 7 destructive changes. Create destructive changes xml file? y
+      ? Select when the destructive changes should be deployed: before
       Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `,
-    `$ sfdx affirm:parcel -e
+    `$ sfdx affirm:parcel -d -t before
       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
       Diff Against: remotes/origin/master...pilot/affirm... Success:
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
+      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `
 ```
 
+### sfdx affirm:quality
+
+Short hand version of [`sfdx force:mdapi:deploy`](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_force_mdapi.htm#cli_reference_deploy). This command sets flags for the `mdapi:deploy` command and prompts the users to confirm params to make validating a package easier and less error prone. This command can not be used to deploy a package as there is no way for the user to take the `-c` flag out of the `mdapi:deploy` command.
+
+```bash
+USAGE
+  $ sfdx affirm:quality [--targetusername  <string>, default: Default Org set in VS Code] [--packagedir <string>, default: .releaseArtifacts/parcel] [--testclasses <string>] [--waittime <integer>, default: 10] [--noresults] ]
+
+OPTIONS
+  -u, --targetusername=TARGETUSERNAME                                                           String: A username or alias for the target org. Overrides the default target org.
+  -d, --packagedir=pathToPackageDir                                                             String: The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: .releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.
+  -t, --testclasses=list,of,testclasses                                                         String: Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.
+  -w, --waittime                                                                                Integer: The number of minutes to wait for the command to complete. The default is 10.
+  -r, --noresults                                                                               Boolean: If provided, you will not be asked if you would like to print or save the component details or test details after validation completes.
+
+EXAMPLES
+  `$ sfdx affirm:quality
+      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
+      Package Directory: ".releaseArtifacts/parcel"
+      (y/n) Are you sure you want to validate without running any tests?: y
+      Validating without test classes!
+      Validating Package... Succeeded
+      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
+      Total Components: 761
+      Component Deployed: 761
+      Component With Errors: 0
+      ? Would you like to print or save the any of the validation results? No
+  `,
+    `$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
+      Package Directory: ".releaseArtifacts/parcel"
+      Validating Using Provided Classes: MyTestClass,OtherTestClass
+      Validating Package... Succeeded
+      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
+      Total Components: 761
+      Component Deployed: 761
+      Component With Errors: 0
+    `
+```
+
 ## Development
+
 You can run the commands from this projects directory without linking the plugin to sfdx. This is helpful for development but as this project doesn't have test files that simulate a sfdx project yet it's mostly useful for debugging small functionality before linking and trying out in a sfdx project. At some point a directory that simulates a sfdx project will need to be added to the test folder and tests will need to be created for each of the commands.
 
 ### Helpful Links
+
 - [Create Your First Salesforce CLI Plugin](https://developer.salesforce.com/blogs/2018/05/create-your-first-salesforce-cli-plugin.html)
 - [Plugin Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_plugins.meta/sfdx_cli_plugins/cli_plugins.htm)
 - [salesforce/core](https://forcedotcom.github.io/sfdx-core/globals.html)
