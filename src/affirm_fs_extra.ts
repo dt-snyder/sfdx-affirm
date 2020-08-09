@@ -16,7 +16,7 @@ const customObjectChildren = {
   fieldSets: "FieldSet"
 };
 
-export async function getPrintableDiffObject(diff: DiffObj){
+export async function getPrintableDiffObject(diff: DiffObj) {
   const printableDiff: PrintableDiffObj = {
     changed: Array.from(diff.changed),
     insertion: Array.from(diff.insertion),
@@ -25,7 +25,6 @@ export async function getPrintableDiffObject(diff: DiffObj){
   return printableDiff;
 }
 
-// TODO: fix issue with saving changes to json
 export async function fsSaveJson(fileName: string, json: object) {
   const saveToFile = './' + fileName + '.json';
   await fs.outputJson(saveToFile, json);
@@ -176,6 +175,14 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
 export async function fsCleanupTempDirectory() {
   await fs.remove('.releaseArtifacts/tempParcel/');
 }
+
+export async function fsCleanProvidedOutputDir(outputDir: string) {
+  const dirExists = await fs.pathExists(outputDir);
+  if (dirExists) {
+    await fs.remove(outputDir);
+  }
+}
+
 // TODO: create method that zips the provided folderPath and deletes the folderPath when done.
 // export async function zipPackageAndDeleteFolder(folderPath: string) {
 //   //

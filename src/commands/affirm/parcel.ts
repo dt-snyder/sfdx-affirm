@@ -2,7 +2,7 @@ import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
-import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile } from '../../affirm_fs_extra';
+import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm_fs_extra';
 import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfpjt';
 import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx_commands';
 import { DiffObj } from '../../affirm_interfaces';
@@ -66,7 +66,7 @@ export default class Parcel extends SfdxCommand {
     const defaultPath = await getDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
     await checkProvidedPathIsProject(pjtJson, inputdir);
-    // use the users provided dir name or the default of parcel for saving the package
+    // use the users provided dir name or the default of parcel for saving the package.
     const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
     // tell user what we are going to run git diff on and do it
     const currentBranch = await getCurrentBranchName();
@@ -75,11 +75,13 @@ export default class Parcel extends SfdxCommand {
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
     this.ux.stopSpinner('Success:');
     this.ux.log('Changes: ' + diffResult.changed.size + ', Insertions: ' + diffResult.insertion.size + ', Destructive: ' + diffResult.destructive.size);
+    this.ux.startSpinner('Cloning Files');
+    // ensure that the users provided dir name doesn't contain an existing files. We don't want any left over metadata from previous converts
+    await fsCleanProvidedOutputDir(outputdir);
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
     await findOrCreateReleasePath(pjtJson);
     // clone the files to a temp folder for convert... will clean this up later
-    this.ux.startSpinner('Cloning Files');
     const metaDataTypes = await sfdxMdapiDescribeMetadata(this.ux, true);
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes);
     // convert the temp folder to a package
