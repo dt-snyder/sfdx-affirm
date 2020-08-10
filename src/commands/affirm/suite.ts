@@ -3,7 +3,8 @@ import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/c
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite } from '../../affirm_fs';
-import { getDefaultPath } from '../../affirm_sfcore';
+import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
+import { liftShortBranchName, liftCleanProvidedTests } from '../../affirm_lift';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -46,29 +47,6 @@ export default class Suite extends SfdxCommand {
   public async run(): Promise<AnyJson> {
     // get the values of flags set by the user
     const tests = this.flags.tests;
-    // get the current branch name and set it as the file name if the user did not provide one
-    const currentBranch = await getCurrentBranchName();
-    const defaultFileName = currentBranch.substring(currentBranch.indexOf('/'), currentBranch.length).split('-');
-    let shortFileName;
-    let charCount = 0;
-    defaultFileName.forEach(element => {
-      charCount = charCount + element.length;
-      if (charCount > 25) return;
-      if (shortFileName) {
-        shortFileName = shortFileName + '_' + element;
-      } else {
-        shortFileName = element;
-      }
-    });
-    const name = this.flags.name || shortFileName;
-    if (name.length > 35) {
-      throw SfdxError.create('affirm', 'suite', 'errorNameIsToLong');
-    }
-    // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const project = await SfdxProject.resolve();
-    const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
-    const defaultPath = await getDefaultPath(pjtJson);
-    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites';
     // if the user did not provide the --tests flag then ask them to provide a list of tests
     let useTests;
     if (!tests) {
@@ -80,10 +58,21 @@ export default class Suite extends SfdxCommand {
       useTests = tests;
     }
     // clear the value provided by the user; remove white space and .cls
-    const cleanTests = useTests.trim().replace(/\s+/g, '');
-    if (cleanTests.includes('.cls')) {
-      throw SfdxError.create('affirm', 'suite', 'errorNoToFileName');
+    const cleanTests = await liftCleanProvidedTests(useTests);
+    // get the current branch name and set it as the file name if the user did not provide one
+    const currentBranch = await getCurrentBranchName();
+    const defaultFileName = await liftShortBranchName(currentBranch, 25);
+
+    const name = this.flags.name || defaultFileName;
+    if (name.length > 35) {
+      throw SfdxError.create('affirm', 'suite', 'errorNameIsToLong');
     }
+    // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
+    const project = await SfdxProject.resolve();
+    const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+    const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites';
+
     const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
     if (hasExistingSuite) {
       const confirmOverwrite = await this.ux.confirm('(y/n) Are you sure you want to overwrite the existing test suite?');
