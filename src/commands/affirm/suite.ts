@@ -1,9 +1,9 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { getCurrentBranchName } from '../../affirm_simple_git';
-import { fsCreateNewTestSuite, fsCheckForExistingSuite } from '../../affirm_fs_extra';
-import { getDefaultPath } from '../../affirm_sfpjt';
+import { getCurrentBranchName } from '../../affirm_git';
+import { fsCreateNewTestSuite, fsCheckForExistingSuite } from '../../affirm_fs';
+import { getDefaultPath } from '../../affirm_sfcore';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);

@@ -1,10 +1,10 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
-import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm_fs_extra';
-import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfpjt';
-import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx_commands';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
+import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm_fs';
+import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfcore';
+import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx';
 import { DiffObj } from '../../affirm_interfaces';
 import * as inquirer from 'inquirer'
 

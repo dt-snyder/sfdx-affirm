@@ -1,11 +1,11 @@
-import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { flags, SfdxCommand } from '@salesforce/command';
+import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 // import simpleGit, { SimpleGit, StatusResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-import { sfdxMdapiValidatePackage } from '../../affirm_sfdx_commands';
-import { fsSaveJson } from '../../affirm_fs_extra';
+import { sfdxMdapiValidatePackage } from '../../affirm_sfdx';
+import { fsSaveJson } from '../../affirm_fs';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
