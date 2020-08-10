@@ -1,9 +1,9 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
-import { fsSaveJson, getPrintableDiffObject } from '../../affirm_fs_extra';
-import { getDefaultPath, checkProvidedPathIsProject } from '../../affirm_sfpjt';
+import { gitDiffSum, createWhatToPrint, showDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
+import { fsSaveJson, getPrintableDiffObject } from '../../affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../affirm_sfcore';
 import { DiffObj, PrintableDiffObj } from '../../affirm_interfaces';
 
 // Initialize Messages with the current plugin directory
@@ -63,9 +63,9 @@ export default class Changes extends SfdxCommand {
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const project = await SfdxProject.resolve();
     const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
-    const defaultPath = await getDefaultPath(pjtJson);
+    const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
-    await checkProvidedPathIsProject(pjtJson, inputdir);
+    await sfcoreIsPathProject(pjtJson, inputdir);
     // compare the current branch to the provided or default branch
     const branch = this.flags.branch || 'remotes/origin/master';
     const currentBranch = await getCurrentBranchName();

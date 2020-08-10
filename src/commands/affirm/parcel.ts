@@ -1,10 +1,10 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_simple_git';
-import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm_fs_extra';
-import { getDefaultPath, checkProvidedPathIsProject, findOrCreateReleasePath, cleanUpReleasePath } from '../../affirm_sfpjt';
-import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx_commands';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
+import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../affirm_sfcore';
+import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx';
 import { DiffObj } from '../../affirm_interfaces';
 import * as inquirer from 'inquirer'
 
@@ -63,9 +63,9 @@ export default class Parcel extends SfdxCommand {
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const project = await SfdxProject.resolve();
     const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
-    const defaultPath = await getDefaultPath(pjtJson);
+    const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
-    await checkProvidedPathIsProject(pjtJson, inputdir);
+    await sfcoreIsPathProject(pjtJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
     const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
     // tell user what we are going to run git diff on and do it
@@ -80,7 +80,7 @@ export default class Parcel extends SfdxCommand {
     await fsCleanProvidedOutputDir(outputdir);
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
-    await findOrCreateReleasePath(pjtJson);
+    await sfcoreFindOrAddReleasePath(pjtJson);
     // clone the files to a temp folder for convert... will clean this up later
     const metaDataTypes = await sfdxMdapiDescribeMetadata(this.ux, true);
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes);
@@ -122,7 +122,7 @@ export default class Parcel extends SfdxCommand {
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
     this.ux.startSpinner('Cleaning Up');
     await fsCleanupTempDirectory();
-    await cleanUpReleasePath(pjtJson);
+    await sfcoreRemoveReleasePath(pjtJson);
     // TODO: delete the package folder if it's zipped cause we don't need two folders
     this.ux.stopSpinner('Success');
     return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, includeDestructive: includedestructive || includeDestructivePrompt };

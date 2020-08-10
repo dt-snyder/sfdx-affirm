@@ -1,7 +1,7 @@
-
+// Use this file to store all @salesforce/core helper methods
 import { SfdxProjectJson, SfdxError } from '@salesforce/core';
 
-export async function getDefaultPath(projectJson: SfdxProjectJson) {
+export async function sfcoreGetDefaultPath(projectJson: SfdxProjectJson) {
   const dirs = await projectJson.getPackageDirectories();
   let defaultPath;
   dirs.forEach(element => {
@@ -11,7 +11,7 @@ export async function getDefaultPath(projectJson: SfdxProjectJson) {
   throw SfdxError.create('affirm', 'helper_files', 'errorNoDefaultPath');
 }
 
-export async function checkProvidedPathIsProject(projectJson: SfdxProjectJson, providedPath: string) {
+export async function sfcoreIsPathProject(projectJson: SfdxProjectJson, providedPath: string) {
   const dirs = await projectJson.getPackageDirectories();
   let foundPath: boolean = false;
   dirs.forEach(element => {
@@ -21,7 +21,7 @@ export async function checkProvidedPathIsProject(projectJson: SfdxProjectJson, p
   throw SfdxError.create('affirm', 'helper_files', 'errorPathIsNotProject');
 }
 
-export async function findOrCreateReleasePath(projectJson: SfdxProjectJson) {
+export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson) {
   const dirs = await projectJson.getPackageDirectories();
   let foundTempdir: Boolean = false;
   dirs.forEach(element => {
@@ -36,7 +36,7 @@ export async function findOrCreateReleasePath(projectJson: SfdxProjectJson) {
   await projectJson.write();
 }
 
-export async function cleanUpReleasePath(projectJson: SfdxProjectJson) {
+export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson) {
   const newConfig = projectJson.getContents();
   let newPaths = [];
   newConfig.packageDirectories.forEach(element => {

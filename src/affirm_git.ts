@@ -1,5 +1,7 @@
+// Use this file to store all simple-git helper methods
 import simpleGit, { SimpleGit, StatusResult, DiffSummary } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
+import { UX } from '@salesforce/command';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
