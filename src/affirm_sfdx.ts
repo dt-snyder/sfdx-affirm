@@ -1,3 +1,4 @@
+// Use this file to store all SFDX commands that are run using util.promisify(child.exec)
 import * as child from 'child_process';
 import * as util from 'util';
 import { SfdxError } from '@salesforce/core';
@@ -5,7 +6,6 @@ import { SfdxError } from '@salesforce/core';
 const exec = util.promisify(child.exec);
 
 export async function sfdxMdapiConvert(ux: UX, outputdir: string) {
-  // TODO: add support for deploying destructive changes first or last
   const command_source = ' -r .releaseArtifacts/tempParcel/force-app';
   const command_outputDir = ' -d ' + outputdir;
   const command = 'sfdx force:source:convert --json --loglevel error' + command_outputDir + command_source;

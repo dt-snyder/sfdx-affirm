@@ -1,4 +1,4 @@
-
+// Use this file to store all @salesforce/core helper methods
 import { SfdxProjectJson, SfdxError } from '@salesforce/core';
 
 export async function getDefaultPath(projectJson: SfdxProjectJson) {

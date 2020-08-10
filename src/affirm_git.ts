@@ -1,3 +1,4 @@
+// Use this file to store all simple-git helper methods
 import simpleGit, { SimpleGit, StatusResult, DiffSummary } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';

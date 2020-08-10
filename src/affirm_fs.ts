@@ -1,3 +1,4 @@
+// Use this file to store all fs-extra helper methods
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { SfdxError } from '@salesforce/core';

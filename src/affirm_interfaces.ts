@@ -1,3 +1,4 @@
+// Use this file to store all custom interfaces
 export interface DiffObj {
   changed: Set<String>;
   insertion: Set<String>;
