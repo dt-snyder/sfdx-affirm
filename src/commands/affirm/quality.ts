@@ -4,6 +4,7 @@ import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 import { sfdxMdapiValidatePackage } from '../../affirm_sfdx';
+import { liftCleanProvidedTests } from '../../affirm_lift';
 import { fsSaveJson } from '../../affirm_fs';
 
 // Initialize Messages with the current plugin directory
@@ -58,13 +59,11 @@ export default class Quality extends SfdxCommand {
   // Comment this out if your command does not require an org username
   static supportsUsername = true;
 
-  // Comment this out if your command does not support a hub org username
-  protected static supportsDevhubUsername = false;
-
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
     const inputUsername = this.flags.targetusername;
     let username;
     if (!inputUsername) {
@@ -78,6 +77,7 @@ export default class Quality extends SfdxCommand {
       username = inputUsername;
     }
     this.ux.log('Selected Org: ' + username);
+    // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
     const packagedir = this.flags.packagedir || '.releaseArtifacts/parcel';
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists) {
@@ -89,29 +89,26 @@ export default class Quality extends SfdxCommand {
       throw SfdxError.create('affirm', 'quality', errorType);
     }
     this.ux.log('Package Directory: "' + packagedir + '"');
+    // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      const confirmTestClasses = '(y/n) Are you sure you want to validate without running any tests?';
-      const proceedWithoutTests = await this.ux.confirm(confirmTestClasses);
+      const proceedWithoutTests = await this.ux.confirm('(y/n) Are you sure you want to validate without running any tests?');
       if (!proceedWithoutTests) {
         const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
-        const finalTestClasses = providedTestClasses.trim().replace(/\s+/g, '');
-        useTestClasses = finalTestClasses;
+        useTestClasses = await liftCleanProvidedTests(providedTestClasses);
       }
     } else {
-      useTestClasses = testclasses;
+      useTestClasses = await liftCleanProvidedTests(testclasses);
     }
-    if (useTestClasses) {
-      this.ux.log('Validating Using Provided Classes: ' + useTestClasses);
-    } else {
-      this.ux.log('Validating without test classes!');
-    }
+    const testClassLog = useTestClasses ? 'Validating Using Provided Classes: ' + useTestClasses : 'Validating without test classes!';
+    this.ux.log(testClassLog);
+    // start the validation of the package
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
     const validationResult = await sfdxMdapiValidatePackage(username, packagedir, testclasses, waittime, this.ux, true);
     this.ux.stopSpinner(validationResult.status);
-    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace(':', '-').replace(':', '-').replace('T', '_') + '_' + validationResult.id;
+    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split('-').join('_') + '_' + validationResult.id;
     this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
     this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
     this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);
