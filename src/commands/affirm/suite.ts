@@ -75,6 +75,7 @@ export default class Suite extends SfdxCommand {
 
     const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
     if (hasExistingSuite) {
+      this.ux.log('Found existing suite at ' + hasExistingSuite);
       const confirmOverwrite = await this.ux.confirm('(y/n) Are you sure you want to overwrite the existing test suite?');
       if (!confirmOverwrite) {
         this.ux.log('Exit Command');

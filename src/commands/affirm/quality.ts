@@ -90,6 +90,7 @@ export default class Quality extends SfdxCommand {
     }
     this.ux.log('Package Directory: "' + packagedir + '"');
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
+    // TODO: add logic to get tests from the current branch suite like in affirm:tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
