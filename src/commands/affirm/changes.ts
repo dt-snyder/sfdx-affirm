@@ -72,16 +72,16 @@ export default class Changes extends SfdxCommand {
     const beingCompared = branch + '...' + currentBranch;
     this.ux.log('Git Diff For: ' + beingCompared);
     const result: DiffObj = await gitDiffSum(branch, inputdir);
+    const printableDiff: PrintableDiffObj = await getPrintableDiffObject(result);
     // print the changes
     const print = !this.flags.silent;
     if (print) {
       const whatToPrint = await createWhatToPrint(this.flags.showchanged, this.flags.showinsertion, this.flags.showdestructive);
-      await showDiffSum(this.ux, result, whatToPrint);
+      await showDiffSum(this.ux, printableDiff, whatToPrint);
     }
     // save the changes to a json file if the user tell us to
     const saveToFile = this.flags.outfilename;
     if (saveToFile) {
-      const printableDiff: PrintableDiffObj = await getPrintableDiffObject(result);
       await fsSaveJson(saveToFile, printableDiff);
     }
     return JSON.stringify(result);

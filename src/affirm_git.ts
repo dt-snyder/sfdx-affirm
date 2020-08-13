@@ -2,10 +2,11 @@
 import simpleGit, { SimpleGit, StatusResult, DiffSummary } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
 import { UX } from '@salesforce/command';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
+// import chalk, { Chalk } from 'chalk';
+import { DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
-
+const chalk = require('chalk');
 const filesToIgnore = ['**/jsconfig.json', '**/.eslintrc.json'];
 
 function ignoreFile(file: string) {
@@ -75,12 +76,16 @@ export async function gitDiffSum(branch: string, inputdir: string) {
 }
 
 
-export async function showDiffSum(ux: UX, diff: DiffObj, whatToPrint: WhatToPrint) {
+export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: WhatToPrint) {
   Object.keys(diff).forEach(key => {
+    const colorKey = (key === 'changed') ? chalk.blue(key) : (key === 'insertion') ? chalk.green(key) : chalk.red(key);
     if (diff[key].length === 0 && (whatToPrint[key] || whatToPrint.showAll)) {
-      ux.log(key.toUpperCase() + ': None Found')
+      ux.log(colorKey + ': None Found')
     } else if (whatToPrint[key] || whatToPrint.showAll) {
-      ux.log(key.toUpperCase() + ': ' + [...diff[key]].join(' '));
+      ux.log(colorKey + ': ');
+      diff[key].forEach(file => {
+        ux.log(file);
+      });
     }
   });
 }
