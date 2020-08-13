@@ -75,7 +75,7 @@ export default class Tests extends SfdxCommand {
           return { result: 'User ended Command' };
         }
       } else {
-        this.ux.log('Found Test Suite for Current Branch: ' + suiteExists.substring(suiteExists.indexOf('t/')+2, suiteExists.length));
+        this.ux.log('Found Test Suite for Current Branch: ' + suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length));
         // if a test suite exists then parse the tests out
         testsToUse = await fsGetTestsFromSuiteXml(suiteExists);
       }
@@ -84,9 +84,9 @@ export default class Tests extends SfdxCommand {
     }
     const numberOfTests = testsToUse.split(',').length;
     this.ux.log('Count of Test Classes: ' + numberOfTests);
-    if(numberOfTests > 10) {
-      const youSure = await this.ux.confirm('(y/n) You are about to run all the test methods in all ' + numberOfTests + ' test classes?' );
-      if(!youSure) return { result: 'User ended Command' };
+    if (numberOfTests > 10) {
+      const youSure = await this.ux.confirm('(y/n) You are about to run all the test methods in all ' + numberOfTests + ' test classes?');
+      if (!youSure) return { result: 'User ended Command' };
     } else {
       this.ux.log('Test Classes: ' + testsToUse);
     }
@@ -95,10 +95,32 @@ export default class Tests extends SfdxCommand {
     this.ux.startSpinner('Running Tests');
     const testResults = await sfdxTestRun(username, testsToUse, waittime);
     this.ux.stopSpinner('Done');
-    console.log(testResults);
-    // TODO: print summary results
-    // TODO: prompt user if they would like more details on the test results
+    // this.ux.logJson(testResults.tests);
 
+    this.ux.log('Outcome: ' + testResults.summary.outcome);
+    this.ux.log('Tests Ran: ' + testResults.summary.testsRan);
+    this.ux.log('Passing: ' + testResults.summary.passing);
+    this.ux.log('Failing: ' + testResults.summary.failing);
+    this.ux.log('Skipped: ' + testResults.summary.skipped);
+    this.ux.log('PassRate: ' + testResults.summary.passRate);
+    this.ux.log('FailRate: ' + testResults.summary.failRate);
+    this.ux.log('Test Total Time: ' + testResults.summary.testTotalTime);
+
+    const printMore = await this.ux.confirm('(y/n) Would you like to print the results of each test?');
+    if (printMore) {
+      const whatToPrint = {
+        columns: [
+          { key: 'FullName', label: 'Name' },
+          { key: 'Outcome', label: 'Outcome' },
+          { key: 'RunTime', label: ' Run Time (ms)' },
+          { key: 'StackTrace', label: 'Stack Trace' },
+          { key: 'Message', label: 'Message' }
+        ]
+      };
+      this.ux.log('_______________________Start Test Results_______________________');
+      this.ux.table(testResults.tests, whatToPrint);
+      this.ux.log('_______________________End Test Results_______________________');
+    }
     return testResults;
     // return { result: 'done'}
   }
