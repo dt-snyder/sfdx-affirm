@@ -108,97 +108,107 @@ export default class Quality extends SfdxCommand {
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
     const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux, true);
-    this.ux.stopSpinner(validationResult.status);
-    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split('-').join('_') + '_' + validationResult.id;
-    this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
-    this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
-    this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);
-    this.ux.log('Component With Errors: ' + validationResult.numberComponentErrors);
-    if (useTestClasses) {
-      this.ux.log('Total Tests Run: ' + validationResult.numberTestsTotal);
-      this.ux.log('Successful Tests: ' + validationResult.numberTestsCompleted);
-      this.ux.log('Test Errors: ' + validationResult.numberTestErrors);
-    }
+    const validationStatus = (validationResult.status == 1) ? 'Error' : validationResult.status;
+    this.ux.stopSpinner(validationStatus);
+    if (validationStatus !== 'Error') {
+      const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split('-').join('_') + '_' + validationResult.id;
+      this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
+      this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
+      this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);
+      this.ux.log('Component With Errors: ' + validationResult.numberComponentErrors);
+      if (useTestClasses) {
+        this.ux.log('Total Tests Run: ' + validationResult.numberTestsTotal);
+        this.ux.log('Successful Tests: ' + validationResult.numberTestsCompleted);
+        this.ux.log('Test Errors: ' + validationResult.numberTestErrors);
+      }
 
-    const noresults = this.flags.noresults;
-    if (!noresults) {
-      const displayResults: any = await inquirer.prompt([{
-        name: 'selected',
-        message: 'Would you like to print or save the any of the validation results?',
-        type: 'list',
-        choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
-      }]);
+      const noresults = this.flags.noresults;
+      if (!noresults) {
+        const displayResults: any = await inquirer.prompt([{
+          name: 'selected',
+          message: 'Would you like to print or save the any of the validation results?',
+          type: 'list',
+          choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
+        }]);
 
-      if (displayResults.selected !== 'no') {
-        const columns = {
-          componentSuccesses: {
-            columns: [
-              { key: 'componentType', label: 'Type' },
-              { key: 'fullName', label: 'Name' },
-              { key: 'fileName', label: 'File' },
-              { key: 'id', label: 'Id' }
-            ]
-          },
-          runTestResultSuccess: {
-            columns: [
-              { key: 'name', label: 'Class' },
-              { key: 'methodName', label: 'Method' },
-              { key: 'time', label: 'Run Time (ms)' }
-            ]
-          },
-          runTestResultFailure: {
-            columns: [
-              { key: 'name', label: 'Class' },
-              { key: 'methodName', label: 'Method' },
-              { key: 'time', label: 'Run Time (ms)' },
-              { key: 'stackTrace', label: 'Stack Trace' },
-              { key: 'message', label: 'Message' }
-            ]
-          },
-          componentFailures: {
-            columns: [
-              { key: 'componentType', label: 'Type' },
-              { key: 'fullName', label: 'Name' },
-              { key: 'fileName', label: 'File' },
-              { key: 'problem', label: 'Problem' },
-              { key: 'problemType', label: 'Problem Type' }
-            ]
-          }
-        }
-        const displayType = displayResults.selected.substring(0, displayResults.selected.indexOf(':'));
-        for (const resultType of Object.keys(validationResult.details)) {
-          if (validationResult.details[resultType].length <= 0) continue;
-          const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-          let displayNext = false;
-          if ((displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') && validationResult.details[resultType] && resultType !== 'runTestResult') {
-            displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
-          }
-          if (useTestClasses && (displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') && resultType === 'runTestResult') {
-            displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
-          }
-          if (displayNext && displayType === 'print') {
-            if (resultType === 'runTestResult') {
-              if (validationResult.details[resultType].successes > 0) {
-                this.ux.log('_______________________Start Test Result Successes_______________________');
-                this.ux.table(validationResult.details[resultType].successes, columns.runTestResultSuccess);
-                this.ux.log('_______________________End Test Result Successes_______________________');
-              }
-              if (validationResult.details[resultType].numFailures > 0) {
-                this.ux.log('_______________________Start Test Result Failures_______________________');
-                this.ux.table(validationResult.details[resultType].failures, columns.runTestResultFailure);
-                this.ux.log('_______________________End Test Result Failures_______________________');
-              }
-            } else {
-              this.ux.log('_______________________Start ' + printResultType + '_______________________');
-              await this.ux.table(validationResult.details[resultType], columns[resultType]);
-              this.ux.log('_______________________End ' + printResultType + '_______________________');
+        if (displayResults.selected !== 'no') {
+          const columns = {
+            componentSuccesses: {
+              columns: [
+                { key: 'componentType', label: 'Type' },
+                { key: 'fullName', label: 'Name' },
+                { key: 'fileName', label: 'File' },
+                { key: 'id', label: 'Id' }
+              ]
+            },
+            runTestResultSuccess: {
+              columns: [
+                { key: 'name', label: 'Class' },
+                { key: 'methodName', label: 'Method' },
+                { key: 'time', label: 'Run Time (ms)' }
+              ]
+            },
+            runTestResultFailure: {
+              columns: [
+                { key: 'name', label: 'Class' },
+                { key: 'methodName', label: 'Method' },
+                { key: 'time', label: 'Run Time (ms)' },
+                { key: 'stackTrace', label: 'Stack Trace' },
+                { key: 'message', label: 'Message' }
+              ]
+            },
+            componentFailures: {
+              columns: [
+                { key: 'componentType', label: 'Type' },
+                { key: 'fullName', label: 'Name' },
+                { key: 'fileName', label: 'File' },
+                { key: 'problem', label: 'Problem' },
+                { key: 'problemType', label: 'Problem Type' }
+              ]
             }
           }
-          if (displayNext && displayType === 'save') {
-            const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
-            await fsSaveJson(fileName, validationResult.details[resultType]);
+          const displayType = displayResults.selected.substring(0, displayResults.selected.indexOf(':'));
+          for (const resultType of Object.keys(validationResult.details)) {
+            if (validationResult.details[resultType].length <= 0) continue;
+            const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            let displayNext = false;
+            if ((displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') && validationResult.details[resultType] && resultType !== 'runTestResult') {
+              displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
+            }
+            if (useTestClasses && (displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') && resultType === 'runTestResult') {
+              displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
+            }
+            if (displayNext && displayType === 'print') {
+              if (resultType === 'runTestResult') {
+                if (validationResult.details[resultType].successes > 0) {
+                  this.ux.log('_______________________Start Test Result Successes_______________________');
+                  this.ux.table(validationResult.details[resultType].successes, columns.runTestResultSuccess);
+                  this.ux.log('_______________________End Test Result Successes_______________________');
+                }
+                if (validationResult.details[resultType].numFailures > 0) {
+                  this.ux.log('_______________________Start Test Result Failures_______________________');
+                  this.ux.table(validationResult.details[resultType].failures, columns.runTestResultFailure);
+                  this.ux.log('_______________________End Test Result Failures_______________________');
+                }
+              } else {
+                this.ux.log('_______________________Start ' + printResultType + '_______________________');
+                await this.ux.table(validationResult.details[resultType], columns[resultType]);
+                this.ux.log('_______________________End ' + printResultType + '_______________________');
+              }
+            }
+            if (displayNext && displayType === 'save') {
+              const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
+              await fsSaveJson(fileName, validationResult.details[resultType]);
+            }
           }
         }
+      }
+    } else {
+      this.ux.log('sfdx force:mdapi:deploy Failed to run Successfully');
+      this.ux.log('Error Message: ' + validationResult.message);
+      const printErrorDetails = await this.ux.confirm('Print full error details?');
+      if (printErrorDetails) {
+        this.ux.logJson(validationResult);
       }
     }
     return validationResult;

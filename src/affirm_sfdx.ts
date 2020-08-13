@@ -57,12 +57,16 @@ export async function sfdxMdapiValidatePackage(targetusername: string, packageDi
   let result;
   await exec(command)
     .then((resp) => {
-      const rawObj = JSON.parse(resp.stdout)
+      const rawObj = JSON.parse(resp.stdout);
       result = rawObj.result;
     })
     .catch((err) => {
-      const rawObj = JSON.parse(err.stdout)
-      result = rawObj.result;
+      const rawObj = JSON.parse(err.stdout);
+      if (rawObj.result) {
+        result = rawObj.result;
+      } else {
+        result = rawObj;
+      }
     });
   return result;
 }
@@ -70,7 +74,7 @@ export async function sfdxMdapiValidatePackage(targetusername: string, packageDi
 // TODO: remove timeToWait, get Id, then run force:apex:test:report, to print and update a progress bar
 export async function sfdxTestRun(targetusername: string, testClasses: string, waitTime?: number, ux?: UX, throwError?: boolean) {
   const username = ' -u ' + targetusername;
-  const tests = ' -n '+ testClasses;
+  const tests = ' -n ' + testClasses;
   const timeToWait = waitTime ? ' -w ' + waitTime : ' -w 10';
   const command = 'sfdx force:apex:test:run --json -l RunSpecifiedTests ' + username + timeToWait + tests;
   // const willThrow: boolean = throwError || false;
