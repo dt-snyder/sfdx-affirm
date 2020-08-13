@@ -2,8 +2,6 @@
 
 Commands for creating a package from git diff and validating it against a specific org.
 
-[DEMO VIDEO](https://drive.google.com/file/d/1SbrecpX9FxuWz1NLlpGh3HnJ_nJzYQu9/view?usp=sharing)
-
 ## Install for use in sfdx project
 
 1. clone repo to your local and cd into repo directory
