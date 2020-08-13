@@ -21,12 +21,12 @@ export default class Suite extends SfdxCommand {
     `$ sfdx affirm:suite
     Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo
     Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/pjname_###_name_of_branch.testSuite-meta.xml
+    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
     `,
     `$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo
     (y/n) Are you sure you want to overwrite the existing test suite?: y
     Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/pjname_###_name_of_branch.testSuite-meta.xml
+    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
     `,
     `$ sfdx affirm:suite -t testClassNameOne,TestClassNameTwo --name myCustomTestSuite
     sfdx affirm:suite -t testClassNameOne,TestClassNameTwo

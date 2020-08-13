@@ -155,17 +155,68 @@ EXAMPLES
   `$ sfdx affirm:suite
     Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo
     Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/pjname_####_name_of_branch.testSuite-meta.xml
+    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
   `,
   `$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo
     (y/n) Are you sure you want to overwrite the existing test suite?: y
     Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/pjname_####_name_of_branch.testSuite-meta.xml
+    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
   `,
   `$ sfdx affirm:suite -t testClassNameOne,TestClassNameTwo --name myCustomTestSuite
     sfdx affirm:suite -t testClassNameOne,TestClassNameTwo
     Creating Test Suite... Success
     New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
+  `
+```
+
+### sfdx affirm:tests
+
+Allows user to easily run the relevant tests for their current branch.
+
+```bash
+USAGE
+  $ sfdx affirm:tests [-l <string>] [-w <integer>] [-r] [-u <string>]
+
+OPTIONS
+  -l, --list=list                                                                   Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.
+  -r, --printresults                                                                If provided test results will be printed without being prompted.
+  -u, --targetusername=targetusername                                               username or alias for the target org; overrides default target org
+  -w, --waittime=waittime                                                           The number of minutes to wait for the command to complete. The default is 10.
+
+EXAMPLES
+  `$ sfdx affirm:tests
+  (y/n) Are you sure you want to run tests against myOrg@example.com.sandbox?: y
+  Selected Org: myOrg@example.com.sandbox
+  (y/n) Could not find test suite for the current branch. Would you like to provide a list of test classes now?: y
+  Please provide a comma separated list of tests names: MyTestClassName,OtherTestClassName
+  Count of Test Classes: 2
+  Test Classes: MyTestClassName,OtherTestClassName
+  Running Tests... Done
+  Outcome: Passed
+  Tests Ran: 10
+  Passing: 10
+  Failing: 0
+  Skipped: 0
+  PassRate: 100%
+  FailRate: 0%
+  Test Total Time: 27317 ms
+  (y/n) Would you like to print the results of each test?: n
+  `,
+  `$ sfdx affirm:tests -u myOrg@example.com.sandbox
+  Selected Org: myOrg@example.com.sandbox
+  Found Test Suite for Current Branch: testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
+  Count of Test Classes: 2
+  Test Classes: MyTestClassName,OtherTestClassName
+  Running Tests... Done
+  Outcome: Passed
+  Tests Ran: 16
+  Passing: 16
+  Failing: 0
+  Skipped: 0
+  PassRate: 100%
+  FailRate: 0%
+  Test Total Time: 72004 ms
+  (y/n) Would you like to print the results of each test?: n
   `
 ```
 

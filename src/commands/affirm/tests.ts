@@ -21,14 +21,45 @@ export default class Tests extends SfdxCommand {
 
   public static examples = [
     `$ sfdx affirm:tests
-
+      (y/n) Are you sure you want to run tests against myOrg@example.com.sandbox?: y
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Could not find test suite for the current branch. Would you like to provide a list of test classes now?: y
+      Please provide a comma separated list of tests names: MyTestClassName,OtherTestClassName
+      Count of Test Classes: 2
+      Test Classes: MyTestClassName,OtherTestClassName
+      Running Tests... Done
+      Outcome: Passed
+      Tests Ran: 10
+      Passing: 10
+      Failing: 0
+      Skipped: 0
+      PassRate: 100%
+      FailRate: 0%
+      Test Total Time: 27317 ms
+      (y/n) Would you like to print the results of each test?: n
+    `,
+    `$ sfdx affirm:tests -u myOrg@example.com.sandbox
+      Selected Org: myOrg@example.com.sandbox
+      Found Test Suite for Current Branch: testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
+      Count of Test Classes: 2
+      Test Classes: MyTestClassName,OtherTestClassName
+      Running Tests... Done
+      Outcome: Passed
+      Tests Ran: 16
+      Passing: 16
+      Failing: 0
+      Skipped: 0
+      PassRate: 100%
+      FailRate: 0%
+      Test Total Time: 72004 ms
+      (y/n) Would you like to print the results of each test?: n
     `,
   ];
 
-  // TODO: add flag to auto print test results
   protected static flagsConfig = {
     list: flags.string({ char: 'l', description: messages.getMessage('listFlagDescription') }),
-    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') })
+    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
+    printresults: flags.boolean({ char: 'r', description: messages.getMessage('printresultsFlagDescription') })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -105,9 +136,15 @@ export default class Tests extends SfdxCommand {
     this.ux.log('PassRate: ' + testResults.summary.passRate);
     this.ux.log('FailRate: ' + testResults.summary.failRate);
     this.ux.log('Test Total Time: ' + testResults.summary.testTotalTime);
-
-    const printMore = await this.ux.confirm('(y/n) Would you like to print the results of each test?');
-    if (printMore) {
+    const printresults = this.flags.printresults;
+    let printTestResults;
+    if (!printresults) {
+      const printMore = await this.ux.confirm('(y/n) Would you like to print the results of each test?');
+      printTestResults = printMore;
+    } else {
+      printTestResults = printresults;
+    }
+    if (printTestResults) {
       const whatToPrint = {
         columns: [
           { key: 'FullName', label: 'Name' },
@@ -122,6 +159,5 @@ export default class Tests extends SfdxCommand {
       this.ux.log('_______________________End Test Results_______________________');
     }
     return testResults;
-    // return { result: 'done'}
   }
 }
