@@ -1,6 +1,6 @@
 // Use this file to store all fs-extra helper methods
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
-const { create } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
+const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { SfdxError } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests } from './affirm_interfaces';
 
@@ -198,9 +198,15 @@ export async function fsCreateNewTestSuite(tests: string, outputDir: string, fil
 export async function fsCheckForExistingSuite(outputDir: string, fileName: string) {
   const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
   const folderStillExists = await fs.pathExists(outputFileName);
-  return folderStillExists;
+  if (!folderStillExists) return null;
+  return outputFileName;
 }
 
+export async function fsGetTestsFromSuiteXml(pathToSuite: string) {
+  const testSuite = await fs.readFile(pathToSuite, 'utf8');
+  const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
+  return obj.ApexTestSuite.testClassName.join(',');
+}
 // TODO: create method that zips the provided folderPath and deletes the folderPath when done.
 // export async function zipPackageAndDeleteFolder(folderPath: string) {
 //   //

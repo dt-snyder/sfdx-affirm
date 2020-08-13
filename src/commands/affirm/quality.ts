@@ -90,6 +90,7 @@ export default class Quality extends SfdxCommand {
     }
     this.ux.log('Package Directory: "' + packagedir + '"');
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
+    // TODO: add logic to get tests from the current branch suite like in affirm:tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
@@ -106,7 +107,7 @@ export default class Quality extends SfdxCommand {
     // start the validation of the package
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
-    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, testclasses, waittime, this.ux, true);
+    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux, true);
     this.ux.stopSpinner(validationResult.status);
     const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split('-').join('_') + '_' + validationResult.id;
     this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
@@ -130,24 +131,58 @@ export default class Quality extends SfdxCommand {
 
       if (displayResults.selected !== 'no') {
         const columns = {
-          componentSuccesses: ['componentType', 'fullName', 'fileName', 'id'],
-          runTestResultSuccess: ['name', 'methodName', 'time'],
-          runTestResultFailure: ['name', 'methodName', 'time', 'stackTrace', 'message'],
-          componentFailures: ['componentType', 'fullName', 'fileName', 'problem', 'problemType']
+          componentSuccesses: {
+            columns: [
+              { key: 'componentType', label: 'Type' },
+              { key: 'fullName', label: 'Name' },
+              { key: 'fileName', label: 'File' },
+              { key: 'id', label: 'Id' }
+            ]
+          },
+          runTestResultSuccess: {
+            columns: [
+              { key: 'name', label: 'Class' },
+              { key: 'methodName', label: 'Method' },
+              { key: 'time', label: 'Run Time (ms)' }
+            ]
+          },
+          runTestResultFailure: {
+            columns: [
+              { key: 'name', label: 'Class' },
+              { key: 'methodName', label: 'Method' },
+              { key: 'time', label: 'Run Time (ms)' },
+              { key: 'stackTrace', label: 'Stack Trace' },
+              { key: 'message', label: 'Message' }
+            ]
+          },
+          componentFailures: {
+            columns: [
+              { key: 'componentType', label: 'Type' },
+              { key: 'fullName', label: 'Name' },
+              { key: 'fileName', label: 'File' },
+              { key: 'problem', label: 'Problem' },
+              { key: 'problemType', label: 'Problem Type' }
+            ]
+          }
         }
         const displayType = displayResults.selected.substring(0, displayResults.selected.indexOf(':'));
         for (const resultType of Object.keys(validationResult.details)) {
           if (validationResult.details[resultType].length <= 0) continue;
           const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-          let displayNext = true;
-          if (displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') {
+          let displayNext = false;
+          if ((displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') && validationResult.details[resultType] && resultType !== 'runTestResult') {
+            displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
+          }
+          if (useTestClasses && (displayResults.selected === 'print: choose' || displayResults.selected === 'save: choose') && resultType === 'runTestResult') {
             displayNext = await this.ux.confirm('(y/n) Would you like to ' + displayType + ' the ' + printResultType + '?');
           }
           if (displayNext && displayType === 'print') {
             if (resultType === 'runTestResult') {
-              this.ux.log('_______________________Start Test Result Successes_______________________');
-              this.ux.table(validationResult.details[resultType].successes, columns.runTestResultSuccess);
-              this.ux.log('_______________________End Test Result Successes_______________________');
+              if (validationResult.details[resultType].successes > 0) {
+                this.ux.log('_______________________Start Test Result Successes_______________________');
+                this.ux.table(validationResult.details[resultType].successes, columns.runTestResultSuccess);
+                this.ux.log('_______________________End Test Result Successes_______________________');
+              }
               if (validationResult.details[resultType].numFailures > 0) {
                 this.ux.log('_______________________Start Test Result Failures_______________________');
                 this.ux.table(validationResult.details[resultType].failures, columns.runTestResultFailure);
