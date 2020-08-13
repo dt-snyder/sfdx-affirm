@@ -2,11 +2,10 @@
 import simpleGit, { SimpleGit, StatusResult, DiffSummary } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
 import { UX } from '@salesforce/command';
-// import chalk, { Chalk } from 'chalk';
 import { DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
-const chalk = require('chalk');
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const filesToIgnore = ['**/jsconfig.json', '**/.eslintrc.json'];
 
 function ignoreFile(file: string) {
