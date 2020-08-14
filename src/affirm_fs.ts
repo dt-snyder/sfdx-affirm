@@ -29,6 +29,7 @@ export async function getPrintableDiffObject(diff: DiffObj) {
 export async function fsSaveJson(fileName: string, json: object) {
   const saveToFile = './' + fileName + '.json';
   await fs.outputJson(saveToFile, json);
+  return saveToFile;
 }
 
 export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
