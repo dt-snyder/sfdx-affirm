@@ -4,7 +4,8 @@ import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite } from '../../affirm_fs';
 import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
-import { liftShortBranchName, liftCleanProvidedTests } from '../../affirm_lift';
+import { liftShortBranchName, liftCleanProvidedTests, getYNString } from '../../affirm_lift';
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -75,8 +76,9 @@ export default class Suite extends SfdxCommand {
 
     const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
     if (hasExistingSuite) {
-      this.ux.log('Found existing suite at ' + hasExistingSuite);
-      const confirmOverwrite = await this.ux.confirm('(y/n) Are you sure you want to overwrite the existing test suite?');
+      this.ux.log('Found existing suite at ' + chalk.underline.blue(hasExistingSuite));
+      const logYN = await getYNString();
+      const confirmOverwrite = await this.ux.confirm(logYN + ' Are you sure you want to overwrite the existing test suite?');
       if (!confirmOverwrite) {
         this.ux.log('Exit Command');
         return { status: 'user exit' };
@@ -86,7 +88,7 @@ export default class Suite extends SfdxCommand {
     this.ux.startSpinner('Creating Test Suite');
     const pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, name);
     this.ux.stopSpinner('Success');
-    this.ux.log('New Test Suite Written to: ' + pathToSuite);
+    this.ux.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
     return { status: 'complete', pathToSuite: pathToSuite };
   }
 }

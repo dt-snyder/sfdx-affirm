@@ -2,9 +2,10 @@
 import simpleGit, { SimpleGit, StatusResult, DiffResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
 import { UX } from '@salesforce/command';
-import { DiffObj, WhatToPrint } from './affirm_interfaces';
+import { DiffObj } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 const filesToIgnore = ['**/jsconfig.json', '**/.eslintrc.json'];
 
@@ -24,7 +25,7 @@ export async function getCurrentBranchName(ux?: UX) {
   await checkForRepoAndRemote();
   const repoStatus: StatusResult = await git.status();
   const currentBranch = repoStatus.current;
-  if (ux) ux.log('current branch: ' + currentBranch);
+  if (ux) ux.log('Current Branch: ' + chalk.cyan(currentBranch));
   return currentBranch;
 }
 
@@ -33,7 +34,7 @@ export async function getRemoteInfo(ux?: UX) {
   const remotes = await git.getRemotes(true);
   if (!remotes) throw SfdxError.create('affirm', 'helper_files', 'errorNoGitRemote');
   const currentRemote = remotes[0].name + ' => ' + remotes[0].refs.push;
-  if (ux) ux.log('Current Remote: ' + currentRemote);
+  if (ux) ux.log('Current Remote: ' + chalk.greenBright(currentRemote));
   return currentRemote;
 }
 
@@ -64,7 +65,7 @@ export async function gitDiffSum(branch: string, inputdir: string) {
     }
   });
   // get the diff sum of $branch...$currentBranch - only deleted files
-  const diffSumDeletions: DiffSummary = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch, '--diff-filter=D']);
+  const diffSumDeletions: DiffResult = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch, '--diff-filter=D']);
   if (diffSumDeletions.files && diffSumDeletions.files.length > 0) {
     diffSumDeletions.files.forEach(file => {
       if (!file.file.startsWith(inputdir) || ignoreFile(file.file)) return;
@@ -75,22 +76,3 @@ export async function gitDiffSum(branch: string, inputdir: string) {
 }
 
 
-export async function showDiffSum(ux: UX, diff: DiffObj, whatToPrint: WhatToPrint) {
-  Object.keys(diff).forEach(key => {
-    if (diff[key].length === 0 && (whatToPrint[key] || whatToPrint.showAll)) {
-      ux.log(key.toUpperCase() + ': None Found')
-    } else if (whatToPrint[key] || whatToPrint.showAll) {
-      ux.log(key.toUpperCase() + ': ' + [...diff[key]].join(' '));
-    }
-  });
-}
-
-export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boolean, onlyDestructive: Boolean) {
-  const whatToPrint: WhatToPrint = {
-    changed: onlyChanged,
-    insertion: onlyInsertion,
-    destructive: onlyDestructive,
-    showAll: !onlyChanged && !onlyInsertion && !onlyDestructive
-  };
-  return whatToPrint;
-}

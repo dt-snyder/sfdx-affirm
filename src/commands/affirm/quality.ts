@@ -4,9 +4,10 @@ import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 import { sfdxMdapiValidatePackage } from '../../affirm_sfdx';
-import { liftCleanProvidedTests, liftPrintTable } from '../../affirm_lift';
+import { liftCleanProvidedTests, liftPrintTable, getYNString } from '../../affirm_lift';
 import { fsSaveJson } from '../../affirm_fs';
 import affirm_tables from '../../affirm_tables';
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -67,35 +68,36 @@ export default class Quality extends SfdxCommand {
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
     const inputUsername = this.flags.targetusername;
     let username;
+    const logYN = await getYNString();
     if (!inputUsername) {
       const project = await SfdxProject.resolve();
       const pjtJson = await project.resolveProjectConfig();
-      const confirmUserName = '(y/n) Are you sure you want to validate against ' + pjtJson.defaultusername + '?';
+      const confirmUserName = logYN + ' Are you sure you want to validate against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
       const proceedWithDefault = await this.ux.confirm(confirmUserName);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
       username = pjtJson.defaultusername;
     } else {
       username = inputUsername;
     }
-    this.ux.log('Selected Org: ' + username);
+    this.ux.log('Selected Org: ' + chalk.greenBright(username));
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
     const packagedir = this.flags.packagedir || '.releaseArtifacts/parcel';
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists) {
-      const confirmParcelDir = '(y/n) Are you sure you want to validate the package located in the "' + packagedir + '" folder?';
+      const confirmParcelDir = logYN + ' Are you sure you want to validate the package located in the "' + chalk.underline.blue(packagedir) + '" folder?';
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
     } else {
       const errorType = packagedir === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('affirm', 'quality', errorType);
     }
-    this.ux.log('Package Directory: "' + packagedir + '"');
+    this.ux.log('Package Directory: "' + chalk.underline.blue(packagedir) + '"');
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
     // TODO: add logic to get tests from the current branch suite like in affirm:tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      const proceedWithoutTests = await this.ux.confirm('(y/n) Are you sure you want to validate without running any tests?');
+      const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
       if (!proceedWithoutTests) {
         const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
         useTestClasses = await liftCleanProvidedTests(providedTestClasses);
@@ -103,24 +105,24 @@ export default class Quality extends SfdxCommand {
     } else {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     }
-    const testClassLog = useTestClasses ? 'Validating Using Provided Classes: ' + useTestClasses : 'Validating without test classes!';
+    const testClassLog = useTestClasses ? 'Validating Using Provided Classes: ' + chalk.green(useTestClasses) : chalk.red('Validating without test classes!');
     this.ux.log(testClassLog);
     // start the validation of the package
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
     const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux, true);
-    const validationStatus = (validationResult.status == 1) ? 'Error' : validationResult.status;
+    const validationStatus = (validationResult.status == 1) ? chalk.redBright('Error') : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
     if (validationStatus !== 'Error') {
       const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
-      this.ux.log('Deployment Status Date_Time_Id: ' + currentRunName);
-      this.ux.log('Total Components: ' + validationResult.numberComponentsTotal);
-      this.ux.log('Component Deployed: ' + validationResult.numberComponentsDeployed);
-      this.ux.log('Component With Errors: ' + validationResult.numberComponentErrors);
+      this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
+      this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
+      this.ux.log('Component Deployed: ' + chalk.green(validationResult.numberComponentsDeployed));
+      this.ux.log('Component With Errors: ' + chalk.red(validationResult.numberComponentErrors));
       if (useTestClasses) {
-        this.ux.log('Total Tests Run: ' + validationResult.numberTestsTotal);
-        this.ux.log('Successful Tests: ' + validationResult.numberTestsCompleted);
-        this.ux.log('Test Errors: ' + validationResult.numberTestErrors);
+        this.ux.log('Total Tests Run: ' + chalk.cyan(validationResult.numberTestsTotal));
+        this.ux.log('Successful Tests: ' + chalk.green(validationResult.numberTestsCompleted));
+        this.ux.log('Test Errors: ' + chalk.red(validationResult.numberTestErrors));
       }
 
       const noresults = this.flags.noresults;
@@ -152,7 +154,7 @@ export default class Quality extends SfdxCommand {
             const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
             let displayNext = selectedCount === 'all';
             if (displayNext === false) {
-              displayNext = await this.ux.confirm('(y/n) Would you like to ' + selectedType + ' the ' + printResultType + '?');
+              displayNext = await this.ux.confirm(logYN + ' Would you like to ' + selectedType + ' the ' + printResultType + '?');
             }
             if (displayNext === false) continue;
             if (resultType === 'runTestResult' && selectedType === 'print') {
@@ -166,8 +168,7 @@ export default class Quality extends SfdxCommand {
               await liftPrintTable(printResultType, validationResult.details[resultType], columns[resultType], this.ux);
             } else if (selectedType === 'save') {
               const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
-              const savedLocation = await fsSaveJson(fileName, validationResult.details[resultType]);
-              this.ux.log('Saved ' + printResultType + ' to : ' + savedLocation);
+              await fsSaveJson(fileName, validationResult.details[resultType], this.ux);
             }
           }
         }
@@ -175,7 +176,7 @@ export default class Quality extends SfdxCommand {
     } else {
       this.ux.log('sfdx force:mdapi:deploy Failed to run Successfully');
       this.ux.log('Error Message: ' + validationResult.message);
-      const printErrorDetails = await this.ux.confirm('Print full error details?');
+      const printErrorDetails = await this.ux.confirm(logYN + 'Print full error details?');
       if (printErrorDetails) {
         this.ux.logJson(validationResult);
       }

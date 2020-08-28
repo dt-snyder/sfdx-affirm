@@ -1,7 +1,8 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, createWhatToPrint, showDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
+import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../affirm_lift';
 import { fsSaveJson, getPrintableDiffObject } from '../../affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../affirm_sfcore';
 import { DiffObj, PrintableDiffObj } from '../../affirm_interfaces';
@@ -69,20 +70,19 @@ export default class Changes extends SfdxCommand {
     // compare the current branch to the provided or default branch
     const branch = this.flags.branch || 'remotes/origin/master';
     const currentBranch = await getCurrentBranchName();
-    const beingCompared = branch + '...' + currentBranch;
-    this.ux.log('Git Diff For: ' + beingCompared);
+    await printBranchesCompared(this.ux, branch, currentBranch);
     const result: DiffObj = await gitDiffSum(branch, inputdir);
+    const printableDiff: PrintableDiffObj = await getPrintableDiffObject(result);
     // print the changes
     const print = !this.flags.silent;
     if (print) {
       const whatToPrint = await createWhatToPrint(this.flags.showchanged, this.flags.showinsertion, this.flags.showdestructive);
-      await showDiffSum(this.ux, result, whatToPrint);
+      await showDiffSum(this.ux, printableDiff, whatToPrint);
     }
     // save the changes to a json file if the user tell us to
     const saveToFile = this.flags.outfilename;
     if (saveToFile) {
-      const printableDiff: PrintableDiffObj = await getPrintableDiffObject(result);
-      await fsSaveJson(saveToFile, printableDiff);
+      await fsSaveJson(saveToFile, printableDiff, this.ux);
     }
     return JSON.stringify(result);
   }
