@@ -162,7 +162,7 @@ export default class Tests extends SfdxCommand {
     } else {
       this.ux.log(chalk.redBright('sfdx force:apex:test:run Failed to run Successfully'));
       this.ux.log('Error Message: ' + testResults.message);
-      const printErrorDetails = await this.ux.confirm(logYN +' Print full error details?');
+      const printErrorDetails = await this.ux.confirm(logYN + ' Print full error details?');
       if (printErrorDetails) {
         this.ux.logJson(testResults);
       }

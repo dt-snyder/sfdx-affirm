@@ -211,7 +211,7 @@ export async function fsGetTestsFromSuiteXml(pathToSuite: string) {
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
   // console.log(obj);
   let tests: string;
-  if(Array.isArray(obj.ApexTestSuite.testClassName)) {
+  if (Array.isArray(obj.ApexTestSuite.testClassName)) {
     tests = obj.ApexTestSuite.testClassName.join(',');
   } else {
     tests = obj.ApexTestSuite.testClassName;
