@@ -6,7 +6,9 @@ import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChang
 import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../affirm_sfcore';
 import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx';
 import { DiffObj } from '../../affirm_interfaces';
+import { printBranchesCompared, getYNString } from '../../affirm_lift';
 import * as inquirer from 'inquirer'
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -70,11 +72,9 @@ export default class Parcel extends SfdxCommand {
     const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
     // tell user what we are going to run git diff on and do it
     const currentBranch = await getCurrentBranchName();
-    const beingCompared = branch + '...' + currentBranch;
-    this.ux.startSpinner('Diff Against: ' + beingCompared);
+    await printBranchesCompared(this.ux, branch, currentBranch);
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
-    this.ux.stopSpinner('Success:');
-    this.ux.log('Changes: ' + diffResult.changed.size + ', Insertions: ' + diffResult.insertion.size + ', Destructive: ' + diffResult.destructive.size);
+    this.ux.log('Changes: ' + chalk.yellow(diffResult.changed.size) + ', Insertions: ' + chalk.green(diffResult.insertion.size) + ', Destructive: ' + chalk.red(diffResult.destructive.size));
     this.ux.startSpinner('Cloning Files');
     // ensure that the users provided dir name doesn't contain an existing files. We don't want any left over metadata from previous converts
     await fsCleanProvidedOutputDir(outputdir);
@@ -84,12 +84,13 @@ export default class Parcel extends SfdxCommand {
     // clone the files to a temp folder for convert... will clean this up later
     const metaDataTypes = await sfdxMdapiDescribeMetadata(this.ux, true);
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes);
+    const logYN = await getYNString();
     // convert the temp folder to a package
     if (fsFilesMoved > 0) {
-      this.ux.stopSpinner('Success: ' + fsFilesMoved + ' files ready for convert');
+      this.ux.stopSpinner('Success: ' + chalk.greenBright(fsFilesMoved) + ' files ready for convert');
       this.ux.startSpinner('Converting');
       await sfdxMdapiConvert(this.ux, outputdir);
-      this.ux.stopSpinner('Success: Package Created at ' + outputdir);
+      this.ux.stopSpinner('Success: Package Created at ' + chalk.underline.blue(outputdir));
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');
     }
@@ -98,7 +99,7 @@ export default class Parcel extends SfdxCommand {
     let includeDestructivePrompt;
     if (diffResult.destructive.size > 0) {
       if (!includedestructive) {
-        const destructiveChangeMessage = '(y/n) There are ' + diffResult.destructive.size + ' destructive changes. Create destructive changes xml file?';
+        const destructiveChangeMessage = logYN +' There are ' + chalk.red(diffResult.destructive.size) + ' destructive changes. Create destructive changes xml file?';
         includeDestructivePrompt = await this.ux.confirm(destructiveChangeMessage);
       }
       if (includedestructive || includeDestructivePrompt) {
@@ -115,7 +116,7 @@ export default class Parcel extends SfdxCommand {
         const destructiveafter = destructivetiming === 'after';
         this.ux.startSpinner('Creating Destructive Package');
         const outputFileName = await fsCreateDestructiveChangeFile(diffResult.destructive, metaDataTypes, outputdir, destructiveafter);
-        this.ux.stopSpinner('Success: Created at ' + outputFileName);
+        this.ux.stopSpinner('Success: Created at ' + chalk.underline.blue(outputFileName));
       }
     }
     // TODO: add support for zipping the package

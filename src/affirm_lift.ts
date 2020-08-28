@@ -44,7 +44,7 @@ export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: W
     } else if (whatToPrint[key] || whatToPrint.showAll) {
       ux.log(colorKey + ': ');
       diff[key].forEach(file => {
-        ux.log(file);
+        ux.log(chalk.underline.blue(file));
       });
     }
   });
@@ -60,7 +60,11 @@ export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boo
   return whatToPrint;
 }
 
-export async function printBranchesCompared(ux: UX, providedBranch: string, currentBranch: string){
-    const beingCompared = chalk.magenta(providedBranch) + '...' + chalk.cyan(currentBranch);
-    ux.log('Git Diff For: ' + beingCompared);
+export async function printBranchesCompared(ux: UX, providedBranch: string, currentBranch: string) {
+  const beingCompared = chalk.magenta(providedBranch) + '...' + chalk.cyan(currentBranch);
+  ux.log('Git Diff For: ' + beingCompared);
+}
+
+export async function getYNString() {
+  return '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
 }

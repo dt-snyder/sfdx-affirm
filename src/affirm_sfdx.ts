@@ -14,7 +14,7 @@ export async function sfdxMdapiConvert(ux: UX, outputdir: string) {
   await exec(command)
     .then((resp) => {
       result = resp.stdout;
-      ux.stopSpinner('Success');
+      // ux.stopSpinner('Success');
     })
     .catch((err) => {
       result = JSON.parse(err.stdout);
