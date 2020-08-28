@@ -31,7 +31,7 @@ export async function getPrintableDiffObject(diff: DiffObj) {
 export async function fsSaveJson(fileName: string, json: object, ux?: UX) {
   const saveToFile = './' + fileName + '.json';
   await fs.outputJson(saveToFile, json);
-  if(ux) ux.log('File Saved to: ' + chalk.underline.blue(saveToFile));
+  if (ux) ux.log('File Saved to: ' + chalk.underline.blue(saveToFile));
   return saveToFile;
 }
 

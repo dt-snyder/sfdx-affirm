@@ -99,7 +99,7 @@ export default class Parcel extends SfdxCommand {
     let includeDestructivePrompt;
     if (diffResult.destructive.size > 0) {
       if (!includedestructive) {
-        const destructiveChangeMessage = logYN +' There are ' + chalk.red(diffResult.destructive.size) + ' destructive changes. Create destructive changes xml file?';
+        const destructiveChangeMessage = logYN + ' There are ' + chalk.red(diffResult.destructive.size) + ' destructive changes. Create destructive changes xml file?';
         includeDestructivePrompt = await this.ux.confirm(destructiveChangeMessage);
       }
       if (includedestructive || includeDestructivePrompt) {
