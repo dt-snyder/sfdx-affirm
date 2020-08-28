@@ -209,7 +209,14 @@ export async function fsCheckForExistingSuite(outputDir: string, fileName: strin
 export async function fsGetTestsFromSuiteXml(pathToSuite: string) {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
-  return obj.ApexTestSuite.testClassName.join(',');
+  // console.log(obj);
+  let tests: string;
+  if(Array.isArray(obj.ApexTestSuite.testClassName)) {
+    tests = obj.ApexTestSuite.testClassName.join(',');
+  } else {
+    tests = obj.ApexTestSuite.testClassName;
+  }
+  return tests;
 }
 // TODO: create method that zips the provided folderPath and deletes the folderPath when done.
 // export async function zipPackageAndDeleteFolder(folderPath: string) {

@@ -1,11 +1,12 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../affirm_git';
-import { liftShortBranchName, liftCleanProvidedTests } from '../../affirm_lift';
+import { liftShortBranchName, liftCleanProvidedTests, getYNString, liftPrintTable } from '../../affirm_lift';
 import { fsCheckForExistingSuite, fsGetTestsFromSuiteXml } from '../../affirm_fs';
 import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
 import { sfdxTestRun } from '../../affirm_sfdx';
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 
 // Initialize Messages with the current plugin directory
@@ -70,18 +71,19 @@ export default class Tests extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     const inputUsername = this.flags.targetusername;
+    const logYN = await getYNString();
     let username;
     if (!inputUsername) {
       const project = await SfdxProject.resolve();
       const pjtJson = await project.resolveProjectConfig();
-      const confirmUserName = '(y/n) Are you sure you want to run tests against ' + pjtJson.defaultusername + '?';
+      const confirmUserName = logYN + ' Are you sure you want to run tests against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
       const proceedWithDefault = await this.ux.confirm(confirmUserName);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
       username = pjtJson.defaultusername;
     } else {
       username = inputUsername;
     }
-    this.ux.log('Selected Org: ' + username);
+    this.ux.log('Selected Org: ' + chalk.greenBright(username));
     // if the user provides tests then skip getting them from the suite
     const list = this.flags.list;
     let testsToUse;
@@ -97,7 +99,7 @@ export default class Tests extends SfdxCommand {
       const suiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
       // if a suite doesn't exist prompt the user for tests
       if (!suiteExists) {
-        const provideList = await this.ux.confirm('(y/n) Could not find test suite for the current branch. Would you like to provide a list of test classes now?');
+        const provideList = await this.ux.confirm(logYN + ' Could not find test suite for the current branch. Would you like to provide a list of test classes now?');
         if (provideList) {
           const providedTests = await this.ux.prompt('Please provide a comma separated list of tests names');
           testsToUse = await liftCleanProvidedTests(providedTests);
@@ -106,7 +108,7 @@ export default class Tests extends SfdxCommand {
           return { result: 'User ended Command' };
         }
       } else {
-        this.ux.log('Found Test Suite for Current Branch: ' + suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length));
+        this.ux.log('Found Test Suite for Current Branch: ' + chalk.underline.blue(suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length)));
         // if a test suite exists then parse the tests out
         testsToUse = await fsGetTestsFromSuiteXml(suiteExists);
       }
@@ -114,12 +116,12 @@ export default class Tests extends SfdxCommand {
       testsToUse = await liftCleanProvidedTests(list);
     }
     const numberOfTests = testsToUse.split(',').length;
-    this.ux.log('Count of Test Classes: ' + numberOfTests);
+    this.ux.log('Count of Test Classes: ' + chalk.green(numberOfTests));
     if (numberOfTests > 10) {
-      const youSure = await this.ux.confirm('(y/n) You are about to run all the test methods in all ' + numberOfTests + ' test classes?');
+      const youSure = await this.ux.confirm(logYN + ' You are about to run all the test methods in all ' + chalk.yellow(numberOfTests) + ' test classes?');
       if (!youSure) return { result: 'User ended Command' };
     } else {
-      this.ux.log('Test Classes: ' + testsToUse);
+      this.ux.log('Test Classes: ' + chalk.cyan(testsToUse));
     }
     const waittime = this.flags.waittime;
     // run force:apex:test:run command
@@ -129,24 +131,24 @@ export default class Tests extends SfdxCommand {
     // this.ux.logJson(testResults.tests);
     if (!testResults.status) {
 
-      this.ux.log('Outcome: ' + testResults.summary.outcome);
-      this.ux.log('Tests Ran: ' + testResults.summary.testsRan);
-      this.ux.log('Passing: ' + testResults.summary.passing);
-      this.ux.log('Failing: ' + testResults.summary.failing);
-      this.ux.log('Skipped: ' + testResults.summary.skipped);
-      this.ux.log('PassRate: ' + testResults.summary.passRate);
-      this.ux.log('FailRate: ' + testResults.summary.failRate);
-      this.ux.log('Test Total Time: ' + testResults.summary.testTotalTime);
+      this.ux.log('Outcome: ' + chalk.cyanBright(testResults.summary.outcome));
+      this.ux.log('Tests Ran: ' + chalk.cyan(testResults.summary.testsRan));
+      this.ux.log('Passing: ' + chalk.green(testResults.summary.passing));
+      this.ux.log('Failing: ' + chalk.red(testResults.summary.failing));
+      this.ux.log('Skipped: ' + chalk.yellow(testResults.summary.skipped));
+      this.ux.log('PassRate: ' + chalk.green(testResults.summary.passRate));
+      this.ux.log('FailRate: ' + chalk.red(testResults.summary.failRate));
+      this.ux.log('Test Total Time: ' + chalk.cyan(testResults.summary.testTotalTime));
       const printresults = this.flags.printresults;
       let printTestResults;
       if (!printresults) {
-        const printMore = await this.ux.confirm('(y/n) Would you like to print the results of each test?');
+        const printMore = await this.ux.confirm(logYN + ' Would you like to print the results of each test?');
         printTestResults = printMore;
       } else {
         printTestResults = printresults;
       }
       if (printTestResults) {
-        const whatToPrint = {
+        const whatToPrint: TableOptions = {
           columns: [
             { key: 'FullName', label: 'Name' },
             { key: 'Outcome', label: 'Outcome' },
@@ -155,14 +157,12 @@ export default class Tests extends SfdxCommand {
             { key: 'Message', label: 'Message' }
           ]
         };
-        this.ux.log('_______________________Start Test Results_______________________');
-        this.ux.table(testResults.tests, whatToPrint);
-        this.ux.log('_______________________End Test Results_______________________');
+        await liftPrintTable('Test Results', testResults.tests, whatToPrint, this.ux);
       }
     } else {
-      this.ux.log('sfdx force:apex:test:run Failed to run Successfully');
+      this.ux.log(chalk.redBright('sfdx force:apex:test:run Failed to run Successfully'));
       this.ux.log('Error Message: ' + testResults.message);
-      const printErrorDetails = await this.ux.confirm('Print full error details?');
+      const printErrorDetails = await this.ux.confirm(logYN +' Print full error details?');
       if (printErrorDetails) {
         this.ux.logJson(testResults);
       }
