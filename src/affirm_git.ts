@@ -1,5 +1,5 @@
 // Use this file to store all simple-git helper methods
-import simpleGit, { SimpleGit, StatusResult, DiffSummary } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
+import simpleGit, { SimpleGit, StatusResult, DiffResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
 import { UX } from '@salesforce/command';
 import { DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
@@ -40,7 +40,7 @@ export async function getRemoteInfo(ux?: UX) {
 export async function gitDiffSum(branch: string, inputdir: string) {
   // get the diff sum of $branch...$currentBranch minus deleted files
   await git.env('GIT_SSH_COMMAND', GIT_SSH_COMMAND).status();
-  const diffSum: DiffSummary = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch, '--diff-filter=d']);
+  const diffSum: DiffResult = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch, '--diff-filter=d']);
   // construct the object that will store the diff sum results
   const result: DiffObj = {
     changed: new Set(),

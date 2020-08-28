@@ -86,7 +86,12 @@ export async function sfdxTestRun(targetusername: string, testClasses: string, w
     })
     .catch((err) => {
       const rawObj = JSON.parse(err.stdout)
-      result = rawObj.result;
+      if (rawObj.result) {
+        result = rawObj.result;
+      } else {
+        result = rawObj;
+      }
     });
+  // console.log(result);
   return result;
 }

@@ -127,36 +127,45 @@ export default class Tests extends SfdxCommand {
     const testResults = await sfdxTestRun(username, testsToUse, waittime);
     this.ux.stopSpinner('Done');
     // this.ux.logJson(testResults.tests);
+    if (!testResults.status) {
 
-    this.ux.log('Outcome: ' + testResults.summary.outcome);
-    this.ux.log('Tests Ran: ' + testResults.summary.testsRan);
-    this.ux.log('Passing: ' + testResults.summary.passing);
-    this.ux.log('Failing: ' + testResults.summary.failing);
-    this.ux.log('Skipped: ' + testResults.summary.skipped);
-    this.ux.log('PassRate: ' + testResults.summary.passRate);
-    this.ux.log('FailRate: ' + testResults.summary.failRate);
-    this.ux.log('Test Total Time: ' + testResults.summary.testTotalTime);
-    const printresults = this.flags.printresults;
-    let printTestResults;
-    if (!printresults) {
-      const printMore = await this.ux.confirm('(y/n) Would you like to print the results of each test?');
-      printTestResults = printMore;
+      this.ux.log('Outcome: ' + testResults.summary.outcome);
+      this.ux.log('Tests Ran: ' + testResults.summary.testsRan);
+      this.ux.log('Passing: ' + testResults.summary.passing);
+      this.ux.log('Failing: ' + testResults.summary.failing);
+      this.ux.log('Skipped: ' + testResults.summary.skipped);
+      this.ux.log('PassRate: ' + testResults.summary.passRate);
+      this.ux.log('FailRate: ' + testResults.summary.failRate);
+      this.ux.log('Test Total Time: ' + testResults.summary.testTotalTime);
+      const printresults = this.flags.printresults;
+      let printTestResults;
+      if (!printresults) {
+        const printMore = await this.ux.confirm('(y/n) Would you like to print the results of each test?');
+        printTestResults = printMore;
+      } else {
+        printTestResults = printresults;
+      }
+      if (printTestResults) {
+        const whatToPrint = {
+          columns: [
+            { key: 'FullName', label: 'Name' },
+            { key: 'Outcome', label: 'Outcome' },
+            { key: 'RunTime', label: ' Run Time (ms)' },
+            { key: 'StackTrace', label: 'Stack Trace' },
+            { key: 'Message', label: 'Message' }
+          ]
+        };
+        this.ux.log('_______________________Start Test Results_______________________');
+        this.ux.table(testResults.tests, whatToPrint);
+        this.ux.log('_______________________End Test Results_______________________');
+      }
     } else {
-      printTestResults = printresults;
-    }
-    if (printTestResults) {
-      const whatToPrint = {
-        columns: [
-          { key: 'FullName', label: 'Name' },
-          { key: 'Outcome', label: 'Outcome' },
-          { key: 'RunTime', label: ' Run Time (ms)' },
-          { key: 'StackTrace', label: 'Stack Trace' },
-          { key: 'Message', label: 'Message' }
-        ]
-      };
-      this.ux.log('_______________________Start Test Results_______________________');
-      this.ux.table(testResults.tests, whatToPrint);
-      this.ux.log('_______________________End Test Results_______________________');
+      this.ux.log('sfdx force:apex:test:run Failed to run Successfully');
+      this.ux.log('Error Message: ' + testResults.message);
+      const printErrorDetails = await this.ux.confirm('Print full error details?');
+      if (printErrorDetails) {
+        this.ux.logJson(testResults);
+      }
     }
     return testResults;
   }
