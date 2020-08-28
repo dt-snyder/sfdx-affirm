@@ -1,8 +1,10 @@
 // Use this file to store all fs-extra helper methods
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
+import { UX } from '@salesforce/command';
 import { SfdxError } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests } from './affirm_interfaces';
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 const foldersNeedingFolder = ['aura', 'lwc'];
 const customObjectChildren = {
@@ -26,9 +28,10 @@ export async function getPrintableDiffObject(diff: DiffObj) {
   return printableDiff;
 }
 
-export async function fsSaveJson(fileName: string, json: object) {
+export async function fsSaveJson(fileName: string, json: object, ux?: UX) {
   const saveToFile = './' + fileName + '.json';
   await fs.outputJson(saveToFile, json);
+  if(ux) ux.log('File Saved to: ' + chalk.bgGreen(saveToFile));
   return saveToFile;
 }
 
