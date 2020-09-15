@@ -55,7 +55,6 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
       continue;
     }
-    console.log(folder);
     if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !folderswithoutXMLEnd.includes(folder)) {
       const metaDataPath = file + '-meta.xml';
       if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
