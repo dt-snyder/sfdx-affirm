@@ -7,6 +7,7 @@ import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntr
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 const foldersNeedingFolder = ['aura', 'lwc'];
+const folderswithoutXMLEnd = ['staticresources'];
 const customObjectChildren = {
   fields: "CustomField",
   businessProcesses: "BusinessProcess",
@@ -54,7 +55,8 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
       continue;
     }
-    if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0) {
+    console.log(folder);
+    if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !folderswithoutXMLEnd.includes(folder)) {
       const metaDataPath = file + '-meta.xml';
       if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
