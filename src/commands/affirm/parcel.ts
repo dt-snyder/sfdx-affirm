@@ -83,7 +83,7 @@ export default class Parcel extends SfdxCommand {
     await sfcoreFindOrAddReleasePath(pjtJson);
     // clone the files to a temp folder for convert... will clean this up later
     const metaDataTypes = await sfdxMdapiDescribeMetadata(this.ux, true);
-    const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes);
+    const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);
     const logYN = await getYNString();
     // convert the temp folder to a package
     if (fsFilesMoved > 0) {

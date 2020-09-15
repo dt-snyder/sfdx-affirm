@@ -6,8 +6,8 @@ import { SfdxError } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests } from './affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
-const foldersNeedingFolder = ['aura', 'lwc'];
-const folderswithoutXMLEnd = ['staticresources'];
+const foldersNeedingFolder = ['aura', 'lwc', 'documents'];
+const foldersThatShouldBeReviewed = ['staticresources'];
 const customObjectChildren = {
   fields: "CustomField",
   businessProcesses: "BusinessProcess",
@@ -36,7 +36,7 @@ export async function fsSaveJson(fileName: string, json: object, ux?: UX) {
   return saveToFile;
 }
 
-export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
+export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object, ux?: UX) {
   let fileSet = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
@@ -55,9 +55,22 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
       continue;
     }
-    if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !folderswithoutXMLEnd.includes(folder)) {
-      const metaDataPath = file + '-meta.xml';
-      if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
+    if (foldersThatShouldBeReviewed.includes(folder)) {
+      ux.log(chalk.red('Warning:') + ' A file was found in a folder that needs manual review: "' + chalk.underline.blue(file) + '" Make sure it was copied to the package folder or your package could fail.');
+    }
+    if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !foldersThatShouldBeReviewed.includes(folder)) {
+      if (folderMdtInfo.suffix && file.indexOf(folderMdtInfo.suffix.toLowerCase()) < 0) {
+        const metaDataPath = file + folderMdtInfo.suffix.toLowerCase() + '-meta.xml';
+        if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
+      } else {
+        const metaDataPath = file + '-meta.xml';
+        if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
+      }
+      if (!copiedPaths.has(file)) copiedPaths.add(file);
+      continue;
+    } else if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && !foldersThatShouldBeReviewed.includes(folder)) {
+      const parentFile = file.replace('-meta.xml', '');
+      if (!copiedPaths.has(parentFile)) copiedPaths.add(parentFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
     }
@@ -84,10 +97,15 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object) {
       }
     }
   }
-  copiedPaths.forEach(element => {
-    const newLocation = '.releaseArtifacts/tempParcel/' + element;
-    fs.copySync(element, newLocation);
-  });
+  for (const filePath of copiedPaths) {
+    const newLocation = '.releaseArtifacts/tempParcel/' + filePath;
+    const fileEsits = await fs.pathExists(filePath);
+    if (fileEsits) {
+      fs.copySync(filePath, newLocation);
+    } else {
+      ux.log(chalk.red('Warning:') + ' Could not find file "' + chalk.underline.blue(filePath) + '" when copying files for conversion. You package may not deploy successfully.');
+    }
+  }
   return copiedPaths.size || 0;
 }
 
