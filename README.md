@@ -4,10 +4,11 @@ Commands for creating a package from git diff and validating it against a specif
 
 ## Install for use in sfdx project
 
-1. clone repo to your local and cd into repo directory
-2. run `npm install`
-3. run `sfdx plugins:link`
-4. navigate to salesforce project and run `sfdx affirm --help`
+1. Ensure your computer is ready to install the plugin: [Prepare Your Computer for Salesforce CLI Plug-In Development](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_plugins.meta/sfdx_cli_plugins/cli_plugins_generate_prepare.htm)
+2. clone repo to your local and cd into repo directory
+3. run `npm install`
+4. run `sfdx plugins:link`
+5. navigate to salesforce project and run `sfdx affirm --help`
 
 ## Commands
 
