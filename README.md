@@ -145,29 +145,30 @@ Creates a testSuite-meta.xml file with the provided list of tests.
 
 ```bash
 USAGE
-  $ sfdx affirm:suite [--tests <string>] [--name <string>, default: first 35 characters of the current branch name ] [--outputdir <string>, default: force-app/main/default/testSuites]
+  $ sfdx affirm:suite [--tests <string>] [--name <string>] [--outputdir <string>] [--addtotests]
 
 OPTIONS
-  -t, --tests=tests                                                                 Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.
+  -a, --addtotests                                                                  Optional: Indicates that you would like the provided tests to be added to the existing test suite instead of overwriting it.
   -n, --name=name                                                                   Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'
   -o, --outputdir=outputdir                                                         Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites
+  -t, --tests=tests                                                                 Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.
 
 EXAMPLES
-  `$ sfdx affirm:suite
-    Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo
-    Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
-  `,
-  `$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo
-    (y/n) Are you sure you want to overwrite the existing test suite?: y
-    Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
-  `,
-  `$ sfdx affirm:suite -t testClassNameOne,TestClassNameTwo --name myCustomTestSuite
-    sfdx affirm:suite -t testClassNameOne,TestClassNameTwo
-    Creating Test Suite... Success
-    New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
   `
+  $ sfdx affirm:suite
+  Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo
+  Creating Test Suite... Success
+  New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml`,
+  `
+  $ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo
+  Found existing suite at force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
+  ? Would you like to update the list of tests, overwrite it completely, or keep the current list and exit? Update
+  Creating Test Suite... Success
+  New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml`,
+  `
+  $ sfdx affirm:suite --addtotests -t testClassNameOne,TestClassNameTwo
+  Creating Test Suite... Success
+  New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml`
 ```
 
 ### sfdx affirm:tests

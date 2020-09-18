@@ -218,6 +218,21 @@ export async function fsCreateNewTestSuite(tests: string, outputDir: string, fil
   return outputFileName;
 }
 
+export async function fsUpdateExistingTestSuite(newTests: string, outputDir: string, fileName: string) {
+  await fs.ensureDir(outputDir);
+  const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
+  let allTests = await fsGetTestSetFromSuiteXml(outputFileName);
+  newTests.split(',').forEach(test => {
+    if (!allTests.has(test)) allTests.add(test);
+  });
+  const testArray = [...allTests];
+  const testSuite: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
+  const xmlFile: TestSuiteXMLMain = { ApexTestSuite: testSuite };
+  const newTestSuite = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
+  await fs.outputFile(outputFileName, newTestSuite.end({ prettyPrint: true, group: true }));
+  return outputFileName;
+}
+
 export async function fsCheckForExistingSuite(outputDir: string, fileName: string) {
   const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
   const folderStillExists = await fs.pathExists(outputFileName);
@@ -225,7 +240,7 @@ export async function fsCheckForExistingSuite(outputDir: string, fileName: strin
   return outputFileName;
 }
 
-export async function fsGetTestsFromSuiteXml(pathToSuite: string) {
+export async function fsGetTestStringFromSuiteXml(pathToSuite: string) {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
   // console.log(obj);
@@ -237,6 +252,21 @@ export async function fsGetTestsFromSuiteXml(pathToSuite: string) {
   }
   return tests;
 }
+
+export async function fsGetTestSetFromSuiteXml(pathToSuite: string) {
+  const testSuite = await fs.readFile(pathToSuite, 'utf8');
+  const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
+  let tests: Set<string> = new Set();
+  if (Array.isArray(obj.ApexTestSuite.testClassName)) {
+    obj.ApexTestSuite.testClassName.forEach(test => {
+      if (!tests.has(test)) tests.add(test);
+    });
+  } else {
+    if (!tests.has(obj.ApexTestSuite.testClassName)) tests.add(obj.ApexTestSuite.testClassName);
+  }
+  return tests;
+}
+
 // TODO: create method that zips the provided folderPath and deletes the folderPath when done.
 // export async function zipPackageAndDeleteFolder(folderPath: string) {
 //   //
