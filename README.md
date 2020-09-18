@@ -2,6 +2,8 @@
 
 Commands for creating a package from git diff and validating it against a specific org.
 
+[Please report issues to the repo here.](https://bitbucket.org/hunterdouglas/sfdx-affirm/issues?status=new&status=open)
+
 ## Install for use in sfdx project
 
 1. Ensure your computer is ready to install the plugin: [Prepare Your Computer for Salesforce CLI Plug-In Development](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_plugins.meta/sfdx_cli_plugins/cli_plugins_generate_prepare.htm)
