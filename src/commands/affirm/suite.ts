@@ -2,9 +2,10 @@ import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../affirm_git';
-import { fsCreateNewTestSuite, fsCheckForExistingSuite } from '../../affirm_fs';
+import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../affirm_fs';
 import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
 import { liftShortBranchName, liftCleanProvidedTests, getYNString } from '../../affirm_lift';
+import * as inquirer from 'inquirer'
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -25,12 +26,12 @@ export default class Suite extends SfdxCommand {
     New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
     `,
     `$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo
-    (y/n) Are you sure you want to overwrite the existing test suite?: y
+    Found existing suite at force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
+    ? Would you like to update the list of tests, overwrite it completely, or keep the current list and exit? Update
     Creating Test Suite... Success
     New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml
     `,
-    `$ sfdx affirm:suite -t testClassNameOne,TestClassNameTwo --name myCustomTestSuite
-    sfdx affirm:suite -t testClassNameOne,TestClassNameTwo
+    `$ sfdx affirm:suite --addtotests -t testClassNameOne,TestClassNameTwo
     Creating Test Suite... Success
     New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
     `,
@@ -39,7 +40,8 @@ export default class Suite extends SfdxCommand {
   protected static flagsConfig = {
     tests: flags.string({ char: 't', description: messages.getMessage('testsFlagDescription') }),
     name: flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
-    outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') })
+    outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
+    addtotests: flags.boolean({ char: 'a', description: messages.getMessage('addtotestsFlagDescription') })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -73,20 +75,35 @@ export default class Suite extends SfdxCommand {
     const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites';
-
+    const addtotests = this.flags.addtotests;
     const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
-    if (hasExistingSuite) {
+    let pathForward = (addtotests && hasExistingSuite) ? 'Update' : 'Overwrite';
+    if (hasExistingSuite && !addtotests) {
       this.ux.log('Found existing suite at ' + chalk.underline.blue(hasExistingSuite));
-      const logYN = await getYNString();
-      const confirmOverwrite = await this.ux.confirm(logYN + ' Are you sure you want to overwrite the existing test suite?');
-      if (!confirmOverwrite) {
-        this.ux.log('Exit Command');
-        return { status: 'user exit' };
-      }
+      const displayResults: any = await inquirer.prompt([{
+        name: 'selected',
+        message: 'Would you like to update the list of tests, overwrite it completely, or keep the current list and exit?',
+        type: 'list',
+        choices: [{ name: 'Update' }, { name: 'Overwrite' }, { name: 'Keep' }],
+      }]);
+      pathForward = displayResults.selected;
+    }
+
+    if (pathForward === 'Keep') {
+      this.ux.log('Keeping existing test suite: Exit Command');
+      return { status: 'user exit' };
     }
     // create the xml file and save to the the outputdir
+    let pathToSuite;
     this.ux.startSpinner('Creating Test Suite');
-    const pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, name);
+    if (pathForward === 'Overwrite') {
+      pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, name);
+    } else if (pathForward === 'Update') {
+      pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, name);
+    } else {
+      this.ux.stopSpinner('FAIL');
+      throw SfdxError.create('affirm', 'suite', 'errorUnknown');
+    }
     this.ux.stopSpinner('Success');
     this.ux.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
     return { status: 'complete', pathToSuite: pathToSuite };

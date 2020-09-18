@@ -3,7 +3,7 @@ import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/c
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../affirm_git';
 import { liftShortBranchName, liftCleanProvidedTests, getYNString, liftPrintTable } from '../../affirm_lift';
-import { fsCheckForExistingSuite, fsGetTestsFromSuiteXml } from '../../affirm_fs';
+import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from '../../affirm_fs';
 import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
 import { sfdxTestRun } from '../../affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
@@ -110,7 +110,7 @@ export default class Tests extends SfdxCommand {
       } else {
         this.ux.log('Found Test Suite for Current Branch: ' + chalk.underline.blue(suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length)));
         // if a test suite exists then parse the tests out
-        testsToUse = await fsGetTestsFromSuiteXml(suiteExists);
+        testsToUse = await fsGetTestStringFromSuiteXml(suiteExists);
       }
     } else {
       testsToUse = await liftCleanProvidedTests(list);
