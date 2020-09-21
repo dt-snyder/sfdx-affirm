@@ -5,7 +5,8 @@ import { PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 export async function liftShortBranchName(currentBranch: string, topCharCount: number) {
-  const nameArray = currentBranch.substring(currentBranch.indexOf('/'), currentBranch.length).split('-');
+  const cleanBranchName = await cleanSuiteName(currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length));
+  const nameArray = cleanBranchName.split('_');
   let shortFileName;
   let charCount = 0;
   nameArray.forEach(element => {
@@ -20,6 +21,28 @@ export async function liftShortBranchName(currentBranch: string, topCharCount: n
   return shortFileName;
 }
 
+export async function cleanSuiteName(currentBranch: string) {
+  if (currentBranch.indexOf('--') >= 0) {
+    while (currentBranch.indexOf('--') >= 0) {
+      currentBranch = currentBranch.replace('--', '-');
+    }
+  }
+  while (currentBranch.indexOf('-') >= 0) {
+    currentBranch = currentBranch.replace('-', '_');
+  }
+  return currentBranch;
+}
+
+export async function checkName(name: string) {
+  const letterNumberUnderScore = new RegExp(/^[a-zA-Z0-9_]*$/);
+  const startsWithLetter = new RegExp(/^[a-zA-Z]/);
+  console.log(name);
+  if (!letterNumberUnderScore.test(name)) {
+    throw SfdxError.create('affirm', 'helper_files', 'alphanumericSuiteNameIssue');
+  } else if (!startsWithLetter.test(name)) {
+    throw SfdxError.create('affirm', 'helper_files', 'startswithLetterSuiteNameIssue');
+  }
+}
 export async function liftCleanProvidedTests(tests: string) {
   if (tests.includes('.cls')) {
     throw SfdxError.create('affirm', 'helper_files', 'errorNoToFileName');
