@@ -5,6 +5,7 @@ import { PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 export async function liftShortBranchName(currentBranch: string, topCharCount: number) {
+  // TODO: fix this... it's causing //on update and testsuitesfdc_xxxx on update
   const cleanBranchName = await cleanSuiteName(currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length));
   const nameArray = cleanBranchName.split('_');
   let shortFileName;
