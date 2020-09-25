@@ -6,7 +6,7 @@ import { SfdxError } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests } from './affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
-const foldersNeedingFolder = ['aura', 'lwc', 'documents'];
+const foldersNeedingFolder = ['aura', 'lwc', 'documents', 'bots'];
 const foldersThatShouldBeReviewed = ['staticresources'];
 const customObjectChildren = {
   fields: "CustomField",
