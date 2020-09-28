@@ -95,7 +95,7 @@ export default class Tests extends SfdxCommand {
       const project = await SfdxProject.resolve();
       const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
       const defaultPath = await sfcoreGetDefaultPath(pjtJson);
-      const defaultOutputDir = defaultPath + '/main/default/testSuites';
+      const defaultOutputDir = defaultPath + '/main/default/testSuites/';
       const suiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
       // if a suite doesn't exist prompt the user for tests
       if (!suiteExists) {

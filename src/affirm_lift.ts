@@ -2,10 +2,13 @@
 import { SfdxError } from '@salesforce/core';
 import { UX, TableOptions } from '@salesforce/command';
 import { PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
+
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
+const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 
 export async function liftShortBranchName(currentBranch: string, topCharCount: number) {
-  const nameArray = currentBranch.substring(currentBranch.indexOf('/'), currentBranch.length).split('-');
+  const cleanBranchName = await cleanSuiteName(currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length));
+  const nameArray = cleanBranchName.split('_');
   let shortFileName;
   let charCount = 0;
   nameArray.forEach(element => {
@@ -20,6 +23,31 @@ export async function liftShortBranchName(currentBranch: string, topCharCount: n
   return shortFileName;
 }
 
+export async function cleanSuiteName(currentBranch: string) {
+  for (const char of charToRemove) {
+    if (currentBranch.indexOf(char) >= 0) {
+      while (currentBranch.indexOf(char) >= 0) {
+        currentBranch = currentBranch.replace(char, '-');
+      }
+    }
+  }
+  while (currentBranch.indexOf('-') >= 0) {
+    currentBranch = currentBranch.replace('-', '_');
+  }
+  return currentBranch;
+}
+
+export async function checkName(name: string, ux?: UX) {
+  const letterNumberUnderScore = new RegExp(/^[a-zA-Z0-9_]*$/);
+  const startsWithLetter = new RegExp(/^[a-zA-Z]/);
+  if (!letterNumberUnderScore.test(name)) {
+    if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
+    throw SfdxError.create('affirm', 'helper_files', 'alphanumericSuiteNameIssue');
+  } else if (!startsWithLetter.test(name)) {
+    if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
+    throw SfdxError.create('affirm', 'helper_files', 'startswithLetterSuiteNameIssue');
+  }
+}
 export async function liftCleanProvidedTests(tests: string) {
   if (tests.includes('.cls')) {
     throw SfdxError.create('affirm', 'helper_files', 'errorNoToFileName');
