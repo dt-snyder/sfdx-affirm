@@ -65,10 +65,10 @@ export default class Suite extends SfdxCommand {
     // get the current branch name and set it as the file name if the user did not provide one
     const currentBranch = await getCurrentBranchName();
     const defaultFileName = await liftShortBranchName(currentBranch, 25);
-    console.log('defaultFileName: ' + defaultFileName);
+    // console.log('defaultFileName: ' + defaultFileName);
 
     const name = this.flags.name || defaultFileName;
-    await checkName(name);
+    await checkName(name, this.ux);
     if (name.length > 35) {
       throw SfdxError.create('affirm', 'suite', 'errorNameIsToLong');
     }
@@ -76,7 +76,7 @@ export default class Suite extends SfdxCommand {
     const project = await SfdxProject.resolve();
     const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
-    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites';
+    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
     const addtotests = this.flags.addtotests;
     const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
     let pathForward = (addtotests && hasExistingSuite) ? 'Update' : 'Overwrite';

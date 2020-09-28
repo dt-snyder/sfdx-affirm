@@ -2,10 +2,11 @@
 import { SfdxError } from '@salesforce/core';
 import { UX, TableOptions } from '@salesforce/command';
 import { PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
+
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
+const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 
 export async function liftShortBranchName(currentBranch: string, topCharCount: number) {
-  // TODO: fix this... it's causing //on update and testsuitesfdc_xxxx on update
   const cleanBranchName = await cleanSuiteName(currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length));
   const nameArray = cleanBranchName.split('_');
   let shortFileName;
@@ -23,9 +24,11 @@ export async function liftShortBranchName(currentBranch: string, topCharCount: n
 }
 
 export async function cleanSuiteName(currentBranch: string) {
-  if (currentBranch.indexOf('--') >= 0) {
-    while (currentBranch.indexOf('--') >= 0) {
-      currentBranch = currentBranch.replace('--', '-');
+  for (const char of charToRemove) {
+    if (currentBranch.indexOf(char) >= 0) {
+      while (currentBranch.indexOf(char) >= 0) {
+        currentBranch = currentBranch.replace(char, '-');
+      }
     }
   }
   while (currentBranch.indexOf('-') >= 0) {
@@ -34,13 +37,14 @@ export async function cleanSuiteName(currentBranch: string) {
   return currentBranch;
 }
 
-export async function checkName(name: string) {
+export async function checkName(name: string, ux?: UX) {
   const letterNumberUnderScore = new RegExp(/^[a-zA-Z0-9_]*$/);
   const startsWithLetter = new RegExp(/^[a-zA-Z]/);
-  console.log(name);
   if (!letterNumberUnderScore.test(name)) {
+    if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
     throw SfdxError.create('affirm', 'helper_files', 'alphanumericSuiteNameIssue');
   } else if (!startsWithLetter.test(name)) {
+    if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
     throw SfdxError.create('affirm', 'helper_files', 'startswithLetterSuiteNameIssue');
   }
 }
