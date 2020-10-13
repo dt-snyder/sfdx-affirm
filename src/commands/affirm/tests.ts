@@ -1,10 +1,7 @@
 import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { getCurrentBranchName } from '../../affirm_git';
-import { liftShortBranchName, liftCleanProvidedTests, getYNString, liftPrintTable } from '../../affirm_lift';
-import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from '../../affirm_fs';
-import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
+import { liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser } from '../../affirm_lift';
 import { sfdxTestRun } from '../../affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
@@ -88,29 +85,10 @@ export default class Tests extends SfdxCommand {
     const list = this.flags.list;
     let testsToUse;
     if (!list) {
-      // get current branch name
-      const currentBranch = await getCurrentBranchName();
-      const defaultFileName = await liftShortBranchName(currentBranch, 25);
-      // look for test suite with the current name
-      const project = await SfdxProject.resolve();
-      const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
-      const defaultPath = await sfcoreGetDefaultPath(pjtJson);
-      const defaultOutputDir = defaultPath + '/main/default/testSuites/';
-      const suiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
-      // if a suite doesn't exist prompt the user for tests
-      if (!suiteExists) {
-        const provideList = await this.ux.confirm(logYN + ' Could not find test suite for the current branch. Would you like to provide a list of test classes now?');
-        if (provideList) {
-          const providedTests = await this.ux.prompt('Please provide a comma separated list of tests names');
-          testsToUse = await liftCleanProvidedTests(providedTests);
-        } else {
-          this.ux.log('End Command');
-          return { result: 'User ended Command' };
-        }
-      } else {
-        this.ux.log('Found Test Suite for Current Branch: ' + chalk.underline.blue(suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length)));
-        // if a test suite exists then parse the tests out
-        testsToUse = await fsGetTestStringFromSuiteXml(suiteExists);
+      testsToUse = await getTestsFromSuiteOrUser(this.ux);
+      if (!testsToUse) {
+        this.ux.log('End Command');
+        return { result: 'User ended Command' };
       }
     } else {
       testsToUse = await liftCleanProvidedTests(list);

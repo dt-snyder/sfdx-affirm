@@ -1,11 +1,14 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
-import { SfdxError } from '@salesforce/core';
+import { SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { UX, TableOptions } from '@salesforce/command';
 import { PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
+import { getCurrentBranchName } from './affirm_git';
+import { sfcoreGetDefaultPath } from './affirm_sfcore';
+import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from './affirm_fs';
 
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
-
+const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
 export async function liftShortBranchName(currentBranch: string, topCharCount: number) {
   const cleanBranchName = await cleanSuiteName(currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length));
   const nameArray = cleanBranchName.split('_');
@@ -94,5 +97,31 @@ export async function printBranchesCompared(ux: UX, providedBranch: string, curr
 }
 
 export async function getYNString() {
-  return '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
+  return logYN;
+}
+
+export async function getTestsFromSuiteOrUser(ux: UX) {
+  let testsToReturn;
+  // get current branch name
+  const currentBranch = await getCurrentBranchName();
+  const defaultFileName = await liftShortBranchName(currentBranch, 25);
+  // look for test suite with the current name
+  const project = await SfdxProject.resolve();
+  const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+  const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+  const defaultOutputDir = defaultPath + '/main/default/testSuites/';
+  const suiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
+  // if a suite doesn't exist prompt the user for tests
+  if (!suiteExists) {
+    const provideList = await ux.confirm(logYN + ' Could not find test suite for the current branch. Would you like to provide a list of test classes now?');
+    if (provideList) {
+      const providedTests = await ux.prompt('Please provide a comma separated list of tests names');
+      testsToReturn = await liftCleanProvidedTests(providedTests);
+    }
+  } else {
+    ux.log('Found Test Suite for Current Branch: ' + chalk.underline.blue(suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length)));
+    // if a test suite exists then parse the tests out
+    testsToReturn = await fsGetTestStringFromSuiteXml(suiteExists);
+  }
+  return testsToReturn;
 }
