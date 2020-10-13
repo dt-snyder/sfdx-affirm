@@ -4,7 +4,7 @@ import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 import { sfdxMdapiValidatePackage } from '../../affirm_sfdx';
-import { liftCleanProvidedTests, liftPrintTable, getYNString } from '../../affirm_lift';
+import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser } from '../../affirm_lift';
 import { fsSaveJson } from '../../affirm_fs';
 import affirm_tables from '../../affirm_tables';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
@@ -97,16 +97,25 @@ export default class Quality extends SfdxCommand {
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
-      if (!proceedWithoutTests) {
-        const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
-        useTestClasses = await liftCleanProvidedTests(providedTestClasses);
+      useTestClasses = await getTestsFromSuiteOrUser(this.ux);
+      if (!useTestClasses) {
+        const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
+        if (!proceedWithoutTests) {
+          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+          useTestClasses = await liftCleanProvidedTests(providedTestClasses);
+        }
       }
     } else {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     }
-    const testClassLog = useTestClasses ? 'Validating Using Provided Classes: ' + chalk.green(useTestClasses) : chalk.red('Validating without test classes!');
+    const testClassLog = useTestClasses ? 'Validating Using Provided Test Classes: ' : chalk.red('Validating without test classes!');
     this.ux.log(testClassLog);
+    if (useTestClasses) {
+      const testClasses = useTestClasses.split(',');
+      for (const test of testClasses) {
+        this.ux.log(chalk.green(test));
+      }
+    }
     // start the validation of the package
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
@@ -133,7 +142,7 @@ export default class Quality extends SfdxCommand {
           type: 'list',
           choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
         }]);
-        if (displayResults.selected !== 'no') {
+        if (displayResults.selected !== 'No') {
           const selected = displayResults.selected.split(': ');
           const selectedType = selected[0];
           const selectedCount = selected[1];
