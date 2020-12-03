@@ -2,6 +2,7 @@
   "commandDescription": "Validates a package against the provided org",
   "packagedirFlagDescription": "The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: .releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.",
   "testclassesFlagDescription": "Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.",
+  "silentFlagDescription": "If provided, you will not be prompted at all for input. If correct input isn't provided command fails.",
   "waittimeFlagDescription": "The number of minutes to wait for the command to complete. The default is 10.",
   "noresultsFlagDescription": "If provided, you will not be asked if you would like to print the component details or test details after validation completes.",
   "errorDefaultPathPackageMissing": "could not find a package at the default path. Make sure you run affirm:parcel first.",
