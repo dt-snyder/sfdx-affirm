@@ -54,6 +54,7 @@ export default class Quality extends SfdxCommand {
     // flag with a value (-n, --name=VALUE)
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
+    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
     waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
     noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
   };
@@ -66,15 +67,18 @@ export default class Quality extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
+    const silent: boolean = this.flags.silent;
     const inputUsername = this.flags.targetusername;
     let username;
     const logYN = await getYNString();
     if (!inputUsername) {
       const project = await SfdxProject.resolve();
       const pjtJson = await project.resolveProjectConfig();
-      const confirmUserName = logYN + ' Are you sure you want to validate against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
-      const proceedWithDefault = await this.ux.confirm(confirmUserName);
-      if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
+      if (silent === false) {
+        const confirmUserName = logYN + ' Are you sure you want to validate against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
+        const proceedWithDefault = await this.ux.confirm(confirmUserName);
+        if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
+      }
       username = pjtJson.defaultusername;
     } else {
       username = inputUsername;
@@ -83,11 +87,11 @@ export default class Quality extends SfdxCommand {
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
     const packagedir = this.flags.packagedir || '.releaseArtifacts/parcel';
     const parcelExists = await fs.pathExists(packagedir);
-    if (parcelExists) {
+    if (parcelExists && silent === false) {
       const confirmParcelDir = logYN + ' Are you sure you want to validate the package located in the "' + chalk.underline.blue(packagedir) + '" folder?';
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
-    } else {
+    } else if (parcelExists === false) {
       const errorType = packagedir === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('affirm', 'quality', errorType);
     }
@@ -98,7 +102,7 @@ export default class Quality extends SfdxCommand {
     let useTestClasses;
     if (!testclasses) {
       useTestClasses = await getTestsFromSuiteOrUser(this.ux);
-      if (!useTestClasses) {
+      if (!useTestClasses && silent === false) {
         const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
         if (!proceedWithoutTests) {
           const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
@@ -134,7 +138,7 @@ export default class Quality extends SfdxCommand {
         this.ux.log('Test Errors: ' + chalk.red(validationResult.numberTestErrors));
       }
 
-      const noresults = this.flags.noresults;
+      const noresults = silent ? true : this.flags.noresults;
       if (!noresults) {
         const displayResults: any = await inquirer.prompt([{
           name: 'selected',
