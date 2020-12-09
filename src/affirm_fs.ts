@@ -46,7 +46,8 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object, ux?:
   });
   let copiedPaths = new Set();
   for (const file of fileSet.values()) {
-    const pathCrums = file.split('/');
+    const fileString: String = file as string;
+    const pathCrums = fileString.split('/');
     const folder = pathCrums[3];
     const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
     const fileName = pathCrums[pathCrums.length - 1];
