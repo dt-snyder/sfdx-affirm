@@ -57,6 +57,7 @@ export default class Parcel extends SfdxCommand {
   protected static requiresProject = true;
   // command requires an org username
   protected static requiresUsername = true;
+  protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
     // make sure we are in a repo and that it has a remote set
