@@ -1,4 +1,4 @@
-import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
+import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
@@ -123,7 +123,7 @@ export default class Quality extends SfdxCommand {
     // start the validation of the package
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
-    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux, true);
+    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux);
     const validationStatus = (validationResult.status == 1) ? chalk.redBright('Error') : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
     if (validationStatus !== 'Error') {

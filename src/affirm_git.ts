@@ -1,5 +1,5 @@
 // Use this file to store all simple-git helper methods
-import simpleGit, { SimpleGit, StatusResult, DiffResult } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
+import simpleGit, { SimpleGit, StatusResult, DiffResult, DiffResultTextFile, DiffResultBinaryFile } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
 import { SfdxError } from '@salesforce/core';
 import { UX } from '@salesforce/command';
 import { DiffObj } from './affirm_interfaces';
@@ -50,6 +50,8 @@ export async function gitDiffSum(branch: string, inputdir: string) {
   };
   // sort the changed files into their specific location
   diffSum.files.forEach(file => {
+    if (!isDiffResultTextFile(file)) return;
+
     if (!file.file.startsWith(inputdir) || ignoreFile(file.file)) return;
     if (file.changes === file.insertions && file.deletions === 0 && !file.file.includes('=>')) {
       result.insertion.add(file.file);
@@ -76,3 +78,6 @@ export async function gitDiffSum(branch: string, inputdir: string) {
 }
 
 
+function isDiffResultTextFile(file: DiffResultTextFile | DiffResultBinaryFile): file is DiffResultTextFile {
+  return (file as DiffResultTextFile).changes !== undefined;
+}

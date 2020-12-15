@@ -40,4 +40,17 @@ export interface TestSuiteXMLTests {
   '@xmlns': string,
 };
 
-// TODO: add interface for force:mdapi:describemetadata
+export interface DescribedSObject {
+  childXmlNames?: string[],
+  directoryName: string,
+  inFolder: boolean,
+  metaFile: boolean,
+  suffix: string,
+  xmlName: string
+}
+export interface DescribeMetadata {
+  metadataObjects: Array<DescribedSObject>,
+  organizationNamespace?: string,
+  partialSaveAllowed: boolean,
+  testRequired: boolean
+}

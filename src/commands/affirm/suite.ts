@@ -4,7 +4,7 @@ import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../affirm_fs';
 import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
-import { liftShortBranchName, liftCleanProvidedTests, getYNString, checkName } from '../../affirm_lift';
+import { liftShortBranchName, liftCleanProvidedTests, checkName } from '../../affirm_lift';
 import * as inquirer from 'inquirer'
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
