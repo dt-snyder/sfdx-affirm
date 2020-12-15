@@ -100,7 +100,7 @@ export async function getYNString() {
   return logYN;
 }
 
-export async function getTestsFromSuiteOrUser(ux: UX) {
+export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
   let testsToReturn;
   // get current branch name
   const currentBranch = await getCurrentBranchName();
@@ -112,13 +112,13 @@ export async function getTestsFromSuiteOrUser(ux: UX) {
   const defaultOutputDir = defaultPath + '/main/default/testSuites/';
   const suiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
   // if a suite doesn't exist prompt the user for tests
-  if (!suiteExists) {
+  if (!suiteExists && !silent) {
     const provideList = await ux.confirm(logYN + ' Could not find test suite for the current branch. Would you like to provide a list of test classes now?');
     if (provideList) {
       const providedTests = await ux.prompt('Please provide a comma separated list of tests names');
       testsToReturn = await liftCleanProvidedTests(providedTests);
     }
-  } else {
+  } else if (suiteExists) {
     ux.log('Found Test Suite for Current Branch: ' + chalk.underline.blue(suiteExists.substring(suiteExists.indexOf('t/') + 2, suiteExists.length)));
     // if a test suite exists then parse the tests out
     testsToReturn = await fsGetTestStringFromSuiteXml(suiteExists);
