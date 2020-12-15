@@ -101,7 +101,7 @@ export default class Quality extends SfdxCommand {
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      useTestClasses = await getTestsFromSuiteOrUser(this.ux);
+      useTestClasses = await getTestsFromSuiteOrUser(this.ux, silent);
       if (!useTestClasses && silent === false) {
         const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
         if (!proceedWithoutTests) {
