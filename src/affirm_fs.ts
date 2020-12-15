@@ -3,7 +3,7 @@ import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { UX } from '@salesforce/command';
 import { SfdxError } from '@salesforce/core';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests } from './affirm_interfaces';
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata } from './affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 const foldersNeedingFolder = ['aura', 'lwc', 'documents', 'bots'];
@@ -36,8 +36,8 @@ export async function fsSaveJson(fileName: string, json: object, ux?: UX) {
   return saveToFile;
 }
 
-export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object, ux?: UX) {
-  let fileSet = new Set();
+export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: UX) {
+  let fileSet: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
     diff[key].forEach(fileName => {
@@ -46,7 +46,8 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object, ux?:
   });
   let copiedPaths = new Set();
   for (const file of fileSet.values()) {
-    const pathCrums = file.split('/');
+    const fileString: String = file as string;
+    const pathCrums = fileString.split('/');
     const folder = pathCrums[3];
     const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
     const fileName = pathCrums[pathCrums.length - 1];
@@ -111,7 +112,7 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: object, ux?:
 
 // TODO: don't assume specific lengths for checking metadata type and subfolder. Pipelines adds path values
 // TODO: break this out into smaller methods and add more error handling
-export async function fsCreateDestructiveChangeFile(files: Set<String>, metaDataTypes: object, savePath: string, deployAfter: boolean) {
+export async function fsCreateDestructiveChangeFile(files: Set<String>, metaDataTypes: DescribeMetadata, savePath: string, deployAfter: boolean) {
   const shouldBeAfter: boolean = deployAfter || false;
   let destructiveChanges = {};
   for (const file of files.values()) {

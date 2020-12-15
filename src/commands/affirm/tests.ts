@@ -1,5 +1,5 @@
 import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser } from '../../affirm_lift';
 import { sfdxTestRun } from '../../affirm_sfdx';
