@@ -12,12 +12,12 @@ Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('affirm', 'changes');
+const messages = Messages.loadMessages('sfdx-affirm', 'changes');
 
 export default class Changes extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-
+  public static aliases = ['affirm:changes'];
   public static examples = [
     `$ sfdx affirm:changes
             Current Remote: origin => git@bitbucket.org:projectName/repo-name.git

@@ -14,11 +14,11 @@ const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('affirm', 'parcel');
+const messages = Messages.loadMessages('sfdx-affirm', 'parcel');
 export default class Parcel extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-
+  public static aliases = ['affirm:parcel'];
   public static examples = [
     `$ sfdx affirm:parcel
       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git

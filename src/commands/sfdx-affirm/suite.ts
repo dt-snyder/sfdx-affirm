@@ -13,12 +13,12 @@ Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('affirm', 'suite');
+const messages = Messages.loadMessages('sfdx-affirm', 'suite');
 
 export default class Suite extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-
+  public static aliases = ['affirm:suite'];
   public static examples = [
     `$ sfdx affirm:suite
     Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo

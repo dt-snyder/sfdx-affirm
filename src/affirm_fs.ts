@@ -1,5 +1,5 @@
 // Use this file to store all fs-extra helper methods
-import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
+import * as fs from './commands/sfdx-affirm/node_modules/fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { UX } from '@salesforce/command';
 import { SfdxError } from '@salesforce/core';
