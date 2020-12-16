@@ -14,12 +14,12 @@ Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('affirm', 'quality');
+const messages = Messages.loadMessages('sfdx-affirm', 'quality');
 
 export default class Quality extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-
+  public static aliases = ['affirm:quality'];
   public static examples = [
     `$ sfdx affirm:quality
       (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y

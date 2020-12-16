@@ -11,12 +11,12 @@ Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('affirm', 'tests');
+const messages = Messages.loadMessages('sfdx-affirm', 'tests');
 
 export default class Tests extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-
+  public static aliases = ['affirm:tests'];
   public static examples = [
     `$ sfdx affirm:tests
       (y/n) Are you sure you want to run tests against myOrg@example.com.sandbox?: y
