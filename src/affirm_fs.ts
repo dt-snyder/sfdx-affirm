@@ -1,5 +1,6 @@
 // Use this file to store all fs-extra helper methods
-import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
+/// <reference types="fs-extra" />
+import * as fs from 'fs-extra';
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { UX } from '@salesforce/command';
 import { SfdxError } from '@salesforce/core';
@@ -44,7 +45,7 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
       fileSet.add(fileName);
     });
   });
-  let copiedPaths = new Set();
+  let copiedPaths: Set<string> = new Set();
   for (const file of fileSet.values()) {
     const fileString: String = file as string;
     const pathCrums = fileString.split('/');

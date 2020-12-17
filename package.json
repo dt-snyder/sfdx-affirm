@@ -1,7 +1,7 @@
 {
   "name": "sfdx-affirm",
   "description": "Creates a package from git diff and validates it against a specific org.",
-  "version": "1.9.0",
+  "version": "1.9.3",
   "author": "Drew Snyder drew.snyder@hunterdouglas.com",
   "bugs": "https://bitbucket.org/hunterdouglas/sfdx-affirm/issues",
   "dependencies": {
@@ -23,8 +23,9 @@
     "@oclif/test": "^1",
     "@salesforce/dev-config": "1.4.1",
     "@types/chai": "^4",
+    "@types/fs-extra": "^9.0.5",
     "@types/mocha": "^5",
-    "@types/node": "^10",
+    "@types/node": "^12.19.9",
     "chai": "^4",
     "globby": "^8",
     "mocha": "^5",
