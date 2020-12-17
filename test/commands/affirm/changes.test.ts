@@ -6,6 +6,6 @@ describe('affirm:changes', () => {
     .stdout()
     .command(['affirm:changes'])
     .it('runs affirm:changes', ctx => {
-      expect(ctx.stdout).to.contain('Current Remote: origin => git@bitbucket.org:hunterdouglas/sfdx-affirm.git');
+      expect(ctx.stdout).to.contain('Current Remote: origin => git@github.com:dt-snyder/sfdx-affirm.git');
     });
 });
