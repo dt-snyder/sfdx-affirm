@@ -1,5 +1,6 @@
 // Use this file to store all @salesforce/core helper methods
-import { SfdxProjectJson, SfdxError } from '@salesforce/core';
+import { SfdxProjectJson, SfdxError, ConfigValue } from '@salesforce/core';
+import { PackageDir } from '@salesforce/core/lib/sfdxProject';
 
 export async function sfcoreGetDefaultPath(projectJson: SfdxProjectJson) {
   const dirs = await projectJson.getPackageDirectories();
@@ -29,22 +30,23 @@ export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson) {
       foundTempdir = true;
   });
   if (foundTempdir) return;
-  const newConfig = projectJson.getContents();
-  const newPath = { path: '.releaseArtifacts/tempParcel/force-app', default: false };
-  newConfig.packageDirectories = [...newConfig.packageDirectories, newPath];
-  projectJson.setContents(newConfig);
-  await projectJson.write();
+  const newConfig = await projectJson.read();
+  const newPath: PackageDir = { path: '.releaseArtifacts/tempParcel/force-app', default: false };
+  let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
+  packageDirectories = [...packageDirectories, newPath];
+  const finalConfig = projectJson.set('packageDirectories', packageDirectories as ConfigValue);
+  await projectJson.write(finalConfig);
 }
 
 export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson) {
-  const newConfig = projectJson.getContents();
-  let newPaths = [];
-  newConfig.packageDirectories.forEach(element => {
+  const newConfig = await projectJson.read();
+  let newPaths: Array<PackageDir> = [];
+  let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
+  packageDirectories.forEach(element => {
     if (element.path === '.releaseArtifacts/tempParcel/force-app' || element.path === '.releaseArtifacts\\tempParcel\\force-app')
       return;
     newPaths = [...newPaths, element];
   });
-  newConfig.packageDirectories = newPaths;
-  projectJson.setContents(newConfig);
-  await projectJson.write();
+  const finalConfig = projectJson.set('packageDirectories', newPaths as ConfigValue);
+  await projectJson.write(finalConfig);
 }
