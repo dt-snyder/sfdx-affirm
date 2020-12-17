@@ -1,9 +1,9 @@
 {
   "name": "sfdx-affirm",
-  "description": "Creates a package from git diff and validates it against a specific org.",
-  "version": "1.9.3",
-  "author": "Drew Snyder drew.snyder@hunterdouglas.com",
-  "bugs": "https://bitbucket.org/hunterdouglas/sfdx-affirm/issues",
+  "description": "Tools for creating, validating, and deploying packages using source control",
+  "version": "2.0.0",
+  "author": "Drew Snyder drewtsnyder@gmail.com",
+  "bugs": "https://github.com/dt-snyder/sfdx-affirm/issues",
   "dependencies": {
     "@oclif/command": "^1",
     "@oclif/config": "^1",
@@ -43,7 +43,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://bitbucket.org/hunterdouglas/sfdx-affirm/src/master/",
+  "homepage": "https://github.com/dt-snyder/sfdx-affirm",
   "keywords": [
     "sfdx-plugin"
   ],
@@ -55,7 +55,7 @@
       "@oclif/plugin-help"
     ]
   },
-  "repository": "hunterdouglas/sfdx-affirm",
+  "repository": "dt-snyder/sfdx-affirm",
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
     "posttest": "tslint -p test -t stylish",
