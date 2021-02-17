@@ -1,7 +1,7 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
 import { SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { UX, TableOptions } from '@salesforce/command';
-import { PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
+import { DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
 import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from './affirm_fs';
@@ -124,4 +124,18 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
     testsToReturn = await fsGetTestStringFromSuiteXml(suiteExists);
   }
   return testsToReturn;
+}
+
+export async function liftGetAllSuitesInBranch(diff: DiffObj) {
+  let tests: Set<string> = new Set();
+  Object.keys(diff).forEach(key => {
+    if (key === 'destructive') return;
+    diff[key].forEach(element => {
+      const filePath: string = element;
+      if (filePath.includes('/main/default/testSuites/')) {
+        tests.add(filePath);
+      }
+    });
+  });
+  return tests;
 }
