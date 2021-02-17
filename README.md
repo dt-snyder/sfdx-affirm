@@ -15,6 +15,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmquality--d-string--t-string--s--w-integer--r--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuitemerge--n-string--o-string--n-string--b-string--l---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmtests--l-string--w-integer--r--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 
 ## `sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
@@ -81,7 +82,7 @@ EXAMPLES
                CHANGED: MyClass.cls
 ```
 
-_See code: [lib\commands\sfdx-affirm\changes.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.0.2/lib\commands\sfdx-affirm\changes.js)_
+_See code: [lib\commands\sfdx-affirm\changes.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\changes.js)_
 
 ## `sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -149,7 +150,7 @@ EXAMPLES
          Cleaning Up... Success
 ```
 
-_See code: [lib\commands\sfdx-affirm\parcel.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.0.2/lib\commands\sfdx-affirm\parcel.js)_
+_See code: [lib\commands\sfdx-affirm\parcel.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\parcel.js)_
 
 ## `sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -222,7 +223,7 @@ EXAMPLES
          Component With Errors: 0
 ```
 
-_See code: [lib\commands\sfdx-affirm\quality.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.0.2/lib\commands\sfdx-affirm\quality.js)_
+_See code: [lib\commands\sfdx-affirm\quality.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\quality.js)_
 
 ## `sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -279,7 +280,80 @@ EXAMPLES
        New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
 ```
 
-_See code: [lib\commands\sfdx-affirm\suite.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.0.2/lib\commands\sfdx-affirm\suite.js)_
+_See code: [lib\commands\sfdx-affirm\suite.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\suite.js)_
+
+## `sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Creates or Updates a testSuite-meta.xml file using the tests from all inserted or changed test suite files in the current branch
+
+```
+USAGE
+  $ sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel 
+  trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+
+OPTIONS
+  -b, --branch=branch                                                               Optional: the branch other than
+                                                                                    remotes/origin/master to diff
+                                                                                    against
+
+  -l, --list                                                                        Optional: if provided the tests will
+                                                                                    not be merged into a single suite,
+                                                                                    rather they will be collected and
+                                                                                    printed
+
+  -n, --inputdir=inputdir                                                           Optional: the root directory to
+                                                                                    compare other than the
+                                                                                    sfdx-project.json default
+
+  -n, --name=name                                                                   Optional: Provide if you would like
+                                                                                    to define the name of your test
+                                                                                    suite. Default: name of current
+                                                                                    branch minus 'feature/'
+
+  -o, --outputdir=outputdir                                                         Optional: Provide if you would like
+                                                                                    to save the testSuite-meta.xml file
+                                                                                    to a location other than
+                                                                                    force-app/main/default/testSuites
+
+  --json                                                                            format output as json
+
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
+                                                                                    this command invocation
+
+ALIASES
+  $ sfdx affirm:suite:merge
+
+EXAMPLES
+  $ sfdx affirm:suite:merge
+       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+       Git Diff For: remotes/origin/master...pilot/affirm
+       The following 3 test suite(s) will me merged into the name-of-epic-branch test suite
+       force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
+       force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
+       force-app/main/default/testSuites/SFDC_3###_some_branch2.testSuite-meta.xml
+       Creating Test Suite... Success
+       New Test Suite Written to: force-app/main/default/testSuites/name-of-epic-branch.testSuite-meta.xml
+    
+  $ sfdx affirm:suite:merge -n funky_suite_name
+       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+       Git Diff For: remotes/origin/master...pilot/affirm
+       The following 2 test suite(s) will me merged into the funky_suite_name test suite
+       force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
+       force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
+       Creating Test Suite... Success
+       New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml
+    
+  $ sfdx affirm:suite:merge -o .releaseArtifacts/tests
+       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
+       Git Diff For: remotes/origin/master...pilot/affirm
+       The following 2 test suite(s) will me merged into the name-of-epic-branch test suite
+       force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
+       force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
+       Creating Test Suite... Success
+       New Test Suite Written to: .releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
+```
+
+_See code: [lib\commands\sfdx-affirm\suite\merge.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\suite\merge.js)_
 
 ## `sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -354,11 +428,8 @@ EXAMPLES
          (y/n) Would you like to print the results of each test?: n
 ```
 
-_See code: [lib\commands\sfdx-affirm\tests.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.0.2/lib\commands\sfdx-affirm\tests.js)_
+_See code: [lib\commands\sfdx-affirm\tests.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\tests.js)_
 <!-- commandsstop -->
-
-<!-- commandsstop -->
-
 ## Helpful Links
 
 - [Create Your First Salesforce CLI Plugin](https://developer.salesforce.com/blogs/2018/05/create-your-first-salesforce-cli-plugin.html)

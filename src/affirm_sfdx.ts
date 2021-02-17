@@ -41,7 +41,7 @@ export async function sfdxMdapiDescribeMetadata(ux?: UX): Promise<DescribeMetada
         ux.stopSpinner('Error');
         ux.log(errResult.message);
         ux.log(errResult.stack);
-        throw SfdxError.create('affirm', 'helper_files', 'errorMdapiCallFailed');
+        throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorMdapiCallFailed');
       }
     });
   return result as DescribeMetadata;

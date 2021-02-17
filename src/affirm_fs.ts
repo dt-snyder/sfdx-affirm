@@ -121,7 +121,7 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
     const fileName = pathCrums[pathCrums.length - 1];
     const folder = pathCrums[3];
     const folderMdtInfo = metaDataTypes.metadataObjects.find(mdt => mdt.directoryName === folder);
-    if (!folderMdtInfo) throw SfdxError.create('affirm', 'helper_files', 'errorMdapiFindFailed');
+    if (!folderMdtInfo) throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorMdapiFindFailed');
     if (fileName.indexOf('-meta.xml') >= 0 && folderMdtInfo.metaFile) continue;
     let xmlName;
     let newMembers;

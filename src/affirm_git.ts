@@ -18,7 +18,7 @@ function ignoreFile(file: string) {
 
 export async function checkForRepoAndRemote() {
   const isRepo = git.checkIsRepo();
-  if (!isRepo) throw SfdxError.create('affirm', 'helper_files', 'errorNoGitRepo');
+  if (!isRepo) throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoGitRepo');
 }
 
 export async function getCurrentBranchName(ux?: UX) {
@@ -32,7 +32,7 @@ export async function getCurrentBranchName(ux?: UX) {
 export async function getRemoteInfo(ux?: UX) {
   await checkForRepoAndRemote();
   const remotes = await git.getRemotes(true);
-  if (!remotes) throw SfdxError.create('affirm', 'helper_files', 'errorNoGitRemote');
+  if (!remotes) throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoGitRemote');
   const currentRemote = remotes[0].name + ' => ' + remotes[0].refs.push;
   if (ux) ux.log('Current Remote: ' + chalk.greenBright(currentRemote));
   return currentRemote;
