@@ -5,7 +5,6 @@ import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../affirm
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite, fsGetTestSetFromSuiteXml } from '../../../affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../../affirm_sfcore';
 import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch } from '../../../affirm_lift';
-import * as inquirer from 'inquirer'
 import { DiffObj } from '../../../affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
@@ -14,9 +13,9 @@ Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('sfdx-affirm', 'suite:merge');
+const messages = Messages.loadMessages('sfdx-affirm', 'merge');
 
-export default class Suite extends SfdxCommand {
+export default class Merge extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:suite:merge'];
@@ -76,22 +75,24 @@ export default class Suite extends SfdxCommand {
     const branch = this.flags.branch || 'remotes/origin/master';
     const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
+    // get the current branch name and set it as the file name if the user did not provide one
+    const defaultFileName = await liftShortBranchName(currentBranch, 25, true);
+    const name = this.flags.name || defaultFileName;
+    if (!listOnly) await checkName(name, this.ux);
+    if (name.length > 35 && !listOnly) {
+      throw SfdxError.create('sfdx-affirm', 'suite', 'errorNameIsToLong');
+    }
+    // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
+    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
+    const hasExistingSuite: string = await fsCheckForExistingSuite(outputdir, name);
+    // get diff and collect suite file locations
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
-    const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult);
+    const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
     if (suitesToMerge.size === 0) {
       this.ux.log('Could not find existing Suites to Merge: Exit Command');
       return { status: 'no existing suites found' };
     }
-    // get the current branch name and set it as the file name if the user did not provide one
-    const defaultFileName = await liftShortBranchName(currentBranch, 25);
-    const name = this.flags.name || defaultFileName;
-    await checkName(name, this.ux);
-    if (name.length > 35 && !listOnly) {
-      throw SfdxError.create('affirm', 'suite', 'errorNameIsToLong');
-    }
-    // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
-    const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
+
     if (listOnly) {
       this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) were found:');
     } else {
@@ -107,6 +108,7 @@ export default class Suite extends SfdxCommand {
       });
     }
     if (listOnly) {
+      this.ux.log('The following test classes were found: ');
       allTests.forEach(test => {
         this.ux.log(chalk.blue(test));
       });
