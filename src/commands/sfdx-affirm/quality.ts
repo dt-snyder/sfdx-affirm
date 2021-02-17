@@ -93,7 +93,7 @@ export default class Quality extends SfdxCommand {
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
     } else if (parcelExists === false) {
       const errorType = packagedir === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
-      throw SfdxError.create('affirm', 'quality', errorType);
+      throw SfdxError.create('sfdx-affirm', 'quality', errorType);
     }
     this.ux.log('Package Directory: "' + chalk.underline.blue(packagedir) + '"');
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests

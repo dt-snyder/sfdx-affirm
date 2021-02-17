@@ -9,7 +9,7 @@ export async function sfcoreGetDefaultPath(projectJson: SfdxProjectJson) {
     if (element.default) defaultPath = element.path;
   });
   if (defaultPath) return defaultPath;
-  throw SfdxError.create('affirm', 'helper_files', 'errorNoDefaultPath');
+  throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoDefaultPath');
 }
 
 export async function sfcoreIsPathProject(projectJson: SfdxProjectJson, providedPath: string) {
@@ -19,7 +19,7 @@ export async function sfcoreIsPathProject(projectJson: SfdxProjectJson, provided
     if (element.path === providedPath) foundPath = true;
   });
   if (foundPath) return;
-  throw SfdxError.create('affirm', 'helper_files', 'errorPathIsNotProject');
+  throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorPathIsNotProject');
 }
 
 export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson) {

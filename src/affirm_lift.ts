@@ -9,8 +9,15 @@ import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from './affirm_f
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
-export async function liftShortBranchName(currentBranch: string, topCharCount: number) {
-  const cleanBranchName = await cleanSuiteName(currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length));
+
+export async function liftShortBranchName(currentBranch: string, topCharCount: number, keepBranchType?: boolean) {
+  let branchName: string;
+  if (keepBranchType === true) {
+    branchName = currentBranch.replace('/', '_');
+  } else {
+    branchName = currentBranch.substring(currentBranch.indexOf('/') + 1, currentBranch.length);
+  }
+  const cleanBranchName = await cleanSuiteName(branchName);
   const nameArray = cleanBranchName.split('_');
   let shortFileName;
   let charCount = 0;
@@ -45,15 +52,15 @@ export async function checkName(name: string, ux?: UX) {
   const startsWithLetter = new RegExp(/^[a-zA-Z]/);
   if (!letterNumberUnderScore.test(name)) {
     if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
-    throw SfdxError.create('affirm', 'helper_files', 'alphanumericSuiteNameIssue');
+    throw SfdxError.create('sfdx-affirm', 'helper_files', 'alphanumericSuiteNameIssue');
   } else if (!startsWithLetter.test(name)) {
     if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
-    throw SfdxError.create('affirm', 'helper_files', 'startswithLetterSuiteNameIssue');
+    throw SfdxError.create('sfdx-affirm', 'helper_files', 'startswithLetterSuiteNameIssue');
   }
 }
 export async function liftCleanProvidedTests(tests: string) {
   if (tests.includes('.cls')) {
-    throw SfdxError.create('affirm', 'helper_files', 'errorNoToFileName');
+    throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoToFileName');
   }
   // clear the value provided by the user; remove white space and .cls
   return tests.trim().replace(/\s+/g, '');
@@ -126,13 +133,13 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
   return testsToReturn;
 }
 
-export async function liftGetAllSuitesInBranch(diff: DiffObj) {
+export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuite?: string) {
   let tests: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
     diff[key].forEach(element => {
       const filePath: string = element;
-      if (filePath.includes('/main/default/testSuites/')) {
+      if (filePath.includes('/main/default/testSuites/') && filePath !== existingMergedSuite) {
         tests.add(filePath);
       }
     });

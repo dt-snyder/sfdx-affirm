@@ -55,7 +55,7 @@ export default class Suite extends SfdxCommand {
     if (!tests) {
       useTests = await this.ux.prompt('Please provide a comma separated list of the test names to add to the suite');
       if (!useTests) {
-        throw SfdxError.create('affirm', 'suite', 'errorNoTestsProvided');
+        throw SfdxError.create('sfdx-affirm', 'suite', 'errorNoTestsProvided');
       }
     } else {
       useTests = tests;
@@ -70,7 +70,7 @@ export default class Suite extends SfdxCommand {
     const name = this.flags.name || defaultFileName;
     await checkName(name, this.ux);
     if (name.length > 35) {
-      throw SfdxError.create('affirm', 'suite', 'errorNameIsToLong');
+      throw SfdxError.create('sfdx-affirm', 'suite', 'errorNameIsToLong');
     }
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const project = await SfdxProject.resolve();
@@ -104,7 +104,7 @@ export default class Suite extends SfdxCommand {
       pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, name);
     } else {
       this.ux.stopSpinner('FAIL');
-      throw SfdxError.create('affirm', 'suite', 'errorUnknown');
+      throw SfdxError.create('sfdx-affirm', 'suite', 'errorUnknown');
     }
     this.ux.stopSpinner('Success');
     this.ux.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
