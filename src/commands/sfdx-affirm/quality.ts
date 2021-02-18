@@ -56,7 +56,8 @@ export default class Quality extends SfdxCommand {
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
     waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
-    noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
+    noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') }),
+    openstatus: flags.boolean({ char: 'o', description: messages.getMessage('openstatusFlagDescription'), default: false })
   };
 
   // Comment this out if your command does not require an org username
@@ -121,12 +122,13 @@ export default class Quality extends SfdxCommand {
       }
     }
     // start the validation of the package
-    const waittime = this.flags.waittime;
+    const openDeploymentStatus: boolean = this.flags.openstatus;
+    const waittime = openDeploymentStatus ? null : this.flags.waittime;
     this.ux.startSpinner('Validating Package');
-    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux);
+    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, openDeploymentStatus, useTestClasses, waittime, this.ux);
     const validationStatus = (validationResult.status == 1) ? chalk.redBright('Error') : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
-    if (validationStatus !== 'Error') {
+    if (validationStatus !== 'Error' && openDeploymentStatus === false) {
       const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
       this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
       this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
@@ -186,6 +188,8 @@ export default class Quality extends SfdxCommand {
           }
         }
       }
+    } else if (openDeploymentStatus) {
+      this.ux.log('Validation started successfully. View results on the Deployment Status page.');
     } else {
       this.ux.log('sfdx force:mdapi:deploy Failed to run Successfully');
       this.ux.log('Error Message: ' + validationResult.message);

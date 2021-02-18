@@ -5,6 +5,7 @@
   "silentFlagDescription": "If provided, you will not be prompted at all for input. If correct input isn't provided command fails.",
   "waittimeFlagDescription": "The number of minutes to wait for the command to complete. The default is 10.",
   "noresultsFlagDescription": "If provided, you will not be asked if you would like to print the component details or test details after validation completes.",
+  "openstatusFlagDescription": "If provided, validation will start and the related deployment status page in the target environment will be opened and the command will complete. Will not print results to terminal.",
   "errorDefaultPathPackageMissing": "could not find a package at the default path. Make sure you run affirm:parcel first.",
   "errorPackageMissing": "could not find a package at the specified path. Make sure the value provided --packagedirectory is spelled correctly or run affirm:parcel first.",
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",

@@ -48,12 +48,12 @@ export async function sfdxMdapiDescribeMetadata(ux?: UX): Promise<DescribeMetada
 }
 
 // TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
-export async function sfdxMdapiValidatePackage(targetusername: string, packageDir: string, testClasses?: string, waitTime?: number, ux?: UX) {
+export async function sfdxMdapiValidatePackage(targetusername: string, packageDir: string, openDeploymetStatus: boolean, testClasses?: string, waitTime?: number, ux?: UX) {
   const username = ' -u ' + targetusername;
   const packageDirectory = ' -d ' + packageDir;
   const tests = testClasses ? ' -l RunSpecifiedTests -r ' + testClasses : ' -l NoTestRun';
   const timeToWait = waitTime ? ' -w ' + waitTime : ' -w 10';
-  const command = 'sfdx force:mdapi:deploy --json -c ' + username + packageDirectory + timeToWait + tests;
+  const command = openDeploymetStatus ? 'sfdx force:mdapi:deploy --json -c ' + username + packageDirectory + tests : 'sfdx force:mdapi:deploy --json -c ' + username + packageDirectory + timeToWait + tests;
   let result;
   await exec(command)
     .then((resp) => {
@@ -68,6 +68,29 @@ export async function sfdxMdapiValidatePackage(targetusername: string, packageDi
         result = rawObj;
       }
     });
+  if (openDeploymetStatus && result.status === 1) {
+    if (ux) {
+      ux.log('Opening Deployment Status page for: ' + result.Id);
+    }
+    const openCommand = 'sfdx force:org:open --json ' + username + ' -p lightning/setup/DeployStatus/page?address=%2Fchangemgmt%2FmonitorDeploymentsDetails.apexp%3FasyncId%' + result.Id;
+    let openResult;
+    let hasError;
+    await exec(openCommand)
+      .then((resp) => {
+        const rawObj = JSON.parse(resp.stdout);
+        openResult = rawObj.result;
+      })
+      .catch((err) => {
+        hasError = true;
+        const rawObj = JSON.parse(err.stdout);
+        if (rawObj.result) {
+          openResult = rawObj.result;
+        } else {
+          openResult = rawObj;
+        }
+      });
+    if (hasError) ux.error('Error Opening Deployment Status: ' + openResult);
+  }
   return result;
 }
 
