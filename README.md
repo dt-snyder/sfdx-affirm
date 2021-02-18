@@ -82,7 +82,7 @@ EXAMPLES
                CHANGED: MyClass.cls
 ```
 
-_See code: [lib\commands\sfdx-affirm\changes.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\changes.js)_
+_See code: [lib\commands\sfdx-affirm\changes.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\changes.js)_
 
 ## `sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -150,7 +150,7 @@ EXAMPLES
          Cleaning Up... Success
 ```
 
-_See code: [lib\commands\sfdx-affirm\parcel.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\parcel.js)_
+_See code: [lib\commands\sfdx-affirm\parcel.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\parcel.js)_
 
 ## `sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -223,7 +223,7 @@ EXAMPLES
          Component With Errors: 0
 ```
 
-_See code: [lib\commands\sfdx-affirm\quality.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\quality.js)_
+_See code: [lib\commands\sfdx-affirm\quality.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\quality.js)_
 
 ## `sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -280,7 +280,7 @@ EXAMPLES
        New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
 ```
 
-_See code: [lib\commands\sfdx-affirm\suite.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\suite.js)_
+_See code: [lib\commands\sfdx-affirm\suite.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\suite.js)_
 
 ## `sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -353,7 +353,7 @@ EXAMPLES
        New Test Suite Written to: .releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
 ```
 
-_See code: [lib\commands\sfdx-affirm\suite\merge.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\suite\merge.js)_
+_See code: [lib\commands\sfdx-affirm\suite\merge.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\suite\merge.js)_
 
 ## `sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -428,7 +428,7 @@ EXAMPLES
          (y/n) Would you like to print the results of each test?: n
 ```
 
-_See code: [lib\commands\sfdx-affirm\tests.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.0/lib\commands\sfdx-affirm\tests.js)_
+_See code: [lib\commands\sfdx-affirm\tests.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\tests.js)_
 <!-- commandsstop -->
 ## Helpful Links
 
