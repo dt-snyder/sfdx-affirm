@@ -1,7 +1,7 @@
 {
   "name": "sfdx-affirm",
   "description": "Tools for creating, validating, and deploying packages using source control",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": "Drew Snyder drewtsnyder@gmail.com",
   "bugs": "https://github.com/dt-snyder/sfdx-affirm/issues",
   "dependencies": {

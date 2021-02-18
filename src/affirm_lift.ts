@@ -117,8 +117,14 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
   const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
   const defaultPath = await sfcoreGetDefaultPath(pjtJson);
   const defaultOutputDir = defaultPath + '/main/default/testSuites/';
-  const suiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
+  const defaultSuiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
   // if a suite doesn't exist prompt the user for tests
+  let mergedSuiteExists;
+  if (!defaultSuiteExists) {
+    const mergedFileName = await liftShortBranchName(currentBranch, 25, true);
+    mergedSuiteExists = await fsCheckForExistingSuite(defaultOutputDir, mergedFileName);
+  }
+  const suiteExists = defaultSuiteExists || mergedSuiteExists;
   if (!suiteExists && !silent) {
     const provideList = await ux.confirm(logYN + ' Could not find test suite for the current branch. Would you like to provide a list of test classes now?');
     if (provideList) {
