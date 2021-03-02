@@ -124,6 +124,7 @@ export default class Quality extends SfdxCommand {
     const waittime = this.flags.waittime;
     this.ux.startSpinner('Validating Package');
     const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux);
+    // this.ux.logJson(validationResult);
     const validationStatus = (validationResult.status == 1) ? chalk.redBright('Error') : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
     if (validationStatus !== 'Error') {
