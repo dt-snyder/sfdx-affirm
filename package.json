@@ -51,12 +51,18 @@
   "oclif": {
     "commands": "./lib/commands",
     "bin": "sfdx",
+    "topics": {
+      "sfdx-affirm": {
+        "description": "Commands for creating, validating and deploying salesforce packages."
+      }
+    },
     "devPlugins": [
       "@oclif/plugin-help"
     ]
   },
   "repository": "dt-snyder/sfdx-affirm",
   "scripts": {
+    "lint": "tslint --project . --config tslint.json --format stylish",
     "postpack": "rimraf oclif.manifest.json",
     "posttest": "tslint -p test -t stylish",
     "prepack": "rimraf lib && tsc -b && oclif-dev manifest && oclif-dev readme",

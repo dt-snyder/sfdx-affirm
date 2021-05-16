@@ -1,12 +1,12 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
-import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../affirm_sfcore';
-import { sfdxMdapiConvert, sfdxMdapiDescribeMetadata } from '../../affirm_sfdx';
-import { DiffObj } from '../../affirm_interfaces';
-import { printBranchesCompared, getYNString } from '../../affirm_lift';
+import { AnyJson, ensureString } from '@salesforce/ts-types';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
+import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../lib/affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../lib/affirm_sfcore';
+import { runCommand } from '../../lib/sfdx';
+import { DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
+import { printBranchesCompared, getYNString } from '../../lib/affirm_lift';
 import * as inquirer from 'inquirer'
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
@@ -83,14 +83,14 @@ export default class Parcel extends SfdxCommand {
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
     await sfcoreFindOrAddReleasePath(pjtJson);
     // clone the files to a temp folder for convert... will clean this up later
-    const metaDataTypes = await sfdxMdapiDescribeMetadata(this.ux);
+    const metaDataTypes: DescribeMetadata = await runCommand('sfdx force:mdapi:describemetadata') as unknown as DescribeMetadata;
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);
     const logYN = await getYNString();
     // convert the temp folder to a package
     if (fsFilesMoved > 0) {
       this.ux.stopSpinner('Success: ' + chalk.greenBright(fsFilesMoved) + ' files ready for convert');
       this.ux.startSpinner('Converting');
-      await sfdxMdapiConvert(this.ux, outputdir);
+      ensureString((await runCommand(`sfdx force:source:convert -d ${outputdir} -r .releaseArtifacts/tempParcel/force-app`)).location, 'Failed to convert to package');
       this.ux.stopSpinner('Success: Package Created at ' + chalk.underline.blue(outputdir));
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');

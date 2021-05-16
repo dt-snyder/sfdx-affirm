@@ -3,10 +3,10 @@ import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-import { sfdxMdapiValidatePackage } from '../../affirm_sfdx';
-import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser } from '../../affirm_lift';
-import { fsSaveJson } from '../../affirm_fs';
-import affirm_tables from '../../affirm_tables';
+import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser } from '../../lib/affirm_lift';
+import { fsSaveJson } from '../../lib/affirm_fs';
+import affirm_tables from '../../lib/affirm_tables';
+import { runCommand } from '../../lib/sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -55,7 +55,7 @@ export default class Quality extends SfdxCommand {
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
-    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
+    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription'), default: 10 }),
     noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
   };
 
@@ -122,79 +122,74 @@ export default class Quality extends SfdxCommand {
     }
     // start the validation of the package
     const waittime = this.flags.waittime;
+    const tests = useTestClasses ? ' -l RunSpecifiedTests -r ' + useTestClasses : ' -l NoTestRun';
     this.ux.startSpinner('Validating Package');
-    const validationResult = await sfdxMdapiValidatePackage(username, packagedir, useTestClasses, waittime, this.ux);
-    // this.ux.logJson(validationResult);
-    const validationStatus = (validationResult.status == 1) ? chalk.redBright('Error') : chalk.cyanBright(validationResult.status);
+    const command = `sfdx force:mdapi:deploy -c  -u ${username} -d ${packagedir} ${tests} -w ${waittime}`;
+    const validationResult = (await runCommand(command));
+
+    const validationStatus = (validationResult.status !== 'Succeeded') ? chalk.redBright(validationResult.status) : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
-    if (validationStatus !== 'Error') {
-      const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
-      this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
-      this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
-      this.ux.log('Component Deployed: ' + chalk.green(validationResult.numberComponentsDeployed));
-      this.ux.log('Component With Errors: ' + chalk.red(validationResult.numberComponentErrors));
-      if (useTestClasses) {
-        this.ux.log('Total Tests Run: ' + chalk.cyan(validationResult.numberTestsTotal));
-        this.ux.log('Successful Tests: ' + chalk.green(validationResult.numberTestsCompleted));
-        this.ux.log('Test Errors: ' + chalk.red(validationResult.numberTestErrors));
-      }
+    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
+    this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
+    this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
+    this.ux.log('Component Deployed: ' + chalk.green(validationResult.numberComponentsDeployed));
+    this.ux.log('Component With Errors: ' + chalk.red(validationResult.numberComponentErrors));
+    if (useTestClasses) {
+      this.ux.log('Total Tests Run: ' + chalk.cyan(validationResult.numberTestsTotal));
+      this.ux.log('Successful Tests: ' + chalk.green(validationResult.numberTestsCompleted));
+      this.ux.log('Test Errors: ' + chalk.red(validationResult.numberTestErrors));
+    }
 
-      const noresults = silent ? true : this.flags.noresults;
-      if (!noresults) {
-        const displayResults: any = await inquirer.prompt([{
-          name: 'selected',
-          message: 'Would you like to print or save the any of the validation results?',
-          type: 'list',
-          choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
-        }]);
-        if (displayResults.selected !== 'No') {
-          const selected = displayResults.selected.split(': ');
-          const selectedType = selected[0];
-          const selectedCount = selected[1];
+    const noresults = silent ? true : this.flags.noresults;
+    if (!noresults) {
+      const displayResults: any = await inquirer.prompt([{
+        name: 'selected',
+        message: 'Would you like to print or save the any of the validation results?',
+        type: 'list',
+        choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
+      }]);
+      if (displayResults.selected !== 'No') {
+        const selected = displayResults.selected.split(': ');
+        const selectedType = selected[0];
+        const selectedCount = selected[1];
 
-          const columns = {
-            componentSuccesses: affirm_tables.componentSuccesses,
-            runTestResultSuccess: affirm_tables.runTestResultSuccess,
-            runTestResultFailure: affirm_tables.runTestResultFailure,
-            componentFailures: affirm_tables.componentFailures
-          };
+        const columns = {
+          componentSuccesses: affirm_tables.componentSuccesses,
+          runTestResultSuccess: affirm_tables.runTestResultSuccess,
+          runTestResultFailure: affirm_tables.runTestResultFailure,
+          componentFailures: affirm_tables.componentFailures
+        };
 
-          for (const resultType of Object.keys(validationResult.details)) {
-            if (resultType === 'runTestResult') {
-              if (!validationResult.details[resultType].successes && !validationResult.details[resultType].failures)
-                continue;
+        for (const resultType of Object.keys(validationResult.details)) {
+          if (resultType === 'runTestResult') {
+            if (!validationResult.details[resultType].successes || !validationResult.details[resultType].failures)
+              continue;
+          } else if ((Array.isArray(validationResult.details[resultType]) && validationResult.details[resultType].length === 0) || !Array.isArray(validationResult.details[resultType])) {
+            continue;
+          }
+          const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          let displayNext = selectedCount === 'all';
+          if (displayNext === false) {
+            displayNext = await this.ux.confirm(logYN + ' Would you like to ' + selectedType + ' the ' + printResultType + '?');
+          }
+          if (displayNext === false) continue;
+          if (resultType === 'runTestResult' && selectedType === 'print') {
+            if (validationResult.details[resultType].successes.length > 0) {
+              await liftPrintTable('Test Result Successes', validationResult.details[resultType].successes, columns.runTestResultSuccess, this.ux);
             }
-            if ((Array.isArray(validationResult.details[resultType]) && validationResult.details[resultType].length === 0)) continue;
-            const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-            let displayNext = selectedCount === 'all';
-            if (displayNext === false) {
-              displayNext = await this.ux.confirm(logYN + ' Would you like to ' + selectedType + ' the ' + printResultType + '?');
+            if (validationResult.details[resultType].failures.length > 0) {
+              await liftPrintTable('Test Result Failures', validationResult.details[resultType].failures, columns.runTestResultFailure, this.ux);
             }
-            if (displayNext === false) continue;
-            if (resultType === 'runTestResult' && selectedType === 'print') {
-              if (validationResult.details[resultType].successes.length > 0) {
-                await liftPrintTable('Test Result Successes', validationResult.details[resultType].successes, columns.runTestResultSuccess, this.ux);
-              }
-              if (validationResult.details[resultType].numFailures.length > 0) {
-                await liftPrintTable('Test Result Failures', validationResult.details[resultType].failures, columns.runTestResultFailure, this.ux);
-              }
-            } else if (resultType !== 'runTestResult' && selectedType === 'print') {
-              await liftPrintTable(printResultType, validationResult.details[resultType], columns[resultType], this.ux);
-            } else if (selectedType === 'save') {
-              const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
-              await fsSaveJson(fileName, validationResult.details[resultType], this.ux);
-            }
+            // TODO: add support for printing details.runTestResult.codeCoverage
+          } else if (resultType !== 'runTestResult' && selectedType === 'print') {
+            await liftPrintTable(printResultType, validationResult.details[resultType], columns[resultType], this.ux);
+          } else if (selectedType === 'save') {
+            const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
+            await fsSaveJson(fileName, validationResult.details[resultType], this.ux);
           }
         }
       }
-    } else {
-      this.ux.log('sfdx force:mdapi:deploy Failed to run Successfully');
-      this.ux.log('Error Message: ' + validationResult.message);
-      const printErrorDetails = await this.ux.confirm(logYN + 'Print full error details?');
-      if (printErrorDetails) {
-        this.ux.logJson(validationResult);
-      }
     }
-    return validationResult;
+    return validationResult as AnyJson;
   }
 }

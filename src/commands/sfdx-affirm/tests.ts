@@ -1,8 +1,9 @@
 import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
 import { Messages, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser } from '../../affirm_lift';
-import { sfdxTestRun } from '../../affirm_sfdx';
+import { SfdxTestResult } from '../../lib/affirm_interfaces';
+import { liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser } from '../../lib/affirm_lift';
+import { runCommand } from '../../lib/sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 
@@ -104,47 +105,37 @@ export default class Tests extends SfdxCommand {
     const waittime = this.flags.waittime;
     // run force:apex:test:run command
     this.ux.startSpinner('Running Tests');
-    const testResults = await sfdxTestRun(username, testsToUse, waittime);
+    const testResults = (await runCommand(`sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`)) as unknown as SfdxTestResult;
     this.ux.stopSpinner('Done');
     // this.ux.logJson(testResults.tests);
-    if (!testResults.status) {
-
-      this.ux.log('Outcome: ' + chalk.cyanBright(testResults.summary.outcome));
-      this.ux.log('Tests Ran: ' + chalk.cyan(testResults.summary.testsRan));
-      this.ux.log('Passing: ' + chalk.green(testResults.summary.passing));
-      this.ux.log('Failing: ' + chalk.red(testResults.summary.failing));
-      this.ux.log('Skipped: ' + chalk.yellow(testResults.summary.skipped));
-      this.ux.log('PassRate: ' + chalk.green(testResults.summary.passRate));
-      this.ux.log('FailRate: ' + chalk.red(testResults.summary.failRate));
-      this.ux.log('Test Total Time: ' + chalk.cyan(testResults.summary.testTotalTime));
-      const printresults = this.flags.printresults;
-      let printTestResults;
-      if (!printresults) {
-        const printMore = await this.ux.confirm(logYN + ' Would you like to print the results of each test?');
-        printTestResults = printMore;
-      } else {
-        printTestResults = printresults;
-      }
-      if (printTestResults) {
-        const whatToPrint: TableOptions = {
-          columns: [
-            { key: 'FullName', label: 'Name' },
-            { key: 'Outcome', label: 'Outcome' },
-            { key: 'RunTime', label: ' Run Time (ms)' },
-            { key: 'StackTrace', label: 'Stack Trace' },
-            { key: 'Message', label: 'Message' }
-          ]
-        };
-        await liftPrintTable('Test Results', testResults.tests, whatToPrint, this.ux);
-      }
+    this.ux.log('Outcome: ' + chalk.cyanBright(testResults.summary.outcome));
+    this.ux.log('Tests Ran: ' + chalk.cyan(testResults.summary.testsRan));
+    this.ux.log('Passing: ' + chalk.green(testResults.summary.passing));
+    this.ux.log('Failing: ' + chalk.red(testResults.summary.failing));
+    this.ux.log('Skipped: ' + chalk.yellow(testResults.summary.skipped));
+    this.ux.log('PassRate: ' + chalk.green(testResults.summary.passRate));
+    this.ux.log('FailRate: ' + chalk.red(testResults.summary.failRate));
+    this.ux.log('Test Total Time: ' + chalk.cyan(testResults.summary.testTotalTime));
+    const printresults = this.flags.printresults;
+    let printTestResults;
+    if (!printresults) {
+      const printMore = await this.ux.confirm(logYN + ' Would you like to print the results of each test?');
+      printTestResults = printMore;
     } else {
-      this.ux.log(chalk.redBright('sfdx force:apex:test:run Failed to run Successfully'));
-      this.ux.log('Error Message: ' + testResults.message);
-      const printErrorDetails = await this.ux.confirm(logYN + ' Print full error details?');
-      if (printErrorDetails) {
-        this.ux.logJson(testResults);
-      }
+      printTestResults = printresults;
     }
-    return testResults;
+    if (printTestResults) {
+      const whatToPrint: TableOptions = {
+        columns: [
+          { key: 'FullName', label: 'Name' },
+          { key: 'Outcome', label: 'Outcome' },
+          { key: 'RunTime', label: ' Run Time (ms)' },
+          { key: 'StackTrace', label: 'Stack Trace' },
+          { key: 'Message', label: 'Message' }
+        ]
+      };
+      await liftPrintTable('Test Results', testResults.tests, whatToPrint, this.ux);
+    }
+    return testResults as unknown as AnyJson;
   }
 }

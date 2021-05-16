@@ -1,11 +1,11 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm_git';
-import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../affirm_lift';
-import { fsSaveJson, getPrintableDiffObject } from '../../affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../affirm_sfcore';
-import { DiffObj, PrintableDiffObj } from '../../affirm_interfaces';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
+import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
+import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
+import { DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);

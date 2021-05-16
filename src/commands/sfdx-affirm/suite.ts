@@ -1,10 +1,10 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { getCurrentBranchName } from '../../affirm_git';
-import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../affirm_fs';
-import { sfcoreGetDefaultPath } from '../../affirm_sfcore';
-import { liftShortBranchName, liftCleanProvidedTests, checkName } from '../../affirm_lift';
+import { getCurrentBranchName } from '../../lib/affirm_git';
+import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../lib/affirm_fs';
+import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
+import { liftShortBranchName, liftCleanProvidedTests, checkName } from '../../lib/affirm_lift';
 import * as inquirer from 'inquirer'
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
