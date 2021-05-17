@@ -5,7 +5,8 @@ import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affir
 import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
 import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
-import { DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
+import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
+import { getAffirmSettings } from '../../lib/affirm_settings';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -59,6 +60,7 @@ export default class Changes extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
@@ -68,7 +70,7 @@ export default class Changes extends SfdxCommand {
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // compare the current branch to the provided or default branch
-    const branch = this.flags.branch || 'remotes/origin/master';
+    const branch = this.flags.branch || settings.primaryBranch;
     const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     const result: DiffObj = await gitDiffSum(branch, inputdir);

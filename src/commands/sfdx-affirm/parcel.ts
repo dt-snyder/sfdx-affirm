@@ -1,15 +1,15 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
-import { AnyJson, ensureString } from '@salesforce/ts-types';
+import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { AnyJson, ensureString, ensureNumber } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../lib/affirm_sfcore';
 import { runCommand } from '../../lib/sfdx';
-import { DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
+import { AffirmSettings, DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
 import { printBranchesCompared, getYNString } from '../../lib/affirm_lift';
 import * as inquirer from 'inquirer'
+import { getAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
-
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
@@ -60,9 +60,10 @@ export default class Parcel extends SfdxCommand {
   protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
-    const branch = this.flags.branch || 'remotes/origin/master';
+    const branch = this.flags.branch || settings.primaryBranch;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const project = await SfdxProject.resolve();
     const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
@@ -70,7 +71,7 @@ export default class Parcel extends SfdxCommand {
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
-    const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
+    const outputdir = this.flags.outputdir ? settings.buildDirectory + '/' + this.flags.outputdir : settings.buildDirectory + '/' + settings.packageDirectory;
     // tell user what we are going to run git diff on and do it
     const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
@@ -83,14 +84,15 @@ export default class Parcel extends SfdxCommand {
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
     await sfcoreFindOrAddReleasePath(pjtJson);
     // clone the files to a temp folder for convert... will clean this up later
-    const metaDataTypes: DescribeMetadata = await runCommand('sfdx force:mdapi:describemetadata') as unknown as DescribeMetadata;
+    const metaDataTypes: DescribeMetadata = (await runCommand('sfdx force:mdapi:describemetadata')).result as unknown as DescribeMetadata;
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);
     const logYN = await getYNString();
     // convert the temp folder to a package
     if (fsFilesMoved > 0) {
       this.ux.stopSpinner('Success: ' + chalk.greenBright(fsFilesMoved) + ' files ready for convert');
       this.ux.startSpinner('Converting');
-      ensureString((await runCommand(`sfdx force:source:convert -d ${outputdir} -r .releaseArtifacts/tempParcel/force-app`)).location, 'Failed to convert to package');
+      const inputDir = settings.buildDirectory + '/tempParcel/force-app';
+      await runCommand(`sfdx force:source:convert -d ${outputdir} -r ${inputDir}`);
       this.ux.stopSpinner('Success: Package Created at ' + chalk.underline.blue(outputdir));
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');

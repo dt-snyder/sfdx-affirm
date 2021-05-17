@@ -33,4 +33,11 @@ const componentFailures: TableOptions = {
     { key: 'problemType', label: 'Problem Type' }
   ]
 };
-export default { componentSuccesses, runTestResultSuccess, runTestResultFailure, componentFailures };
+const codeCoverageWarnings: TableOptions = {
+  columns: [
+    { key: 'name', label: 'Class' },
+    { key: 'message', label: 'Message' },
+    { key: 'id', label: 'Id' }
+  ]
+};
+export default { componentSuccesses, runTestResultSuccess, runTestResultFailure, componentFailures, codeCoverageWarnings };

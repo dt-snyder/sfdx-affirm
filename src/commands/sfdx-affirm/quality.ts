@@ -7,6 +7,8 @@ import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteO
 import { fsSaveJson } from '../../lib/affirm_fs';
 import affirm_tables from '../../lib/affirm_tables';
 import { runCommand } from '../../lib/sfdx';
+import { getAffirmSettings } from '../../lib/affirm_settings';
+import { AffirmSettings } from '../../lib/affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -55,7 +57,7 @@ export default class Quality extends SfdxCommand {
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
-    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription'), default: 10 }),
+    waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
     noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
   };
 
@@ -66,6 +68,7 @@ export default class Quality extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
     const silent: boolean = this.flags.silent;
     const inputUsername = this.flags.targetusername;
@@ -85,14 +88,14 @@ export default class Quality extends SfdxCommand {
     }
     this.ux.log('Selected Org: ' + chalk.greenBright(username));
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
-    const packagedir = this.flags.packagedir || '.releaseArtifacts/parcel';
+    const packagedir = this.flags.packagedir || settings.buildDirectory + '/' + settings.packageDirectory;
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists && silent === false) {
       const confirmParcelDir = logYN + ' Are you sure you want to validate the package located in the "' + chalk.underline.blue(packagedir) + '" folder?';
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
     } else if (parcelExists === false) {
-      const errorType = packagedir === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
+      const errorType = packagedir === (settings.buildDirectory + '/' + settings.packageDirectory) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('sfdx-affirm', 'quality', errorType);
     }
     this.ux.log('Package Directory: "' + chalk.underline.blue(packagedir) + '"');
@@ -121,23 +124,23 @@ export default class Quality extends SfdxCommand {
       }
     }
     // start the validation of the package
-    const waittime = this.flags.waittime;
+    const waittime = this.flags.waittime || settings.waitTime;
     const tests = useTestClasses ? ' -l RunSpecifiedTests -r ' + useTestClasses : ' -l NoTestRun';
     this.ux.startSpinner('Validating Package');
     const command = `sfdx force:mdapi:deploy -c  -u ${username} -d ${packagedir} ${tests} -w ${waittime}`;
     const validationResult = (await runCommand(command));
 
-    const validationStatus = (validationResult.status !== 'Succeeded') ? chalk.redBright(validationResult.status) : chalk.cyanBright(validationResult.status);
+    const validationStatus = (validationResult.status > 0) ? chalk.redBright(validationResult.result.status) : chalk.cyanBright(validationResult.result.status);
     this.ux.stopSpinner(validationStatus);
-    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
+    const currentRunName = validationResult.result.startDate.substring(0, validationResult.result.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.result.id;
     this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
-    this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
-    this.ux.log('Component Deployed: ' + chalk.green(validationResult.numberComponentsDeployed));
-    this.ux.log('Component With Errors: ' + chalk.red(validationResult.numberComponentErrors));
+    this.ux.log('Total Components: ' + chalk.cyan(validationResult.result.numberComponentsTotal));
+    this.ux.log('Component Deployed: ' + chalk.green(validationResult.result.numberComponentsDeployed));
+    this.ux.log('Component With Errors: ' + chalk.red(validationResult.result.numberComponentErrors));
     if (useTestClasses) {
-      this.ux.log('Total Tests Run: ' + chalk.cyan(validationResult.numberTestsTotal));
-      this.ux.log('Successful Tests: ' + chalk.green(validationResult.numberTestsCompleted));
-      this.ux.log('Test Errors: ' + chalk.red(validationResult.numberTestErrors));
+      this.ux.log('Total Tests Run: ' + chalk.cyan(validationResult.result.numberTestsTotal));
+      this.ux.log('Successful Tests: ' + chalk.green(validationResult.result.numberTestsCompleted));
+      this.ux.log('Test Errors: ' + chalk.red(validationResult.result.numberTestErrors));
     }
 
     const noresults = silent ? true : this.flags.noresults;
@@ -157,14 +160,16 @@ export default class Quality extends SfdxCommand {
           componentSuccesses: affirm_tables.componentSuccesses,
           runTestResultSuccess: affirm_tables.runTestResultSuccess,
           runTestResultFailure: affirm_tables.runTestResultFailure,
-          componentFailures: affirm_tables.componentFailures
+          componentFailures: affirm_tables.componentFailures,
+          codeCoverageWarnings: affirm_tables.codeCoverageWarnings
         };
 
-        for (const resultType of Object.keys(validationResult.details)) {
+        for (const resultType of Object.keys(validationResult.result.details)) {
           if (resultType === 'runTestResult') {
-            if (!validationResult.details[resultType].successes || !validationResult.details[resultType].failures)
+            // console.log(validationResult.result.details[resultType]);
+            if (!validationResult.result.details[resultType].successes && !validationResult.result.details[resultType].failures && !validationResult.result.details[resultType].codeCoverageWarnings)
               continue;
-          } else if ((Array.isArray(validationResult.details[resultType]) && validationResult.details[resultType].length === 0) || !Array.isArray(validationResult.details[resultType])) {
+          } else if ((Array.isArray(validationResult.result.details[resultType]) && validationResult.result.details[resultType].length === 0) || !Array.isArray(validationResult.result.details[resultType])) {
             continue;
           }
           const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
@@ -174,18 +179,26 @@ export default class Quality extends SfdxCommand {
           }
           if (displayNext === false) continue;
           if (resultType === 'runTestResult' && selectedType === 'print') {
-            if (validationResult.details[resultType].successes.length > 0) {
-              await liftPrintTable('Test Result Successes', validationResult.details[resultType].successes, columns.runTestResultSuccess, this.ux);
+            if (validationResult.result.details[resultType].successes && validationResult.result.details[resultType].successes.length > 0) {
+              await liftPrintTable('Test Result Successes', validationResult.result.details[resultType].successes, columns.runTestResultSuccess, this.ux);
             }
-            if (validationResult.details[resultType].failures.length > 0) {
-              await liftPrintTable('Test Result Failures', validationResult.details[resultType].failures, columns.runTestResultFailure, this.ux);
+            if (validationResult.result.details[resultType].failures && validationResult.result.details[resultType].failures.length > 0) {
+              await liftPrintTable('Test Result Failures', validationResult.result.details[resultType].failures, columns.runTestResultFailure, this.ux);
             }
-            // TODO: add support for printing details.runTestResult.codeCoverage
+            if (validationResult.result.details[resultType].codeCoverageWarnings) {
+              let warningList = [];
+              if (!Array.isArray(validationResult.result.details[resultType].codeCoverageWarnings)) {
+                warningList = [validationResult.result.details[resultType].codeCoverageWarnings];
+              } else {
+                warningList = validationResult.result.details[resultType].codeCoverageWarnings;
+              }
+              await liftPrintTable('Code Coverage Warnings', warningList, columns.codeCoverageWarnings, this.ux);
+            }
           } else if (resultType !== 'runTestResult' && selectedType === 'print') {
-            await liftPrintTable(printResultType, validationResult.details[resultType], columns[resultType], this.ux);
+            await liftPrintTable(printResultType, validationResult.result.details[resultType], columns[resultType], this.ux);
           } else if (selectedType === 'save') {
-            const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
-            await fsSaveJson(fileName, validationResult.details[resultType], this.ux);
+            const fileName = settings.buildDirectory + '/validationResults/' + currentRunName + '/' + resultType;
+            await fsSaveJson(fileName, validationResult.result.details[resultType], this.ux);
           }
         }
       }

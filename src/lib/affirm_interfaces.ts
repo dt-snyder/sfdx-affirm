@@ -100,3 +100,10 @@ export interface SfdxTestApexClass {
   Name: string,
   NamespacePrefix: string | undefined | null
 }
+
+export interface AffirmSettings {
+  primaryBranch: string | undefined,
+  buildDirectory: string | undefined,
+  packageDirectory: string | undefined,
+  waitTime: string | undefined
+}

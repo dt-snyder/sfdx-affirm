@@ -31,13 +31,14 @@ export const runCommand = (fullCommand: string): Promise<Dictionary> => {
       try { json = JSON.parse(stdout); } catch (e) {
         console.warn(`No parsable results from command "${fullCommand}"`);
       }
-      if (code > 0) {
+      if (code > 0 && !json.result) {
         const sfdxError = SfdxError.wrap(error);
+        // console.log(json);
         sfdxError.message = `Command "${commandName}" failed with message: ${get(json, 'message')}`;
         sfdxError.setData(json);
         reject(sfdxError);
       } else {
-        resolve(json.result);
+        resolve(json);
       }
     });
   });
