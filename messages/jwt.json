@@ -1,0 +1,7 @@
+{
+  "commandDescription": "allows me to test new stuff",
+  "privatekeyFlagDescription": "the location of the private key",
+  "clientidFlagDescription": "the connected app client Id",
+  "urlFlagDescription": "test or login url",
+  "dirmissingErrorMessage": "Directory does not exist"
+}
