@@ -1,10 +1,10 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { AnyJson } from '@salesforce/ts-types';
-import { AffirmSettings } from '../../../lib/affirm_interfaces';
+import { AffirmSettings } from '../../lib/affirm_interfaces';
 import * as fs from 'fs-extra';
-import { getYNString } from '../../../lib/affirm_lift';
+import { getYNString } from '../../lib/affirm_lift';
 import { Messages } from '@salesforce/core';
-import { getAffirmSettings, getDefaultAffirmSettings } from '../../../lib/affirm_settings';
+import { getAffirmSettings, getDefaultAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -17,9 +17,9 @@ const messages = Messages.loadMessages('sfdx-affirm', 'setup');
 export default class Setup extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:config:setup'];
+  public static aliases = ['affirm:setup'];
   public static examples = [
-    `$ sfdx affirm:config:setup
+    `$ sfdx affirm:setup
     Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main
     Provide location where temp build folders and packages will be created and stored [.releaseArtifacts]: .superArtifacts
     Provide default directory name for new packages  [parcel]: pack
@@ -31,12 +31,12 @@ export default class Setup extends SfdxCommand {
 
     `,
   ];
-
   protected static flagsConfig = {
     primarybranch: flags.string({ char: 'b', description: messages.getMessage('primarybranchFlagDescription') }),
     builddir: flags.string({ char: 'd', description: messages.getMessage('builddirFlagDescription') }),
     packagedir: flags.string({ char: 'p', description: messages.getMessage('packagedirFlagDescription') }),
     waittime: flags.string({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
+    declarativetestclass: flags.string({ char: 't', description: messages.getMessage('declarativetestclassFlagDescription') }),
     acceptdefaults: flags.boolean({ char: 'a', description: messages.getMessage('acceptdefaultsFlagDescription'), default: false }),
     overwrite: flags.boolean({ char: 'o', description: messages.getMessage('overwriteFlagDescription'), default: false })
   };

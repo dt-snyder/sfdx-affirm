@@ -1,10 +1,12 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
 import { SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { UX, TableOptions } from '@salesforce/command';
-import { DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
+import { AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
-import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from './affirm_fs';
+import { fsCheckForExistingSuite, fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml } from './affirm_fs';
+import { runCommand } from './sfdx';
+import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
@@ -139,6 +141,65 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
   return testsToReturn;
 }
 
+export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean) {
+  let testsToReturn;
+  // find tests from package
+  const suitesToMerge: Set<string> = await fsGetSuitesInParcel(packagedir);
+  const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
+  if (allTests) { // use found tests
+    testsToReturn = Array.from(allTests).join(',');
+  } else {
+    if (isSandbox) { // org is sandbox
+      if (!settings.declaritiveTestClass && silent === false) { // no default... ask
+        const proceedWithoutTests = await this.ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
+        if (!proceedWithoutTests) {
+          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+          testsToReturn = await liftCleanProvidedTests(providedTestClasses);
+          if (!testsToReturn) {
+            throw SfdxError.create('sfdx-affirm', 'helper_files', 'noTestProvidedAfterRequest');
+          }
+        }
+      } else if (settings.declaritiveTestClass && silent === false) { // has default... ask
+        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declaritiveTestClass}`);
+        if (proceedWithDefault) { // use default
+          testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+        } else { // do not use default... ask for list of tests
+          const proceedWithoutTests = await this.ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
+          if (!proceedWithoutTests) {
+            const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+            testsToReturn = await liftCleanProvidedTests(providedTestClasses);
+            if (!testsToReturn) {
+              throw SfdxError.create('sfdx-affirm', 'helper_files', 'noTestProvidedAfterRequest');
+            }
+          }
+        }
+      } else if (settings.declaritiveTestClass && silent) { // has default... just use it
+        testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+      }
+    } else if (!isSandbox) { // is production
+      ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
+      if (!settings.declaritiveTestClass && silent === false) { // no default... ask
+        const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+        testsToReturn = await liftCleanProvidedTests(providedTestClasses);
+      } else if (settings.declaritiveTestClass && silent === false) { // has default... ask
+        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declaritiveTestClass}`);
+        if (proceedWithDefault) { // use default
+          testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+        } else { // ask for list of tests
+          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+          testsToReturn = await liftCleanProvidedTests(providedTestClasses);
+        }
+      } else if (settings.declaritiveTestClass && silent) { // has default... just use it
+        testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+      }
+      if (!testsToReturn) { // no tests provided for prod.... throw error
+        throw SfdxError.create('sfdx-affirm', 'helper_files', 'productionRequiresTestClasses');
+      }
+    }
+  }
+  return testsToReturn;
+}
+
 export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuite?: string) {
   let tests: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
@@ -153,6 +214,51 @@ export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuit
   return tests;
 }
 
+export async function liftGetTestsFromSuites(suitesToMerge: Set<string>): Promise<Set<string>> {
+  let allTests: Set<string> = new Set();
+  for (const suite of suitesToMerge) {
+    const currentTests: Set<string> = await fsGetTestSetFromSuiteXml(suite);
+    currentTests.forEach(test => {
+      allTests.add(test);
+    });
+  }
+  return allTests;
+}
+
+export async function verifyUsername(username?: string, ux?: UX): Promise<string> {
+  let usernameToReturn;
+  if (!username) {
+    const project = await SfdxProject.resolve();
+    const pjtJson = await project.resolveProjectConfig();
+    if (ux) {
+      const proceedWithDefault = await ux.confirm(`${logYN} Are you sure you want to use the "${chalk.cyanBright(pjtJson.defaultusername)}" org ?`);
+      if (!proceedWithDefault) {
+        throw SfdxError.create('sfdx-affirm', 'helper_files', 'noToDefaultUserName');
+      }
+    }
+    usernameToReturn = pjtJson.defaultusername;
+  } else {
+    const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`))) as object;
+    let foundUsername = false;
+    orgList['result']['nonScratchOrgs'].forEach(org => {
+      if (org['alias'] === username || org['username'] === username) {
+        foundUsername = true;
+      }
+    });
+    if (!foundUsername) {
+      throw SfdxError.create('sfdx-affirm', 'helper_files', 'couldNotFindProvidedUsername');
+    }
+    usernameToReturn = username;
+  }
+  return usernameToReturn;
+}
+
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export async function liftCheckOrgIsSandbox(ms: number): Promise<boolean> {
+  let isSandbox: boolean = false;
+  return isSandbox;
+}
+

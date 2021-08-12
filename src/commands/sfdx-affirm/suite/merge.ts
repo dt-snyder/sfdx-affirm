@@ -4,8 +4,9 @@ import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite, fsGetTestSetFromSuiteXml } from '../../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../../lib/affirm_sfcore';
-import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch } from '../../../lib/affirm_lift';
-import { DiffObj } from '../../../lib/affirm_interfaces';
+import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch, liftGetTestsFromSuites } from '../../../lib/affirm_lift';
+import { AffirmSettings, DiffObj } from '../../../lib/affirm_interfaces';
+import { getAffirmSettings } from '../../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -62,6 +63,7 @@ export default class Merge extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
@@ -72,7 +74,7 @@ export default class Merge extends SfdxCommand {
     const listOnly = this.flags.list;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // compare the current branch to the provided or default branch
-    const branch = this.flags.branch || 'remotes/origin/master';
+    const branch = this.flags.branch || settings.primaryBranch;
     const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     // get the current branch name and set it as the file name if the user did not provide one
@@ -98,15 +100,7 @@ export default class Merge extends SfdxCommand {
     } else {
       this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) will me merged into the ' + name + ' test suite:');
     }
-    let allTests: Set<string> = new Set();
-    for (const suite of suitesToMerge) {
-      if (suite.includes(name)) return;
-      this.ux.log(chalk.underline.blue(suite));
-      const currentTests: Set<string> = await fsGetTestSetFromSuiteXml(suite);
-      currentTests.forEach(test => {
-        allTests.add(test);
-      });
-    }
+    let allTests: Set<string> = await liftGetTestsFromSuites(suitesToMerge);
     if (listOnly) {
       this.ux.log('The following test classes were found: ');
       allTests.forEach(test => {

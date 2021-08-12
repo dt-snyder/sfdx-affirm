@@ -106,4 +106,11 @@ export interface AffirmSettings {
   buildDirectory: string | undefined,
   packageDirectory: string | undefined,
   waitTime: string | undefined
+  declaritiveTestClass: string | undefined
+}
+
+export interface SfdxOrgOpenResult {
+  orgId: string,
+  url: string,
+  username: string
 }

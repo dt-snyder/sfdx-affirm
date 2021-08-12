@@ -6,9 +6,11 @@ import { UX } from '@salesforce/command';
 import { SfdxError } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata } from './affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
+// TODO: add https://www.npmjs.com/package/extract-zip for zipping and unzipping packages
 
 const foldersNeedingFolder = ['aura', 'lwc', 'documents', 'bots'];
 const foldersThatShouldBeReviewed = ['staticresources'];
+const ignoreMissingFile = ['emailFolder'];
 const customObjectChildren = {
   fields: "CustomField",
   businessProcesses: "BusinessProcess",
@@ -52,27 +54,41 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
     const folder = pathCrums[3];
     const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
     const fileName = pathCrums[pathCrums.length - 1];
+    let enableLogging = false;
+    if (foldersThatShouldBeReviewed.includes(folder)) {
+      const resourceFile = await fsGetResourceFileFromXML(file, fileName);
+      if (!resourceFile) {
+        ux.log(chalk.red('Warning:') + ' A file was found in a folder that needs manual review: "' + chalk.underline.blue(file) + '" Make sure it was copied to the package folder or your package could fail.');
+      }
+      if (resourceFile && !copiedPaths.has(resourceFile)) copiedPaths.add(resourceFile);
+      if (!copiedPaths.has(file)) copiedPaths.add(file);
+      continue;
+    }
     if (foldersNeedingFolder.includes(folder)) {
       const newPath = file.substring(0, file.indexOf(fileName));
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
+      if (enableLogging) console.log('if 1: continue' + file);
       continue;
     }
-    if (foldersThatShouldBeReviewed.includes(folder)) {
-      ux.log(chalk.red('Warning:') + ' A file was found in a folder that needs manual review: "' + chalk.underline.blue(file) + '" Make sure it was copied to the package folder or your package could fail.');
-    }
     if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !foldersThatShouldBeReviewed.includes(folder)) {
+      if (enableLogging) console.log('if 2: enter' + file);
       if (folderMdtInfo.suffix && file.indexOf(folderMdtInfo.suffix.toLowerCase()) < 0) {
+        if (enableLogging) console.log('if 2.1' + file);
         const metaDataPath = file + folderMdtInfo.suffix.toLowerCase() + '-meta.xml';
         if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
       } else {
+        if (enableLogging) console.log('if 2.2' + file);
         const metaDataPath = file + '-meta.xml';
         if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
       }
       if (!copiedPaths.has(file)) copiedPaths.add(file);
+      if (enableLogging) console.log('if 2.3' + file);
       continue;
     } else if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && !foldersThatShouldBeReviewed.includes(folder)) {
       const parentFile = file.replace('-meta.xml', '');
-      if (!copiedPaths.has(parentFile)) copiedPaths.add(parentFile);
+      const fileType = parentFile.substring((parentFile.indexOf('.') + 1));
+      if (enableLogging) console.log('if 3' + file);
+      if (!copiedPaths.has(parentFile) && !ignoreMissingFile.includes(fileType)) copiedPaths.add(parentFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
     }
@@ -100,12 +116,13 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
     }
   }
   for (const filePath of copiedPaths) {
+    // TODO: replace with settings default paths
     const newLocation = '.releaseArtifacts/tempParcel/' + filePath;
     const fileEsits = await fs.pathExists(filePath);
     if (fileEsits) {
       fs.copySync(filePath, newLocation);
     } else {
-      ux.log(chalk.red('Warning:') + ' Could not find file "' + chalk.underline.blue(filePath) + '" when copying files for conversion. You package may not deploy successfully.');
+      ux.log(chalk.red('Warning:') + ' Could not find file "' + chalk.underline.blue(filePath) + '" when copying files for conversion. Your package may not deploy successfully.');
     }
   }
   return copiedPaths.size || 0;
@@ -199,6 +216,7 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
 }
 
 export async function fsCleanupTempDirectory() {
+  // TODO: replace with settings default paths
   await fs.remove('.releaseArtifacts/tempParcel/');
 }
 
@@ -235,14 +253,14 @@ export async function fsUpdateExistingTestSuite(newTests: string, outputDir: str
   return outputFileName;
 }
 
-export async function fsCheckForExistingSuite(outputDir: string, fileName: string) {
+export async function fsCheckForExistingSuite(outputDir: string, fileName: string): Promise<string | null> {
   const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
   const folderStillExists = await fs.pathExists(outputFileName);
   if (!folderStillExists) return null;
   return outputFileName;
 }
 
-export async function fsGetTestStringFromSuiteXml(pathToSuite: string) {
+export async function fsGetTestStringFromSuiteXml(pathToSuite: string): Promise<string> {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
   // console.log(obj);
@@ -255,7 +273,7 @@ export async function fsGetTestStringFromSuiteXml(pathToSuite: string) {
   return tests;
 }
 
-export async function fsGetTestSetFromSuiteXml(pathToSuite: string) {
+export async function fsGetTestSetFromSuiteXml(pathToSuite: string): Promise<Set<string>> {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
   let tests: Set<string> = new Set();
@@ -269,6 +287,47 @@ export async function fsGetTestSetFromSuiteXml(pathToSuite: string) {
   return tests;
 }
 
+export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileName: string) {
+  const resourceXml = await fs.readFile(pathToResourceXML, 'utf8');
+  const obj = convert({ encoding: 'UTF-8' }, resourceXml, { format: 'object' });
+  let resourcePath;
+  let fileExtention;
+  if (obj.StaticResource.contentType !== 'application/zip') {
+    if (obj.StaticResource.contentType === 'image/png') {
+      fileExtention = '.png';
+    } else if (obj.StaticResource.contentType === 'image/svg+xml') {
+      fileExtention = '.svg';
+    } else if (obj.StaticResource.contentType === 'text/javascript') {
+      fileExtention = '.js';
+    }
+    if (fileExtention) {
+      const fileToFind = pathToResourceXML.replace('.resource-meta.xml', fileExtention);
+      const exists = await fs.pathExists(fileToFind);
+      if (exists) {
+        resourcePath = fileToFind;
+      }
+    }
+  } else {
+    const fileToFind = pathToResourceXML.substring(0, pathToResourceXML.indexOf(fileName));
+    const exists = await fs.pathExists(fileToFind);
+    if (exists) {
+      resourcePath = fileToFind;
+    }
+  }
+  return resourcePath;
+}
+export async function fsGetSuitesInParcel(packageDir: string): Promise<Set<string>> {
+  const pathExists = await fs.pathExists(`${packageDir}/testSuites`);
+  let setOfFiles: Set<string> = new Set();
+  if (pathExists) {
+    const listOfFiles = await fs.readdir(`${packageDir}/testSuites`);
+    listOfFiles.forEach(file => {
+      const filePath: string = `${packageDir}/testSuites/${file}`;
+      if (!setOfFiles.has(filePath)) setOfFiles.add(filePath);
+    });
+  }
+  return setOfFiles;
+}
 // TODO: create method that zips the provided folderPath and deletes the folderPath when done.
 // export async function zipPackageAndDeleteFolder(folderPath: string) {
 //   //

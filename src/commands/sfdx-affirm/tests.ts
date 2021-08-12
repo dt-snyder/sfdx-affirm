@@ -1,8 +1,11 @@
 import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
-import { Messages, SfdxProject } from '@salesforce/core';
+import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { SfdxTestResult } from '../../lib/affirm_interfaces';
-import { liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser } from '../../lib/affirm_lift';
+import { getRemoteInfo, gitDiffSum } from '../../lib/affirm_git';
+import { AffirmSettings, DiffObj, SfdxTestResult } from '../../lib/affirm_interfaces';
+import { liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites } from '../../lib/affirm_lift';
+import { getAffirmSettings } from '../../lib/affirm_settings';
+import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
 import { runCommand } from '../../lib/sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
@@ -54,11 +57,13 @@ export default class Tests extends SfdxCommand {
       (y/n) Would you like to print the results of each test?: n
     `,
   ];
-
+  // TODO: v3: add repeating status instead of using wait directly in child_command
+  // TODO: v3: add save full output
   protected static flagsConfig = {
     list: flags.string({ char: 'l', description: messages.getMessage('listFlagDescription') }),
     waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
-    printresults: flags.boolean({ char: 'r', description: messages.getMessage('printresultsFlagDescription') })
+    printresults: flags.boolean({ char: 'r', description: messages.getMessage('printresultsFlagDescription') }),
+    alltestsuites: flags.boolean({ char: 'a', description: messages.getMessage('alltestsuitesFlagDescription'), default: false })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -68,11 +73,19 @@ export default class Tests extends SfdxCommand {
   protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     const inputUsername = this.flags.targetusername;
     const logYN = await getYNString();
+    await getRemoteInfo(this.ux);
+    // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
+    const project = await SfdxProject.resolve();
+    let inputdir;
+    if (this.flags.alltestsuites) {
+      const sfPjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+      inputdir = await sfcoreGetDefaultPath(sfPjtJson);
+    }
     let username;
     if (!inputUsername) {
-      const project = await SfdxProject.resolve();
       const pjtJson = await project.resolveProjectConfig();
       const confirmUserName = logYN + ' Are you sure you want to run tests against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
       const proceedWithDefault = await this.ux.confirm(confirmUserName);
@@ -86,10 +99,17 @@ export default class Tests extends SfdxCommand {
     const list = this.flags.list;
     let testsToUse;
     if (!list) {
-      testsToUse = await getTestsFromSuiteOrUser(this.ux);
-      if (!testsToUse) {
-        this.ux.log('End Command');
-        return { result: 'User ended Command' };
+      if (this.flags.alltestsuites) {
+        const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, inputdir);
+        const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult);
+        const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
+        testsToUse = Array.from(allTests).join(',');
+      } else {
+        testsToUse = await getTestsFromSuiteOrUser(this.ux);
+        if (!testsToUse) {
+          this.ux.log('End Command');
+          return { result: 'User ended Command' };
+        }
       }
     } else {
       testsToUse = await liftCleanProvidedTests(list);
@@ -102,7 +122,7 @@ export default class Tests extends SfdxCommand {
     } else {
       this.ux.log('Test Classes: ' + chalk.cyan(testsToUse));
     }
-    const waittime = this.flags.waittime;
+    const waittime = this.flags.waittime || settings.waitTime;
     // run force:apex:test:run command
     this.ux.startSpinner('Running Tests');
     const testResults = (await runCommand(`sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`)) as unknown as SfdxTestResult;

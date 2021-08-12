@@ -45,7 +45,6 @@ export default class Parcel extends SfdxCommand {
   // public static args = [{ branch: 'file' }];
 
   protected static flagsConfig = {
-    // flag with a value (-n, --name=VALUE)
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'i', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
@@ -122,12 +121,10 @@ export default class Parcel extends SfdxCommand {
         this.ux.stopSpinner('Success: Created at ' + chalk.underline.blue(outputFileName));
       }
     }
-    // TODO: add support for zipping the package
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
     this.ux.startSpinner('Cleaning Up');
     await fsCleanupTempDirectory();
     await sfcoreRemoveReleasePath(pjtJson);
-    // TODO: delete the package folder if it's zipped cause we don't need two folders
     this.ux.stopSpinner('Success');
     return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, includeDestructive: includedestructive || includeDestructivePrompt };
   }

@@ -7,7 +7,8 @@ const defaultSettings: AffirmSettings = {
   primaryBranch: 'remotes/origin/master',
   buildDirectory: '.releaseArtifacts',
   packageDirectory: 'parcel',
-  waitTime: '10'
+  waitTime: '10',
+  declaritiveTestClass: undefined
 }
 
 export async function getAffirmSettings(): Promise<AffirmSettings> {

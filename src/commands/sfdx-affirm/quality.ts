@@ -1,14 +1,17 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
+import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser } from '../../lib/affirm_lift';
-import { fsSaveJson } from '../../lib/affirm_fs';
+import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getTestsFromPackageSettingsOrUser, verifyUsername } from '../../lib/affirm_lift';
+import { fsGetSuitesInParcel, fsSaveJson } from '../../lib/affirm_fs';
 import affirm_tables from '../../lib/affirm_tables';
 import { runCommand } from '../../lib/sfdx';
 import { getAffirmSettings } from '../../lib/affirm_settings';
-import { AffirmSettings } from '../../lib/affirm_interfaces';
+import { AffirmSettings, DiffObj } from '../../lib/affirm_interfaces';
+import { sfdxGetIsSandbox, sfdxOpenDeploymentStatus } from '../../lib/affirm_sfdx';
+import { gitDiffSum } from '../../lib/affirm_git';
+import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -51,14 +54,16 @@ export default class Quality extends SfdxCommand {
   ];
 
   // public static args = [{ name: 'file' }];
-
+  // TODO: v3: Document flag that opens the deployment status page in the indicated instance
+  // TODO: v3: add repeating status instead of using wait directly in child_command
   protected static flagsConfig = {
     // flag with a value (-n, --name=VALUE)
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
     waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
-    noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') })
+    noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') }),
+    openstatus: flags.boolean({ char: 'o', description: messages.getMessage('openstatusFlagDescription') }),
   };
 
   // Comment this out if your command does not require an org username
@@ -69,26 +74,15 @@ export default class Quality extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     const settings: AffirmSettings = await getAffirmSettings();
+    const logYN = await getYNString();
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
     const silent: boolean = this.flags.silent;
-    const inputUsername = this.flags.targetusername;
-    let username;
-    const logYN = await getYNString();
-    if (!inputUsername) {
-      const project = await SfdxProject.resolve();
-      const pjtJson = await project.resolveProjectConfig();
-      if (silent === false) {
-        const confirmUserName = logYN + ' Are you sure you want to validate against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
-        const proceedWithDefault = await this.ux.confirm(confirmUserName);
-        if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
-      }
-      username = pjtJson.defaultusername;
-    } else {
-      username = inputUsername;
-    }
-    this.ux.log('Selected Org: ' + chalk.greenBright(username));
+    const username = await verifyUsername(this.flags.targetusername, (silent === true ? undefined : this.ux));
+    const orgIsSandbox: boolean = await sfdxGetIsSandbox(username);
+    const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
+    this.ux.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
-    const packagedir = this.flags.packagedir || settings.buildDirectory + '/' + settings.packageDirectory;
+    const packagedir = this.flags.packagedir || `${settings.buildDirectory}/${settings.packageDirectory}`;
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists && silent === false) {
       const confirmParcelDir = logYN + ' Are you sure you want to validate the package located in the "' + chalk.underline.blue(packagedir) + '" folder?';
@@ -98,20 +92,12 @@ export default class Quality extends SfdxCommand {
       const errorType = packagedir === (settings.buildDirectory + '/' + settings.packageDirectory) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('sfdx-affirm', 'quality', errorType);
     }
-    this.ux.log('Package Directory: "' + chalk.underline.blue(packagedir) + '"');
+    this.ux.log(`Package Directory: " ${chalk.underline.blue(packagedir)}"`);
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
-    // TODO: add logic to get tests from the current branch suite like in affirm:tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      useTestClasses = await getTestsFromSuiteOrUser(this.ux, silent);
-      if (!useTestClasses && silent === false) {
-        const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
-        if (!proceedWithoutTests) {
-          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
-          useTestClasses = await liftCleanProvidedTests(providedTestClasses);
-        }
-      }
+      useTestClasses = await getTestsFromPackageSettingsOrUser(this.ux, settings, packagedir, orgIsSandbox, silent);
     } else {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     }
@@ -126,10 +112,14 @@ export default class Quality extends SfdxCommand {
     // start the validation of the package
     const waittime = this.flags.waittime || settings.waitTime;
     const tests = useTestClasses ? ' -l RunSpecifiedTests -r ' + useTestClasses : ' -l NoTestRun';
+    if (this.flags.openstatus) {
+      this.ux.log('Opening Deployment Status page in ' + chalk.greenBright(username));
+      await sfdxOpenDeploymentStatus(username, 'lightning/setup/DeployStatus/home', false);
+    }
     this.ux.startSpinner('Validating Package');
     const command = `sfdx force:mdapi:deploy -c  -u ${username} -d ${packagedir} ${tests} -w ${waittime}`;
+    // TODO: handle timeout more gracefully
     const validationResult = (await runCommand(command));
-
     const validationStatus = (validationResult.status > 0) ? chalk.redBright(validationResult.result.status) : chalk.cyanBright(validationResult.result.status);
     this.ux.stopSpinner(validationStatus);
     const currentRunName = validationResult.result.startDate.substring(0, validationResult.result.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.result.id;
