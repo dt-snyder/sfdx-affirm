@@ -1,7 +1,10 @@
 {
-  "commandDescription": "allows me to test new stuff",
+  "commandDescription": "Creates a JWT token that can be used to auth against a connected app.",
   "privatekeyFlagDescription": "the location of the private key",
-  "clientidFlagDescription": "the connected app client Id",
-  "urlFlagDescription": "test or login url",
-  "dirmissingErrorMessage": "Directory does not exist"
+  "issFlagDescription": "The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.",
+  "audFlagDescription": "The audience identifies the authorization server as an intended audience. The authorization server must verify that it’s an intended audience for the token. Use the authorization server’s URL for the audience value: https://login.salesforce.com, https://test.salesforce.com, or https://site.force.com/customers if implementing for an Experience Cloud site.",
+  "subDescription": "The subject must contain the username of the user if implementing for an Experience Cloud site.",
+  "expDescription": "Optional: (Default: 3) The validity must be the expiration time of the assertion within 3 minutes.",
+  "dirmissingErrorMessage": "Directory does not exist",
+  "exptobigErrorMessage": "Directory does not exist"
 }

@@ -19,14 +19,23 @@ export default class Jwt extends SfdxCommand {
   public static aliases = ['affirm:jwt'];
   // TODO: finish docs
   public static examples = [
-    `$ sfdx affirm:jwt`
+    `$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com -a https://login.salesforce.com
+      Token Created:
+      eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT
+    `,
+    `$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com.test -a https://test.salesforce.com -e 1
+      Token Created:
+      eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT
+    `
   ];
 
 
   protected static flagsConfig = {
     privatekey: flags.string({ char: 'p', description: messages.getMessage('privatekeyFlagDescription'), required: true }),
-    clientid: flags.string({ char: 'c', description: messages.getMessage('clientidFlagDescription'), required: true }),
-    url: flags.string({ char: 'u', description: messages.getMessage('urlFlagDescription'), required: true })
+    iss: flags.string({ char: 'i', description: messages.getMessage('issFlagDescription'), required: true }),
+    sub: flags.string({ char: 's', description: messages.getMessage('subDescription'), required: true }),
+    aud: flags.string({ char: 'a', description: messages.getMessage('audFlagDescription'), required: true }),
+    exp: flags.number({ char: 'e', description: messages.getMessage('expDescription'), required: false })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -35,14 +44,18 @@ export default class Jwt extends SfdxCommand {
   public async run(): Promise<AnyJson> {
     const pathExists = await fs.pathExists(this.flags.privatekey);
     if (!pathExists) {
-      throw SfdxError.create('sfdx-affirm', 'faker', 'dirmissingErrorMessage');
+      throw SfdxError.create('sfdx-affirm', 'jwt', 'dirmissingErrorMessage');
+    }
+    if (this.flags.exp && this.flags.exp > 3) {
+      throw SfdxError.create('sfdx-affirm', 'jwt', 'exptobigErrorMessage');
     }
     const file = await fs.readFile(this.flags.privatekey, 'utf8');
+    const useExp = this.flags.exp || 3;
     const claims = {
-      iss: this.flags.clientid,  // The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.
-      aud: this.flags.url, // Use the authorization server’s URL for the audience value:
-      sub: "drew.snyder@hunterdouglas.com.intmii",    // The subject must contain the username of the user if implementing for an Experience Cloud site.
-      exp: new Date().getTime() + (2 * 60 * 1000)
+      iss: this.flags.iss,  // The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.
+      aud: this.flags.aud, // Use the authorization server’s URL for the audience value:
+      sub: this.flags.sub,    // The subject must contain the username
+      exp: new Date().getTime() + (useExp * 60 * 1000)
     };
     const jwt = create(claims, file, 'RS256');
     const token = jwt.compact();
