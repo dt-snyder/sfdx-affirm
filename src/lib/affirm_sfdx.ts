@@ -6,14 +6,15 @@
 // import { UX } from '@salesforce/command';
 // import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
 import { runCommand } from './sfdx';
+import { UX } from '@salesforce/command';
 import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 // TODO: move reporting of wait time based on id here for both test and deploy. Either have been built yet.
 // TODO: remove timeToWait, get Id, then run force:apex:test:report, to print and update a progress bar
 // TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
 // TODO: add method that returns true if current instance is sandbox
-export async function sfdxOpenDeploymentStatus(username: string, path: string, urlonly?: boolean): Promise<AnyJson> {
+export async function sfdxOpenDeploymentStatus(username: string, path: string, urlonly?: boolean, ux?: UX): Promise<AnyJson> {
   let urlOnly = urlonly ? ' -r ' : '';
-  const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:org:open -p ${path} -u ${username} ${urlOnly}`)));
+  const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:org:open -p ${path} -u ${username} ${urlOnly}`, ux)));
   return response;
 }
 

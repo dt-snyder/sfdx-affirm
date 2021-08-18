@@ -1,0 +1,7 @@
+{
+  "commandDescription": "Opens the Deployment Status page in the target org.",
+  "idFlagDescription": "Optional: Provide an id of a validation or deployment to be taken directly to the specific deployment status page.",
+  "urlonlyFlagDescription": "Optional:(Default: false) If provided the page will not be opened in a browser it will just be printed in the terminal.",
+  "displayurlFlagDescription": "Optional:(Default: false) If provided the url will be printed in the terminal.",
+  "classicFlagDescription": "Optional:(Default: false) If provided the page will be opened in the Classic UI. Default is Lightning UI."
+}

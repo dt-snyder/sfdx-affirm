@@ -1,7 +1,9 @@
 import { SfdxError } from '@salesforce/core';
 import { Dictionary, get } from '@salesforce/ts-types';
 import * as child from 'child_process';
-export const runCommand = (fullCommand: string): Promise<Dictionary> => {
+import { UX } from '@salesforce/command';
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
+export const runCommand = (fullCommand: string, ux?: UX): Promise<Dictionary> => {
   const error = new Error();
 
   if (!fullCommand.includes('--json')) {
@@ -12,6 +14,7 @@ export const runCommand = (fullCommand: string): Promise<Dictionary> => {
   const commandName = parts[0] + ' ' + parts[1];
 
   return new Promise((resolve, reject) => {
+    if (ux) ux.log(`Running Command: ${chalk.cyan(fullCommand)}`);
     const cmd = child.exec(fullCommand);
     let stdout = '';
     cmd.stdout.on('data', data => {
