@@ -16,7 +16,6 @@ export default class Status extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:place:status'];
-  // TODO: Update documentation
   public static examples = [
     `$ sfdx affirm:place:status
       Opening Deployment Status in Selected Org: defaultOrg

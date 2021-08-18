@@ -18,8 +18,8 @@ export async function sfdxOpenDeploymentStatus(username: string, path: string, u
   return response;
 }
 
-export async function sfdxGetIsSandbox(username: string): Promise<boolean> {
-  const response: object = ensureAnyJson((await runCommand(`sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u ${username} --json`))) as object;
+export async function sfdxGetIsSandbox(username: string, ux?: UX): Promise<boolean> {
+  const response: object = ensureAnyJson((await runCommand(`sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u ${username} --json`, ux))) as object;
   const booleanToReturn: boolean = response['result']['records'][0]['IsSandbox'] as boolean;
   return booleanToReturn;
 }
