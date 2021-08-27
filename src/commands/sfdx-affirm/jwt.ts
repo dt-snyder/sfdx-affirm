@@ -17,7 +17,6 @@ export default class Jwt extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:jwt'];
-  // TODO: finish docs
   public static examples = [
     `$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com -a https://login.salesforce.com
       Token Created:

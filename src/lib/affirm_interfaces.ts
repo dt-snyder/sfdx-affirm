@@ -114,3 +114,23 @@ export interface SfdxOrgOpenResult {
   url: string,
   username: string
 }
+
+export interface AffirmAuditResult {
+  dateOfRun: string,
+  username: string,
+  queryUsed: string,
+  totalResults: number,
+  filteredResults: number,
+  actionFlag: string | undefined,
+  sectionFlag: string | undefined,
+  displayFlag: string | undefined,
+  createdbyuserFlag: string | undefined,
+  createdbyprofileFlag: string | undefined,
+  dateFlag: string | undefined,
+  lastndaysFlag: string | undefined,
+  savedirFlag: string | undefined,
+  printonlyFlag: string | undefined,
+  whereFlag: string | undefined
+}
+
+

@@ -4,7 +4,8 @@ import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { UX } from '@salesforce/command';
 import { SfdxError } from '@salesforce/core';
-import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata } from './affirm_interfaces';
+import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata, AffirmSettings } from './affirm_interfaces';
+import { getAffirmSettings } from './affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // TODO: add https://www.npmjs.com/package/extract-zip for zipping and unzipping packages
 
@@ -33,13 +34,14 @@ export async function getPrintableDiffObject(diff: DiffObj) {
 }
 
 export async function fsSaveJson(fileName: string, json: object, ux?: UX) {
-  const saveToFile = './' + fileName + '.json';
+  const saveToFile = `./${fileName}.json`;
   await fs.outputJson(saveToFile, json);
-  if (ux) ux.log('File Saved to: ' + chalk.underline.blue(saveToFile));
+  if (ux) ux.log(`File Saved to: ${chalk.underline.blue(saveToFile)}`);
   return saveToFile;
 }
 
 export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: UX) {
+  const settings: AffirmSettings = await getAffirmSettings();
   let fileSet: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
@@ -54,40 +56,38 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
     const folder = pathCrums[3];
     const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
     const fileName = pathCrums[pathCrums.length - 1];
-    let enableLogging = false;
     if (foldersThatShouldBeReviewed.includes(folder)) {
-      const resourceFile = await fsGetResourceFileFromXML(file, fileName);
-      if (!resourceFile) {
-        ux.log(chalk.red('Warning:') + ' A file was found in a folder that needs manual review: "' + chalk.underline.blue(file) + '" Make sure it was copied to the package folder or your package could fail.');
+      if (file.indexOf('.xml') >= 0) {
+        const resourceFile = await fsGetResourceFileFromXML(file, fileName);
+        if (!resourceFile) {
+          ux.log(`${chalk.red('Warning:')} A file was found in a folder that needs manual review: "${chalk.underline.blue(file)}" Make sure it was copied to the package folder or your package could fail.`);
+        }
+        if (resourceFile && !copiedPaths.has(resourceFile)) copiedPaths.add(resourceFile);
+      } else {
+        const xmlfileName = file.replace(file.substring(file.indexOf('.'), file.length), '.resource-meta.xml');
+        if (!copiedPaths.has(xmlfileName)) copiedPaths.add(xmlfileName);
       }
-      if (resourceFile && !copiedPaths.has(resourceFile)) copiedPaths.add(resourceFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
     }
     if (foldersNeedingFolder.includes(folder)) {
       const newPath = file.substring(0, file.indexOf(fileName));
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
-      if (enableLogging) console.log('if 1: continue' + file);
       continue;
     }
     if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !foldersThatShouldBeReviewed.includes(folder)) {
-      if (enableLogging) console.log('if 2: enter' + file);
       if (folderMdtInfo.suffix && file.indexOf(folderMdtInfo.suffix.toLowerCase()) < 0) {
-        if (enableLogging) console.log('if 2.1' + file);
         const metaDataPath = file + folderMdtInfo.suffix.toLowerCase() + '-meta.xml';
         if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
       } else {
-        if (enableLogging) console.log('if 2.2' + file);
         const metaDataPath = file + '-meta.xml';
         if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
       }
       if (!copiedPaths.has(file)) copiedPaths.add(file);
-      if (enableLogging) console.log('if 2.3' + file);
       continue;
     } else if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && !foldersThatShouldBeReviewed.includes(folder)) {
       const parentFile = file.replace('-meta.xml', '');
       const fileType = parentFile.substring((parentFile.indexOf('.') + 1));
-      if (enableLogging) console.log('if 3' + file);
       if (!copiedPaths.has(parentFile) && !ignoreMissingFile.includes(fileType)) copiedPaths.add(parentFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
@@ -116,13 +116,12 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
     }
   }
   for (const filePath of copiedPaths) {
-    // TODO: replace with settings default paths
-    const newLocation = '.releaseArtifacts/tempParcel/' + filePath;
+    const newLocation = `${settings.buildDirectory}/tempParcel/${filePath}`;
     const fileEsits = await fs.pathExists(filePath);
     if (fileEsits) {
       fs.copySync(filePath, newLocation);
     } else {
-      ux.log(chalk.red('Warning:') + ' Could not find file "' + chalk.underline.blue(filePath) + '" when copying files for conversion. Your package may not deploy successfully.');
+      ux.log(`${chalk.red('Warning:')} Could not find file "${chalk.underline.blue(filePath)}" when copying files for conversion. Your package may not deploy successfully.`);
     }
   }
   return copiedPaths.size || 0;
@@ -198,26 +197,26 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
   const xmlFile: DestructiveXMLMain = { package: newTypes };
   const newDestructivePackage = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
   await fs.ensureDir(savePath);
-  const outputFileName: string = shouldBeAfter ? savePath + '/destructiveChangesPost.xml' : savePath + '/destructiveChangesPre.xml';
+  const outputFileName: string = shouldBeAfter ? `${savePath}/destructiveChangesPost.xml` : `${savePath}/destructiveChangesPre.xml`;
   await fs.outputFile(outputFileName, newDestructivePackage.end({ prettyPrint: true, group: true }));
-  const packageExists = await fs.pathExists(savePath + '/package.xml');
+  const packageExists = await fs.pathExists(`${savePath}/package.xml`);
   if (!packageExists) {
     // TODO: get the api version from SfdxProjectJson instead of hard coding here
     const emptyPackageObj = {
       package: {
         '@xmlns': 'http://soap.sforce.com/2006/04/metadata',
-        version: '50.0'
+        version: '52.0'
       }
     };
     const emptyPackageFile = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(emptyPackageObj));
-    await fs.outputFile(savePath + '/package.xml', emptyPackageFile.end({ prettyPrint: true, group: true }));
+    await fs.outputFile(`${savePath}/package.xml`, emptyPackageFile.end({ prettyPrint: true, group: true }));
   }
   return outputFileName;
 }
 
 export async function fsCleanupTempDirectory() {
-  // TODO: replace with settings default paths
-  await fs.remove('.releaseArtifacts/tempParcel/');
+  const settings: AffirmSettings = await getAffirmSettings();
+  await fs.remove(`${settings.buildDirectory}/tempParcel/`);
 }
 
 export async function fsCleanProvidedOutputDir(outputDir: string) {
@@ -233,14 +232,14 @@ export async function fsCreateNewTestSuite(tests: string, outputDir: string, fil
   const xmlFile: TestSuiteXMLMain = { ApexTestSuite: newTests };
   const newTestSuite = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
   await fs.ensureDir(outputDir);
-  const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
+  const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
   await fs.outputFile(outputFileName, newTestSuite.end({ prettyPrint: true, group: true }));
   return outputFileName;
 }
 
 export async function fsUpdateExistingTestSuite(newTests: string, outputDir: string, fileName: string) {
   await fs.ensureDir(outputDir);
-  const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
+  const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
   let allTests = await fsGetTestSetFromSuiteXml(outputFileName);
   newTests.split(',').forEach(test => {
     if (!allTests.has(test)) allTests.add(test);
@@ -254,7 +253,7 @@ export async function fsUpdateExistingTestSuite(newTests: string, outputDir: str
 }
 
 export async function fsCheckForExistingSuite(outputDir: string, fileName: string): Promise<string | null> {
-  const outputFileName: string = outputDir + fileName + '.testSuite-meta.xml';
+  const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
   const folderStillExists = await fs.pathExists(outputFileName);
   if (!folderStillExists) return null;
   return outputFileName;
@@ -288,7 +287,8 @@ export async function fsGetTestSetFromSuiteXml(pathToSuite: string): Promise<Set
 }
 
 export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileName: string) {
-  const resourceXml = await fs.readFile(pathToResourceXML, 'utf8');
+  const currentPath = pathToResourceXML;
+  const resourceXml = await fs.readFile(currentPath, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, resourceXml, { format: 'object' });
   let resourcePath;
   let fileExtention;
@@ -301,14 +301,14 @@ export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileNa
       fileExtention = '.js';
     }
     if (fileExtention) {
-      const fileToFind = pathToResourceXML.replace('.resource-meta.xml', fileExtention);
+      const fileToFind = currentPath.replace('.resource-meta.xml', fileExtention);
       const exists = await fs.pathExists(fileToFind);
       if (exists) {
         resourcePath = fileToFind;
       }
     }
   } else {
-    const fileToFind = pathToResourceXML.substring(0, pathToResourceXML.indexOf(fileName));
+    const fileToFind = currentPath.substring(0, currentPath.indexOf(fileName));
     const exists = await fs.pathExists(fileToFind);
     if (exists) {
       resourcePath = fileToFind;
