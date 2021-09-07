@@ -1,7 +1,7 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { AnyJson } from '@salesforce/ts-types';
 import { Messages } from '@salesforce/core';
-import { sfdxOpenDeploymentStatus } from '../../../lib/affirm_sfdx';
+import { sfdxOpenToPath } from '../../../lib/affirm_sfdx';
 import { verifyUsername } from '../../../lib/affirm_lift';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
@@ -49,7 +49,8 @@ export default class Status extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     const username = await verifyUsername(this.flags.targetusername);
-    this.ux.log(`Opening Deployment Status in Selected Org: ${chalk.greenBright(username)}`);
+    const cmdType = (this.flags.urlonly) ? 'Getting URL for' : 'Opening';
+    this.ux.log(`${cmdType} Deployment Status in Selected Org: ${chalk.greenBright(username)}`);
     let path: string | undefined;
     if (!this.flags.name && this.flags.classic) {
       path = 'changemgmt/monitorDeployment.apexp';
@@ -60,7 +61,7 @@ export default class Status extends SfdxCommand {
     } else {
       path = 'lightning/setup/DeployStatus/home';
     }
-    const response: AnyJson = await sfdxOpenDeploymentStatus(username, path, this.flags.urlonly, this.ux);
+    const response: AnyJson = await sfdxOpenToPath(username, path, this.flags.urlonly, this.ux);
     if (this.flags.urlonly || this.flags.displayurl) {
       this.ux.log('URL: ' + chalk.underline.blue(response['result']['url']));
     }

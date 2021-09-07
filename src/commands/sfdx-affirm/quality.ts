@@ -9,7 +9,7 @@ import affirm_tables from '../../lib/affirm_tables';
 import { runCommand } from '../../lib/sfdx';
 import { getAffirmSettings } from '../../lib/affirm_settings';
 import { AffirmSettings, DiffObj } from '../../lib/affirm_interfaces';
-import { sfdxGetIsSandbox, sfdxOpenDeploymentStatus } from '../../lib/affirm_sfdx';
+import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../lib/affirm_sfdx';
 import { gitDiffSum } from '../../lib/affirm_git';
 import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
@@ -113,8 +113,8 @@ export default class Quality extends SfdxCommand {
     const waittime = this.flags.waittime || settings.waitTime;
     const tests = useTestClasses ? ' -l RunSpecifiedTests -r ' + useTestClasses : ' -l NoTestRun';
     if (this.flags.openstatus) {
-      this.ux.log('Opening Deployment Status page in ' + chalk.greenBright(username));
-      await sfdxOpenDeploymentStatus(username, 'lightning/setup/DeployStatus/home', false);
+      this.ux.log(`Opening Deployment Status page in ${chalk.greenBright(username)}`);
+      await sfdxOpenToPath(username, 'lightning/setup/DeployStatus/home', false);
     }
     this.ux.startSpinner('Validating Package');
     const command = `sfdx force:mdapi:deploy -c  -u ${username} -d ${packagedir} ${tests} -w ${waittime}`;

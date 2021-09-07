@@ -11,7 +11,7 @@ import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 // TODO: move reporting of wait time based on id here for both test and deploy. neither has been built yet.
 // TODO: remove timeToWait, get Id, then run force:apex:test:report, to print and update a progress bar
 // TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
-export async function sfdxOpenDeploymentStatus(username: string, path: string, urlonly?: boolean, ux?: UX): Promise<AnyJson> {
+export async function sfdxOpenToPath(username: string, path: string, urlonly?: boolean, ux?: UX): Promise<AnyJson> {
   let urlOnly = urlonly ? ' -r ' : '';
   const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:org:open -p ${path} -u ${username} ${urlOnly}`, ux)));
   return response;
