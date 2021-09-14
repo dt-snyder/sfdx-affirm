@@ -106,7 +106,7 @@ export interface AffirmSettings {
   buildDirectory: string | undefined,
   packageDirectory: string | undefined,
   waitTime: string | undefined
-  declaritiveTestClass: string | undefined
+  declarativeTestClass: string | undefined
 }
 
 export interface SfdxOrgOpenResult {
