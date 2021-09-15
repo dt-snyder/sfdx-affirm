@@ -6,12 +6,12 @@ import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
 import { fsCheckForExistingSuite, fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml } from './affirm_fs';
 import { runCommand } from './sfdx';
-import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
-
+import { ensureAnyJson } from '@salesforce/ts-types';
+import { DeployMessage, RunTestResult } from '@salesforce/source-deploy-retrieve';
+import affirm_tables from './affirm_tables';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
-
 export async function liftShortBranchName(currentBranch: string, topCharCount: number, keepBranchType?: boolean) {
   let branchName: string;
   if (keepBranchType === true) {
@@ -74,6 +74,56 @@ export async function liftPrintTable(tableName: string, data: any[], options: Ta
   ux.log(chalk.green(start));
   ux.table(data, options);
   ux.log(chalk.red(end));
+}
+
+export async function liftPrintComponentTable(tableName: string, data: DeployMessage | DeployMessage[], ux: UX) {
+  const start = `_______________________Start ${tableName}_______________________`;
+  const end = `_________________________End ${tableName}_______________________`;
+  let dataArray: any[] = [];
+  if (Array.isArray(data)) {
+    dataArray = data as any[];
+  } else {
+    dataArray = [data];
+  }
+  ux.log(chalk.green(start));
+  ux.table(dataArray, affirm_tables.componentTable);
+  ux.log(chalk.red(end));
+}
+
+export async function liftPrintTestResultTable(data: RunTestResult | RunTestResult[], ux: UX) {
+
+  const keysToPrint: string[] = ['codeCoverage', 'failures', 'successes'];
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key) && keysToPrint.includes(key)) {
+      const element = data[key];
+      const printResultType = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+      const start = `_______________________Start ${printResultType}_______________________`;
+      const end = `__________________________End ${printResultType}_______________________`;
+      if (key === 'codeCoverage' && Array.isArray(element)) {
+        let locationsNotCovered = [];
+        for (const coverage of element) {
+          if (coverage['locationsNotCovered'] && Array.isArray(coverage['locationsNotCovered'])) {
+            for (const lines of coverage['locationsNotCovered']) {
+              locationsNotCovered = [...locationsNotCovered, lines.line];
+            }
+            coverage['listLocationsNotCovered'] = locationsNotCovered.join(',');
+          } else {
+            coverage['listLocationsNotCovered'] = coverage['locationsNotCovered'].line;
+          }
+        }
+      }
+      let dataArray: any[] = [];
+      if (Array.isArray(element)) {
+        dataArray = element as any[];
+      } else {
+        dataArray = [element];
+      }
+      const columnsToUse = key === 'codeCoverage' ? affirm_tables.codeCoverageTable : key === 'failures' ? affirm_tables.failuresTable : affirm_tables.successesTable;
+      ux.log(chalk.green(start));
+      ux.table(dataArray, columnsToUse);
+      ux.log(chalk.red(end));
+    }
+  }
 }
 
 export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: WhatToPrint) {
@@ -150,7 +200,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
     testsToReturn = Array.from(allTests).join(',');
   } else {
     if (isSandbox) { // org is sandbox
-      if (!settings.declaritiveTestClass && silent === false) { // no default... ask
+      if (!settings.declarativeTestClass && silent === false) { // no default... ask
         const proceedWithoutTests = await this.ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
         if (!proceedWithoutTests) {
           const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
@@ -159,10 +209,10 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
             throw SfdxError.create('sfdx-affirm', 'helper_files', 'noTestProvidedAfterRequest');
           }
         }
-      } else if (settings.declaritiveTestClass && silent === false) { // has default... ask
-        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declaritiveTestClass}`);
+      } else if (settings.declarativeTestClass && silent === false) { // has default... ask
+        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declarativeTestClass}`);
         if (proceedWithDefault) { // use default
-          testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+          testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
         } else { // do not use default... ask for list of tests
           const proceedWithoutTests = await this.ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
           if (!proceedWithoutTests) {
@@ -173,24 +223,24 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
             }
           }
         }
-      } else if (settings.declaritiveTestClass && silent) { // has default... just use it
-        testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+      } else if (settings.declarativeTestClass && silent) { // has default... just use it
+        testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
       }
     } else if (!isSandbox) { // is production
       ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
-      if (!settings.declaritiveTestClass && silent === false) { // no default... ask
+      if (!settings.declarativeTestClass && silent === false) { // no default... ask
         const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
         testsToReturn = await liftCleanProvidedTests(providedTestClasses);
-      } else if (settings.declaritiveTestClass && silent === false) { // has default... ask
-        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declaritiveTestClass}`);
+      } else if (settings.declarativeTestClass && silent === false) { // has default... ask
+        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declarativeTestClass}`);
         if (proceedWithDefault) { // use default
-          testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+          testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
         } else { // ask for list of tests
           const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
           testsToReturn = await liftCleanProvidedTests(providedTestClasses);
         }
-      } else if (settings.declaritiveTestClass && silent) { // has default... just use it
-        testsToReturn = await liftCleanProvidedTests(settings.declaritiveTestClass);
+      } else if (settings.declarativeTestClass && silent) { // has default... just use it
+        testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
       }
       if (!testsToReturn) { // no tests provided for prod.... throw error
         throw SfdxError.create('sfdx-affirm', 'helper_files', 'productionRequiresTestClasses');
@@ -238,6 +288,7 @@ export async function verifyUsername(username?: string, ux?: UX): Promise<string
     }
     usernameToReturn = pjtJson.defaultusername;
   } else {
+    // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
     const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`))) as object;
     let foundUsername = false;
     orgList['result']['nonScratchOrgs'].forEach(org => {

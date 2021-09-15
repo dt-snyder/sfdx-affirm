@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfdxError, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName } from '../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../lib/affirm_fs';
@@ -73,8 +73,7 @@ export default class Suite extends SfdxCommand {
       throw SfdxError.create('sfdx-affirm', 'suite', 'errorNameIsToLong');
     }
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const project = await SfdxProject.resolve();
-    const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+    const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
     const addtotests = this.flags.addtotests;

@@ -1,17 +1,15 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
+import { Messages, SfdxError } from '@salesforce/core';
+import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getTestsFromPackageSettingsOrUser, verifyUsername } from '../../lib/affirm_lift';
-import { fsGetSuitesInParcel, fsSaveJson } from '../../lib/affirm_fs';
-import affirm_tables from '../../lib/affirm_tables';
+import { liftCleanProvidedTests, getYNString, getTestsFromPackageSettingsOrUser, verifyUsername, liftPrintComponentTable, liftPrintTestResultTable } from '../../lib/affirm_lift';
+import { fsSaveJson } from '../../lib/affirm_fs';
 import { runCommand } from '../../lib/sfdx';
 import { getAffirmSettings } from '../../lib/affirm_settings';
-import { AffirmSettings, DiffObj } from '../../lib/affirm_interfaces';
+import { AffirmSettings } from '../../lib/affirm_interfaces';
 import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../lib/affirm_sfdx';
-import { gitDiffSum } from '../../lib/affirm_git';
-import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
+import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -53,16 +51,16 @@ export default class Quality extends SfdxCommand {
     `
   ];
 
-  // public static args = [{ name: 'file' }];
   // TODO: v3: Document flag that opens the deployment status page in the indicated instance
   // TODO: v3: add repeating status instead of using wait directly in child_command
   protected static flagsConfig = {
-    // flag with a value (-n, --name=VALUE)
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
     waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
     noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') }),
+    saveresults: flags.boolean({ char: 'e', description: messages.getMessage('saveresultsFlagDescription') }),
+    printall: flags.boolean({ char: 'p', description: messages.getMessage('printallFlagDescription') }),
     openstatus: flags.boolean({ char: 'o', description: messages.getMessage('openstatusFlagDescription') }),
   };
 
@@ -73,6 +71,9 @@ export default class Quality extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    if (this.flags.noresults && this.flags.saveresults && this.flags.printall) {
+      throw SfdxError.create('sfdx-affirm', 'quality', 'errorToManyFlags');
+    }
     const settings: AffirmSettings = await getAffirmSettings();
     const logYN = await getYNString();
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
@@ -85,14 +86,14 @@ export default class Quality extends SfdxCommand {
     const packagedir = this.flags.packagedir || `${settings.buildDirectory}/${settings.packageDirectory}`;
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists && silent === false) {
-      const confirmParcelDir = logYN + ' Are you sure you want to validate the package located in the "' + chalk.underline.blue(packagedir) + '" folder?';
+      const confirmParcelDir = `${logYN} Are you sure you want to validate the package located in the "${chalk.underline.blue(packagedir)}" folder?`;
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
-      if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
+      if (!proceedWithDefault) return { packageValidated: false, message: `user said no to ${packagedir} folder` };
     } else if (parcelExists === false) {
-      const errorType = packagedir === (settings.buildDirectory + '/' + settings.packageDirectory) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
+      const errorType = packagedir === (`${settings.buildDirectory}/${settings.packageDirectory}`) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('sfdx-affirm', 'quality', errorType);
     }
-    this.ux.log(`Package Directory: " ${chalk.underline.blue(packagedir)}"`);
+    this.ux.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
@@ -100,7 +101,7 @@ export default class Quality extends SfdxCommand {
       useTestClasses = await getTestsFromPackageSettingsOrUser(this.ux, settings, packagedir, orgIsSandbox, silent);
     } else {
       useTestClasses = await liftCleanProvidedTests(testclasses);
-    }
+    } // TODO: add flag and method that allows user to use a specific test suite
     const testClassLog = useTestClasses ? 'Validating Using Provided Test Classes: ' : chalk.red('Validating without test classes!');
     this.ux.log(testClassLog);
     if (useTestClasses) {
@@ -111,88 +112,69 @@ export default class Quality extends SfdxCommand {
     }
     // start the validation of the package
     const waittime = this.flags.waittime || settings.waitTime;
-    const tests = useTestClasses ? ' -l RunSpecifiedTests -r ' + useTestClasses : ' -l NoTestRun';
+    const tests = useTestClasses ? ` -l RunSpecifiedTests -r ${useTestClasses}` : ' -l NoTestRun';
     if (this.flags.openstatus) {
       this.ux.log(`Opening Deployment Status page in ${chalk.greenBright(username)}`);
       await sfdxOpenToPath(username, 'lightning/setup/DeployStatus/home', false);
     }
     this.ux.startSpinner('Validating Package');
     const command = `sfdx force:mdapi:deploy -c  -u ${username} -d ${packagedir} ${tests} -w ${waittime}`;
-    // TODO: handle timeout more gracefully
-    const validationResult = (await runCommand(command));
-    const validationStatus = (validationResult.status > 0) ? chalk.redBright(validationResult.result.status) : chalk.cyanBright(validationResult.result.status);
+    // TODO: handle timeout more gracefully by implementing @salesforce/source-deploy-retrieve
+    // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
+    const validationResult: MetadataApiDeployStatus = ensureAnyJson(await runCommand(command))['result'] as unknown as MetadataApiDeployStatus;
+    const validationStatus = !validationResult.success ? chalk.redBright(validationResult.status) : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
-    const currentRunName = validationResult.result.startDate.substring(0, validationResult.result.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.result.id;
-    this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
-    this.ux.log('Total Components: ' + chalk.cyan(validationResult.result.numberComponentsTotal));
-    this.ux.log('Component Deployed: ' + chalk.green(validationResult.result.numberComponentsDeployed));
-    this.ux.log('Component With Errors: ' + chalk.red(validationResult.result.numberComponentErrors));
+    const currentRunName = validationResult.createdDate.substring(0, validationResult.createdDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
+    this.ux.log(`Deployment Status Date_Time_Id: ${chalk.cyanBright(currentRunName)}`);
+    this.ux.log(`Total Components: ${chalk.cyan(validationResult.numberComponentsTotal)}`);
+    this.ux.log(`Component Deployed: ${chalk.green(validationResult.numberComponentsDeployed)}`);
+    this.ux.log(`Component With Errors: ${chalk.red(validationResult.numberComponentErrors)}`);
     if (useTestClasses) {
-      this.ux.log('Total Tests Run: ' + chalk.cyan(validationResult.result.numberTestsTotal));
-      this.ux.log('Successful Tests: ' + chalk.green(validationResult.result.numberTestsCompleted));
-      this.ux.log('Test Errors: ' + chalk.red(validationResult.result.numberTestErrors));
+      this.ux.log(`Total Tests Run: ${chalk.cyan(validationResult.numberTestsTotal)}`);
+      this.ux.log(`Successful Tests: ${chalk.green(validationResult.numberTestsCompleted)}`);
+      this.ux.log(`Test Errors: ${chalk.red(validationResult.numberTestErrors)}`);
     }
 
-    const noresults = silent ? true : this.flags.noresults;
-    if (!noresults) {
-      const displayResults: any = await inquirer.prompt([{
-        name: 'selected',
-        message: 'Would you like to print or save the any of the validation results?',
-        type: 'list',
-        choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'save: choose' }, { name: 'print: all' }, { name: 'save: all' }],
-      }]);
-      if (displayResults.selected !== 'No') {
-        const selected = displayResults.selected.split(': ');
-        const selectedType = selected[0];
-        const selectedCount = selected[1];
-
-        const columns = {
-          componentSuccesses: affirm_tables.componentSuccesses,
-          runTestResultSuccess: affirm_tables.runTestResultSuccess,
-          runTestResultFailure: affirm_tables.runTestResultFailure,
-          componentFailures: affirm_tables.componentFailures,
-          codeCoverageWarnings: affirm_tables.codeCoverageWarnings
-        };
-
-        for (const resultType of Object.keys(validationResult.result.details)) {
-          if (resultType === 'runTestResult') {
-            // console.log(validationResult.result.details[resultType]);
-            if (!validationResult.result.details[resultType].successes && !validationResult.result.details[resultType].failures && !validationResult.result.details[resultType].codeCoverageWarnings)
-              continue;
-          } else if ((Array.isArray(validationResult.result.details[resultType]) && validationResult.result.details[resultType].length === 0) || !Array.isArray(validationResult.result.details[resultType])) {
-            continue;
-          }
+    if (!this.flags.noresults) {
+      let resultHandlerType: string | undefined;
+      if (this.flags.saveresults) {
+        resultHandlerType = 'save';
+      } else if (this.flags.printall) {
+        resultHandlerType = 'printAll';
+      } else if (silent === false) {
+        const displayResults: any = await inquirer.prompt([{
+          name: 'selected',
+          message: 'Would you like to print or save the any of the validation results?',
+          type: 'list',
+          choices: [{ name: 'No' }, { name: 'print: choose' }, { name: 'print: all' }, { name: 'save: all' }],
+        }]);
+        resultHandlerType = (displayResults.selected === 'print: all') ? 'printAll' : (displayResults.selected === 'save: all') ? 'save' : (displayResults.selected === 'print: choose') ? 'choose' : undefined;
+      }
+      if (resultHandlerType && (resultHandlerType === 'choose' || resultHandlerType === 'printAll')) {
+        const printAll = resultHandlerType === 'printAll';
+        for (const resultType of Object.keys(validationResult.details)) {
           const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-          let displayNext = selectedCount === 'all';
-          if (displayNext === false) {
-            displayNext = await this.ux.confirm(logYN + ' Would you like to ' + selectedType + ' the ' + printResultType + '?');
+          let displayNext: boolean = false;
+          if ((resultType === 'runTestResult' && validationResult.details[resultType].numTestsRun !== '0') || validationResult.details[resultType]) {
+            if (printAll) {
+              displayNext = true;
+            } else {
+              displayNext = await this.ux.confirm(`${logYN} Would you like to print the ${printResultType}?`);
+            }
           }
           if (displayNext === false) continue;
-          if (resultType === 'runTestResult' && selectedType === 'print') {
-            if (validationResult.result.details[resultType].successes && validationResult.result.details[resultType].successes.length > 0) {
-              await liftPrintTable('Test Result Successes', validationResult.result.details[resultType].successes, columns.runTestResultSuccess, this.ux);
-            }
-            if (validationResult.result.details[resultType].failures && validationResult.result.details[resultType].failures.length > 0) {
-              await liftPrintTable('Test Result Failures', validationResult.result.details[resultType].failures, columns.runTestResultFailure, this.ux);
-            }
-            if (validationResult.result.details[resultType].codeCoverageWarnings) {
-              let warningList = [];
-              if (!Array.isArray(validationResult.result.details[resultType].codeCoverageWarnings)) {
-                warningList = [validationResult.result.details[resultType].codeCoverageWarnings];
-              } else {
-                warningList = validationResult.result.details[resultType].codeCoverageWarnings;
-              }
-              await liftPrintTable('Code Coverage Warnings', warningList, columns.codeCoverageWarnings, this.ux);
-            }
-          } else if (resultType !== 'runTestResult' && selectedType === 'print') {
-            await liftPrintTable(printResultType, validationResult.result.details[resultType], columns[resultType], this.ux);
-          } else if (selectedType === 'save') {
-            const fileName = settings.buildDirectory + '/validationResults/' + currentRunName + '/' + resultType;
-            await fsSaveJson(fileName, validationResult.result.details[resultType], this.ux);
+          if (resultType === 'runTestResult') {
+            // console.log(validationResult.details[resultType]);
+            await liftPrintTestResultTable(validationResult.details[resultType], this.ux);
+          } else if (resultType === 'componentFailures' || resultType === 'componentSuccesses') {
+            await liftPrintComponentTable(printResultType, validationResult.details[resultType], this.ux);
           }
         }
+      } else if (resultHandlerType === 'save') {
+        const fileName = `${settings.buildDirectory}/validationResults/${username}/${currentRunName}`;
+        await fsSaveJson(fileName, validationResult as object, this.ux);
       }
     }
-    return validationResult as AnyJson;
+    return validationResult as unknown as AnyJson;
   }
 }

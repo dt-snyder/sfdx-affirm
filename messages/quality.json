@@ -1,14 +1,16 @@
 {
   "commandDescription": "Validates a package against the provided org",
-  "packagedirFlagDescription": "The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: .releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.",
-  "testclassesFlagDescription": "Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.",
-  "silentFlagDescription": "If provided, you will not be prompted at all for input. If correct input isn't provided command fails.",
-  "waittimeFlagDescription": "The number of minutes to wait for the command to complete. The default is 10.",
-  "noresultsFlagDescription": "If provided, you will not be asked if you would like to print the component details or test details after validation completes.",
-  "openstatusFlagDescription": "If provided, the deployment status page will be opened in the default or specified org.",
-  "alltestsuitesFlagDescription": "(Optional) if provided then all changed or inserted test suites on the branch will be collected and their tests will be used. Otherwise, only the test suite with the matching branch name will be used.",
+  "packagedirFlagDescription": "(Optional) The root of the directory tree that contains the files to validate. The root must contain a valid package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from AffirmSettings.",
+  "testclassesFlagDescription": "(Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites found in the 'packagedir' will be use. If none are found and target org is production the default 'declarativeTestClass' is used if one is set.",
+  "silentFlagDescription": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+  "waittimeFlagDescription": "(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.",
+  "noresultsFlagDescription": "(Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print results. Can not be used with --printall or --saveresults.",
+  "saveresultsFlagDescription": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
+  "printallFlagDescription": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
+  "openstatusFlagDescription": "(Optional) if provided the deployment status page will be opened in the default or specified org.",
   "errorDefaultPathPackageMissing": "could not find a package at the default path. Make sure you run affirm:parcel first.",
   "errorPackageMissing": "could not find a package at the specified path. Make sure the value provided --packagedirectory is spelled correctly or run affirm:parcel first.",
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
-  "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."
+  "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo.",
+  "errorToManyFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again."
 }

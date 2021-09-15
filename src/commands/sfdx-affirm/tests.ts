@@ -1,5 +1,5 @@
 import { flags, SfdxCommand, TableOptions } from '@salesforce/command';
-import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getRemoteInfo, gitDiffSum } from '../../lib/affirm_git';
 import { AffirmSettings, DiffObj, SfdxTestResult } from '../../lib/affirm_interfaces';
@@ -59,6 +59,7 @@ export default class Tests extends SfdxCommand {
   ];
   // TODO: v3: add repeating status instead of using wait directly in child_command
   // TODO: v3: add save full output
+  // TODO: v3: add flag that gets the parcel directory and gathers all the tests from there instead of the branches test suite
   protected static flagsConfig = {
     list: flags.string({ char: 'l', description: messages.getMessage('listFlagDescription') }),
     waittime: flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
@@ -78,15 +79,14 @@ export default class Tests extends SfdxCommand {
     const logYN = await getYNString();
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const project = await SfdxProject.resolve();
     let inputdir;
     if (this.flags.alltestsuites) {
-      const sfPjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+      const sfPjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
       inputdir = await sfcoreGetDefaultPath(sfPjtJson);
     }
     let username;
     if (!inputUsername) {
-      const pjtJson = await project.resolveProjectConfig();
+      const pjtJson = await this.project.resolveProjectConfig();
       const confirmUserName = logYN + ' Are you sure you want to run tests against ' + chalk.cyanBright(pjtJson.defaultusername) + '?';
       const proceedWithDefault = await this.ux.confirm(confirmUserName);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to default username' };
@@ -125,6 +125,7 @@ export default class Tests extends SfdxCommand {
     const waittime = this.flags.waittime || settings.waitTime;
     // run force:apex:test:run command
     this.ux.startSpinner('Running Tests');
+    // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
     const testResults = (await runCommand(`sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`)) as unknown as SfdxTestResult;
     this.ux.stopSpinner('Done');
     // this.ux.logJson(testResults.tests);

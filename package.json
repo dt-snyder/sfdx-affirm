@@ -1,7 +1,7 @@
 {
   "name": "sfdx-affirm",
   "description": "Tools for creating, validating, and deploying packages using source control",
-  "version": "2.2.0",
+  "version": "2.5.0",
   "author": "Drew Snyder drewtsnyder@gmail.com",
   "bugs": "https://github.com/dt-snyder/sfdx-affirm/issues",
   "dependencies": {
@@ -10,6 +10,7 @@
     "@oclif/errors": "^1",
     "@salesforce/command": "^2",
     "@salesforce/core": "^2",
+    "@salesforce/source-deploy-retrieve": "^4.4.1",
     "chalk": "^4.1.0",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.3.3",
@@ -22,7 +23,7 @@
     "@oclif/dev-cli": "^1",
     "@oclif/plugin-help": "^2",
     "@oclif/test": "^1",
-    "@salesforce/dev-config": "1.4.1",
+    "@salesforce/dev-config": "2.1.2",
     "@types/chai": "^4",
     "@types/fs-extra": "^9.0.5",
     "@types/mocha": "^5",

@@ -1,14 +1,15 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfdxError } from '@salesforce/core';
 import * as fs from 'fs-extra';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
-import { showDiffSum, createWhatToPrint, printBranchesCompared, getYNString, verifyUsername } from '../../lib/affirm_lift';
-import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
-import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
+// import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
+import { getYNString, verifyUsername, getTestsFromPackageSettingsOrUser, liftCleanProvidedTests } from '../../lib/affirm_lift';
+// import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
+// import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
+import { AffirmSettings } from '../../lib/affirm_interfaces';
 import { getAffirmSettings } from '../../lib/affirm_settings';
 import chalk = require('chalk');
+import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -21,12 +22,12 @@ export default class Place extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:place'];
-  // TODO: document
+  // TODO: document examples
   public static examples = [
     `$ sfdx affirm:place`
   ];
 
-
+  // TODO: document flagsConfig
   protected static flagsConfig = {
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
@@ -49,7 +50,9 @@ export default class Place extends SfdxCommand {
     // get default username and verify that the user wants to use that one unless silent is true
     const silent: boolean = this.flags.silent;
     const username = await verifyUsername(this.flags.targetusername, (silent == true ? this.ux : undefined));
-    this.ux.log(`Selected Org: ${chalk.greenBright(username)}`);
+    const orgIsSandbox: boolean = await sfdxGetIsSandbox(username);
+    const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
+    this.ux.log(`Selected ${orgType} Instance: ${chalk.greenBright(username)}`);
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
     const packagedir = this.flags.packagedir || `${settings.buildDirectory}/${settings.packageDirectory}`;
     const parcelExists = await fs.pathExists(packagedir);
@@ -61,6 +64,16 @@ export default class Place extends SfdxCommand {
       throw SfdxError.create('sfdx-affirm', 'place', errorType);
     }
     this.ux.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
-    return { status: 'complete' };
+    const testclasses = this.flags.testclasses;
+    let useTestClasses;
+    if (!testclasses) {
+      useTestClasses = await getTestsFromPackageSettingsOrUser(this.ux, settings, packagedir, orgIsSandbox, silent);
+    } else {
+      useTestClasses = await liftCleanProvidedTests(testclasses);
+    }
+    // const waittime = this.flags.waittime || settings.waitTime;
+    // const tests = useTestClasses ? ` -l RunSpecifiedTests -r ${useTestClasses}` : ' -l NoTestRun';
+    // TODO: finish this
+    return { status: 'complete', classes: useTestClasses };
   }
 }

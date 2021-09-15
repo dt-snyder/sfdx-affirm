@@ -1,6 +1,6 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { AnyJson, ensureString, ensureAnyJson  } from '@salesforce/ts-types';
-import { Messages, SfdxProject } from '@salesforce/core';
+import { AnyJson, ensureString, ensureAnyJson } from '@salesforce/ts-types';
+import { Messages } from '@salesforce/core';
 import { runCommand } from '../../../lib/sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
@@ -38,13 +38,12 @@ export default class Ac extends SfdxCommand {
     const inputUsername = this.flags.targetusername;
     let username;
     if (!inputUsername) {
-      const project = await SfdxProject.resolve();
-      const pjtJson = await project.resolveProjectConfig();
+      const pjtJson = await this.project.resolveProjectConfig();
       username = pjtJson.defaultusername;
     } else {
       username = inputUsername;
     }
-    const apexId: String = ensureString((await runCommand(`sfdx force:data:record:get -s ApexClass -w "name='${this.flags.name}'"`)).result.Id);
+    const apexId: String = ensureString((await runCommand(`sfdx force:data:record:get -s ApexClass -w "name='${this.flags.name}'"`))['result']['Id']);
     this.ux.log(chalk.greenBright(`Found ${this.flags.name} - Id: ${apexId}`));
     this.ux.log('Opening Apex Class in: ' + chalk.greenBright(username));
     let path: string | undefined;
@@ -56,7 +55,7 @@ export default class Ac extends SfdxCommand {
     let urlOnly = this.flags.urlonly ? ' -r ' : '';
     const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:org:open -p ${path} -u ${username} ${urlOnly}`)));
     if (this.flags.urlonly) {
-      this.ux.log('URL: ' + chalk.underline.blue(response.result.url));
+      this.ux.log('URL: ' + chalk.underline.blue(response['result'].url));
     }
     return response;
   }

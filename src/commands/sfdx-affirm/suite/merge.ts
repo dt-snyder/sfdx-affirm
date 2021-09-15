@@ -1,8 +1,8 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfdxError, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib/affirm_git';
-import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite, fsGetTestSetFromSuiteXml } from '../../../lib/affirm_fs';
+import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../../lib/affirm_sfcore';
 import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch, liftGetTestsFromSuites } from '../../../lib/affirm_lift';
 import { AffirmSettings, DiffObj } from '../../../lib/affirm_interfaces';
@@ -67,8 +67,7 @@ export default class Merge extends SfdxCommand {
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const project = await SfdxProject.resolve();
-    const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+    const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
     const listOnly = this.flags.list;

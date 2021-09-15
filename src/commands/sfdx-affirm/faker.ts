@@ -1,12 +1,12 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
+import { Messages } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
-import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
-import { fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml, fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
-import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
-import { getAffirmSettings } from '../../lib/affirm_settings';
+// import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
+// import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
+import { fsGetSuitesInParcel, fsGetTestStringFromSuiteXml } from '../../lib/affirm_fs';
+// import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
+// import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
+// import { getAffirmSettings } from '../../lib/affirm_settings';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -14,7 +14,7 @@ Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'changes');
-
+// TODO: delete this command and it's messages file
 export default class Faker extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
