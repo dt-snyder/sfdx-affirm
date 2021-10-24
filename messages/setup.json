@@ -1,0 +1,9 @@
+{
+  "commandDescription": "open setup page",
+  "emailDescription": "open email deliverabilty",
+  "networkDescription": "open all sites",
+  "developerConsoleDescription": "open developer console",
+  "usernameDescription": "org target username",
+  "errorFlag": "wrong command option",
+  "profileDescription": "open profile setup page"
+}
