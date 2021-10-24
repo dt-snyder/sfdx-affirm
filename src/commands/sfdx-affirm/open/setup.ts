@@ -10,6 +10,7 @@ Messages.importMessagesDirectory(__dirname);
 // or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'setup');
 
+
 export default class Setup extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
