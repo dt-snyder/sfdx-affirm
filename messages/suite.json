@@ -7,5 +7,6 @@
   "errorNoTestsProvided": "You must provide a valid list of test class names in order to create a new suite. Try again.",
   "errorNameIsToLong": "The provided file name is either too long or the branch name has a large string not separated by '-'. Please try again and provide a name shorter than 35 characters.",
   "errorNoToFileName": "The provided Comma separated list of tests names includes '.cls'. This is not allowed.",
+  "errorTooManySuites": "Your current branch has more than 1 existing test suite. Add the --name flag to the command and try again.",
   "errorUnknown": "There was an unknown error. Try again or submit a bug report."
 }

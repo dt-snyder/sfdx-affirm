@@ -1,11 +1,13 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfdxError, SfdxProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { getCurrentBranchName } from '../../lib/affirm_git';
+import { getCurrentBranchName, gitDiffSum } from '../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
-import { liftShortBranchName, liftCleanProvidedTests, checkName } from '../../lib/affirm_lift';
+import { liftShortBranchName, liftCleanProvidedTests, checkName, liftGetAllSuitesInBranch } from '../../lib/affirm_lift';
 import * as inquirer from 'inquirer'
+import { AffirmSettings, DiffObj } from '../../lib/affirm_interfaces';
+import { getAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 // Initialize Messages with the current plugin directory
@@ -48,6 +50,7 @@ export default class Suite extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // get the values of flags set by the user
     const tests = this.flags.tests;
     // if the user did not provide the --tests flag then ask them to provide a list of tests
@@ -72,15 +75,30 @@ export default class Suite extends SfdxCommand {
     if (name.length > 35) {
       throw SfdxError.create('sfdx-affirm', 'suite', 'errorNameIsToLong');
     }
+    let nameToUse = name;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
     const addtotests = this.flags.addtotests;
-    const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
-    let pathForward = (addtotests && hasExistingSuite) ? 'Update' : 'Overwrite';
-    if (hasExistingSuite && !addtotests) {
-      this.ux.log('Found existing suite at ' + chalk.underline.blue(hasExistingSuite));
+    const hasExistingSuite = await fsCheckForExistingSuite(outputdir, nameToUse);
+    let existingTestSuiteToUse: string | undefined;
+    if (!hasExistingSuite) {
+      const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, defaultPath);
+      const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
+      if (suitesToMerge.size > 1) {
+        throw SfdxError.create('sfdx-affirm', 'suite', 'errorTooManySuites');
+      } else if (suitesToMerge.size === 1) {
+        existingTestSuiteToUse = Array.from(suitesToMerge)[0];
+        nameToUse = existingTestSuiteToUse.substring(existingTestSuiteToUse.indexOf('testSuites/') + 11);
+        nameToUse = nameToUse.substring(0, nameToUse.indexOf('.testSuite-meta.xml'));
+      }
+    } else {
+      existingTestSuiteToUse = hasExistingSuite;
+    }
+    let pathForward = (addtotests && existingTestSuiteToUse) ? 'Update' : 'Overwrite';
+    if (existingTestSuiteToUse && !addtotests) {
+      this.ux.log('Found existing suite at ' + chalk.underline.blue(existingTestSuiteToUse));
       const displayResults: any = await inquirer.prompt([{
         name: 'selected',
         message: 'Would you like to update the list of tests, overwrite it completely, or keep the current list and exit?',
@@ -98,9 +116,9 @@ export default class Suite extends SfdxCommand {
     let pathToSuite;
     this.ux.startSpinner('Creating Test Suite');
     if (pathForward === 'Overwrite') {
-      pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, name);
+      pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, nameToUse);
     } else if (pathForward === 'Update') {
-      pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, name);
+      pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, nameToUse);
     } else {
       this.ux.stopSpinner('FAIL');
       throw SfdxError.create('sfdx-affirm', 'suite', 'errorUnknown');
