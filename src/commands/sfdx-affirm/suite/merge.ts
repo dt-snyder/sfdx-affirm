@@ -100,6 +100,7 @@ export default class Merge extends SfdxCommand {
       this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) will me merged into the ' + name + ' test suite:');
     }
     let allTests: Set<string> = await liftGetTestsFromSuites(suitesToMerge);
+    allTests = new Set(Array.from(allTests).sort());
     if (listOnly) {
       this.ux.log('The following test classes were found: ');
       allTests.forEach(test => {
