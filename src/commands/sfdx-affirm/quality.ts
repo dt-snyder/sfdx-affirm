@@ -62,6 +62,7 @@ export default class Quality extends SfdxCommand {
     saveresults: flags.boolean({ char: 'e', description: messages.getMessage('saveresultsFlagDescription') }),
     printall: flags.boolean({ char: 'p', description: messages.getMessage('printallFlagDescription') }),
     openstatus: flags.boolean({ char: 'o', description: messages.getMessage('openstatusFlagDescription') }),
+    notestsrun: flags.boolean({ char: 'n', description: messages.getMessage('notestsrunFlagDescription') }),
   };
 
   // Comment this out if your command does not require an org username
@@ -72,7 +73,9 @@ export default class Quality extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     if (this.flags.noresults && this.flags.saveresults && this.flags.printall) {
-      throw SfdxError.create('sfdx-affirm', 'quality', 'errorToManyFlags');
+      throw SfdxError.create('sfdx-affirm', 'quality', 'errorResultsFlags');
+    } else if (this.flags.testclasses && this.flags.notestsrun) {
+      throw SfdxError.create('sfdx-affirm', 'quality', 'errorTestFlags');
     }
     const settings: AffirmSettings = await getAffirmSettings();
     const logYN = await getYNString();
@@ -97,9 +100,9 @@ export default class Quality extends SfdxCommand {
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
-    if (!testclasses) {
+    if (!testclasses && !this.flags.notestsrun) {
       useTestClasses = await getTestsFromPackageSettingsOrUser(this.ux, settings, packagedir, orgIsSandbox, silent);
-    } else {
+    } else if (!this.flags.notestsrun && testclasses) {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     } // TODO: add flag and method that allows user to use a specific test suite
     const testClassLog = useTestClasses ? 'Validating Using Provided Test Classes: ' : chalk.red('Validating without test classes!');

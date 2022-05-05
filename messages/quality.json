@@ -8,9 +8,11 @@
   "saveresultsFlagDescription": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
   "printallFlagDescription": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
   "openstatusFlagDescription": "(Optional) if provided the deployment status page will be opened in the default or specified org.",
+  "notestsrunFlagDescription": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
   "errorDefaultPathPackageMissing": "could not find a package at the default path. Make sure you run affirm:parcel first.",
   "errorPackageMissing": "could not find a package at the specified path. Make sure the value provided --packagedirectory is spelled correctly or run affirm:parcel first.",
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
   "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo.",
-  "errorToManyFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again."
+  "errorResultsFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again.",
+  "errorTestFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again."
 }
