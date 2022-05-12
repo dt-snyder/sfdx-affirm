@@ -137,7 +137,7 @@ EXAMPLES
          Converting... Success
          (y/n) There are 7 destructive changes. Create destructive changes xml file? y
          ? Select when the destructive changes should be deployed: before
-         Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+         Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
          Cleaning Up... Success
     
   $ sfdx affirm:parcel -d -t before
@@ -146,7 +146,7 @@ EXAMPLES
          Changes: 5, Insertions: 93, Destructive: 7
          Cloning Files... Success: 100 files ready for convert
          Converting... Success
-         Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+         Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
          Cleaning Up... Success
 ```
 
@@ -164,7 +164,7 @@ USAGE
 OPTIONS
   -d, --packagedir=packagedir
       The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file 
-      describing the entities in the directory structure. default: .releaseArtifacts/parcel. You will always be asked to 
+      describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to 
       confirm the path provided before continuing.
 
   -r, --noresults
@@ -200,8 +200,8 @@ EXAMPLES
   $ sfdx affirm:quality
          (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
          Selected Org: myOrg@example.com.sandbox
-         (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-         Package Directory: ".releaseArtifacts/parcel"
+         (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+         Package Directory: "releaseArtifacts/parcel"
          (y/n) Are you sure you want to validate without running any tests?: y
          Validating without test classes!
          Validating Package... Succeeded
@@ -213,8 +213,8 @@ EXAMPLES
   
   $ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
          Selected Org: myOrg@example.com.sandbox
-         (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-         Package Directory: ".releaseArtifacts/parcel"
+         (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+         Package Directory: "releaseArtifacts/parcel"
          Validating Using Provided Classes: MyTestClass,OtherTestClass
          Validating Package... Succeeded
          Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
@@ -343,14 +343,14 @@ EXAMPLES
        Creating Test Suite... Success
        New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml
     
-  $ sfdx affirm:suite:merge -o .releaseArtifacts/tests
+  $ sfdx affirm:suite:merge -o releaseArtifacts/tests
        Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
        Git Diff For: remotes/origin/master...pilot/affirm
        The following 2 test suite(s) will me merged into the name-of-epic-branch test suite
        force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
        force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
        Creating Test Suite... Success
-       New Test Suite Written to: .releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
+       New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
 ```
 
 _See code: [lib\commands\sfdx-affirm\suite\merge.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.1.2/lib\commands\sfdx-affirm\suite\merge.js)_
