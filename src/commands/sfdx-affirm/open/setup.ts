@@ -20,7 +20,7 @@ export default class Setup extends SfdxCommand {
             Open Setup Home page
     `,
     `$ sfdx affirm:open:setup -d
-            Open Developer console
+            Open Deployment Status
     `,
     `$ sfdx affirm:open:setup -n
             Open Digital Experience Setup Page 
@@ -40,7 +40,7 @@ export default class Setup extends SfdxCommand {
     // flag with a value (-n, --name=VALUE)
     email: flags.boolean({ char: 'e', description: messages.getMessage('emailDescription') }),
     network: flags.boolean({ char: 'n', description: messages.getMessage('networkDescription') }),
-    developer: flags.boolean({ char: 'd', description: messages.getMessage('developerConsoleDescription') }),
+    deployment: flags.boolean({ char: 'd', description: messages.getMessage('deploymentStatusDescription') }),
     username: flags.string({char: 'u', description: messages.getMessage('usernameDescription')}),
     profile: flags.boolean({char: 'p', description: messages.getMessage('profileDescription')})
 
@@ -57,8 +57,8 @@ export default class Setup extends SfdxCommand {
      path = 'lightning/setup/OrgEmailSettings/home';
    } else if(this.flags.network){
     path = '_ui/networks/setup/SetupNetworksPage';
-   } else if(this.flags.developer){
-    path = '_ui/common/apex/debug/ApexCSIPage';
+   } else if(this.flags.deployment){
+    path = 'lightning/setup/DeployStatus/home';
    } else if(this.flags.profile){
      path = 'lightning/setup/EnhancedProfiles/home';
    }

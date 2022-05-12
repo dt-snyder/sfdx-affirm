@@ -28,7 +28,7 @@ export default class Parcel extends SfdxCommand {
       Converting... Success
       (y/n) There are 7 destructive changes. Create destructive changes xml file? y
       ? Select when the destructive changes should be deployed: before
-      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `,
     `$ sfdx affirm:parcel -d -t before
@@ -37,7 +37,7 @@ export default class Parcel extends SfdxCommand {
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
-      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `
   ];
@@ -70,9 +70,9 @@ export default class Parcel extends SfdxCommand {
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
-    const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
+    const outputdir = this.flags.outputdir ? 'releaseArtifacts/' + this.flags.outputdir : 'releaseArtifacts/parcel';
     // tell user what we are going to run git diff on and do it
-    const currentBranch = await getCurrentBranchName();
+    const currentBranch =  await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
     this.ux.log('Changes: ' + chalk.yellow(diffResult.changed.size) + ', Insertions: ' + chalk.green(diffResult.insertion.size) + ', Destructive: ' + chalk.red(diffResult.destructive.size));
@@ -90,7 +90,7 @@ export default class Parcel extends SfdxCommand {
     if (fsFilesMoved > 0) {
       this.ux.stopSpinner('Success: ' + chalk.greenBright(fsFilesMoved) + ' files ready for convert');
       this.ux.startSpinner('Converting');
-      ensureString((await runCommand(`sfdx force:source:convert -d ${outputdir} -r .releaseArtifacts/tempParcel/force-app`)).location, 'Failed to convert to package');
+      ensureString((await runCommand(`sfdx force:source:convert -d ${outputdir} -r releaseArtifacts/tempParcel/force-app`)).location, 'Failed to convert to package');
       this.ux.stopSpinner('Success: Package Created at ' + chalk.underline.blue(outputdir));
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');

@@ -3,6 +3,7 @@
   "emailDescription": "open email deliverabilty",
   "networkDescription": "open all sites",
   "developerConsoleDescription": "open developer console",
+  "deploymentStatusDescription": "open deployment status",
   "usernameDescription": "org target username",
   "errorFlag": "wrong command option",
   "profileDescription": "open profile setup page"

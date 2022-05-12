@@ -75,6 +75,12 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
       if (!copiedPaths.has(parentFile)) copiedPaths.add(parentFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
+    } else if(folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && foldersThatShouldBeReviewed.includes(folder)){
+      const suffix = '.'+folderMdtInfo.suffix.toLowerCase()+'-meta.xml';
+      const parentFile = file.replace(suffix, '');
+      if(!copiedPaths.has(parentFile)) copiedPaths.add(parentFile);
+      if(!copiedPaths.has(file)) copiedPaths.add(file);
+      continue;
     }
     if (!copiedPaths.has(file)) copiedPaths.add(file);
   };
@@ -100,7 +106,7 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
     }
   }
   for (const filePath of copiedPaths) {
-    const newLocation = '.releaseArtifacts/tempParcel/' + filePath;
+    const newLocation = 'releaseArtifacts/tempParcel/' + filePath;
     const fileEsits = await fs.pathExists(filePath);
     if (fileEsits) {
       fs.copySync(filePath, newLocation);
@@ -199,7 +205,7 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
 }
 
 export async function fsCleanupTempDirectory() {
-  await fs.remove('.releaseArtifacts/tempParcel/');
+  await fs.remove('releaseArtifacts/tempParcel/');
 }
 
 export async function fsCleanProvidedOutputDir(outputDir: string) {
