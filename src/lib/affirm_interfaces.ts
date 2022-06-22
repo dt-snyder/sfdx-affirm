@@ -100,3 +100,99 @@ export interface SfdxTestApexClass {
   Name: string,
   NamespacePrefix: string | undefined | null
 }
+
+export interface AffirmSettings {
+  primaryBranch: string | undefined,
+  buildDirectory: string | undefined,
+  packageDirectory: string | undefined,
+  waitTime: string | undefined
+  declarativeTestClass: string | undefined
+}
+
+export interface SfdxOrgOpenResult {
+  orgId: string,
+  url: string,
+  username: string
+}
+
+export interface AffirmAuditResult {
+  dateOfRun: string,
+  username: string,
+  queryUsed: string,
+  totalResults: number,
+  filteredResults: number,
+  actionFlag: string | undefined,
+  sectionFlag: string | undefined,
+  displayFlag: string | undefined,
+  createdbyuserFlag: string | undefined,
+  createdbyprofileFlag: string | undefined,
+  dateFlag: string | undefined,
+  lastndaysFlag: string | undefined,
+  savedirFlag: string | undefined,
+  printonlyFlag: string | undefined,
+  whereFlag: string | undefined
+}
+export interface AffirmSfdcPermission {
+  id: string,
+  name: string,
+  type: string,
+}
+export interface AffirmPermCompareResult {
+  permission: AffirmSfdcPermission,
+  applicableSObj?: Set<string>,
+  applicableFields?: Map<string, Set<string>>,
+  countExactObjectLevelMatches?: number,
+  countExactFieldLevelMatches?: number,
+  countExactMatch?: number,
+  exactObjectLevelMatches?: Array<AffirmSfdcPermission>, //
+  exactFieldLevelMatches?: Array<AffirmSfdcPermission>,
+  exactMatches?: Array<AffirmSfdcPermission>,
+  partialObjectLevelMatches?: Map<AffirmSfdcPermission, Set<string>>,
+  partialFieldLevelMatches?: Map<AffirmSfdcPermission, Set<string>>,
+  objMatchingPermId?: Map<string, Set<string>>,
+  fieldMatchingPermId?: Map<string, Set<string>>
+}
+
+export interface AffirmPermCompareReport {
+  dateOfRun: string,
+  username: string,
+  queryUsed: string,
+  totalPermsCompared: number,
+  result: Array<AffirmPermCompareResult>
+}
+
+export interface AffirmQueryResponse {
+  status: number,
+  result: AffirmQueryResult
+}
+export interface AffirmQueryResult {
+  totalSize: number,
+  done: boolean,
+  records?: Array<AffirmSfdcRecord>
+}
+export interface AffirmSfdcRecord {
+  attributes: AffirmSfdcRecordAttributes,
+  Id?: string,
+}
+export interface PermissionSet extends AffirmSfdcRecord {
+  Name: string,
+  Label: string,
+  Description?: string
+}
+
+export interface ObjectPermissions extends AffirmSfdcRecord {
+  ParentId: string,
+  Parent: PermissionSet,
+  PermissionsEdit: boolean,
+  PermissionsRead: boolean,
+  PermissionsCreate: boolean,
+  PermissionsModifyAllRecords: boolean,
+  PermissionsViewAllRecords: boolean,
+  SobjectType: string
+}
+
+export interface AffirmSfdcRecordAttributes {
+  type: string,
+  url: string
+}
+

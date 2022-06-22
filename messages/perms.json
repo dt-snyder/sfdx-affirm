@@ -1,0 +1,8 @@
+{
+  "commandDescription": "Queries Permission info and provides a list of Permissions that are Duplicates of eachother",
+  "profilesonlyFlagDescription": "Optional: If provided only profiles will be compared",
+  "permissionsetsonlyFlagDescription": "Optional: If provided only permission sets will be compared",
+  "permissionidFlagDescription": "Optional: Provide a Permission Set or Profile Id to limit the results to permissions that match the Permission with the provided Id",
+  "savedirFlagDescription": "Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'",
+  "errorOnlyFilters": "You provided both profileonly and permissionsetsonly. Please only select one and try again."
+}
