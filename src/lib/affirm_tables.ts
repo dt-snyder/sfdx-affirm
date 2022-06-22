@@ -46,4 +46,4 @@ const successesTable: TableOptions = {
     { key: 'time', label: 'Run Time' }
   ]
 };
-export default { componentTable, codeCoverageTable, successesTable, failuresTable };
+export { componentTable, codeCoverageTable, successesTable, failuresTable };

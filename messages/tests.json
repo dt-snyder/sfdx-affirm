@@ -4,7 +4,10 @@
   "waittimeFlagDescription": "The number of minutes to wait for the command to complete. The default is 10.",
   "printresultsFlagDescription": "If provided test results will be printed without being prompted.",
   "alltestsuitesFlagDescription": "(Optional) if provided then all changed or inserted test suites on the branch will be collected and their tests will be used. Otherwise, only the test suite with the matching branch name will be used.",
+  "silentFlagDescription": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+  "saveresultsFlagDescription": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printresults",
   "errorNoTestsProvided": "You must provide a valid list of test class names in order to create a new suite. Try again.",
   "errorNameIsToLong": "The provided file name is either too long or the branch name has a large string not separated by '-'. Please try again and provide a name shorter than 35 characters.",
-  "errorNoToFileName": "The provided Comma separated list of tests names includes '.cls'. This is not allowed."
+  "errorNoToFileName": "The provided Comma separated list of tests names includes '.cls'. This is not allowed.",
+  "errorToManyFlags": "Flags --saveresults and --printall can not be used together. Pick just one and try again."
 }

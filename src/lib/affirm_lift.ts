@@ -1,14 +1,14 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
 import { SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
 import { UX, TableOptions } from '@salesforce/command';
-import { AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
+import { AffirmPermCompareReport, AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
 import { fsCheckForExistingSuite, fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml } from './affirm_fs';
 import { runCommand } from './sfdx';
 import { ensureAnyJson } from '@salesforce/ts-types';
 import { DeployMessage, RunTestResult } from '@salesforce/source-deploy-retrieve';
-import affirm_tables from './affirm_tables';
+import { componentTable, codeCoverageTable, successesTable, failuresTable } from './affirm_tables';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
@@ -86,7 +86,7 @@ export async function liftPrintComponentTable(tableName: string, data: DeployMes
     dataArray = [data];
   }
   ux.log(chalk.green(start));
-  ux.table(dataArray, affirm_tables.componentTable);
+  ux.table(dataArray, componentTable);
   ux.log(chalk.red(end));
 }
 
@@ -118,7 +118,7 @@ export async function liftPrintTestResultTable(data: RunTestResult | RunTestResu
       } else {
         dataArray = [element];
       }
-      const columnsToUse = key === 'codeCoverage' ? affirm_tables.codeCoverageTable : key === 'failures' ? affirm_tables.failuresTable : affirm_tables.successesTable;
+      const columnsToUse = key === 'codeCoverage' ? codeCoverageTable : key === 'failures' ? failuresTable : successesTable;
       ux.log(chalk.green(start));
       ux.table(dataArray, columnsToUse);
       ux.log(chalk.red(end));
@@ -308,8 +308,34 @@ export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function liftCheckOrgIsSandbox(ms: number): Promise<boolean> {
-  let isSandbox: boolean = false;
-  return isSandbox;
+export async function getAffirmFormattedDate(): Promise<string> {
+  const date = new Date();
+  return `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}-${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}`;
 }
 
+export async function stringifyAffirmPermCompareReport(report: AffirmPermCompareReport): Promise<string> {
+  const replacer = (key, value) => {
+    if (value instanceof Map) {
+      return Object.fromEntries(value);
+      // let tempArray = [];
+      // Array.from(value.keys()).forEach(key => {
+      //   const tempObj = {
+      //     id: key,
+      //     value: Array.from(value.get(key))
+      //   };
+      //   tempArray = [...tempArray, tempObj];
+      // });
+      // return tempArray;
+      // if (value.values[0] instanceof Set) {
+
+      // } else {
+      //   return Object.fromEntries(value);
+      // }
+    } else if (value instanceof Set) {
+      return Array.from(value);
+    } else {
+      return value;
+    }
+  }
+  return JSON.stringify(report, replacer);
+}
