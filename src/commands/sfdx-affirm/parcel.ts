@@ -92,7 +92,7 @@ export default class Parcel extends SfdxCommand {
       this.ux.startSpinner('Converting');
       const inputDir = `${settings.buildDirectory}/tempParcel/force-app`;
       // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
-      await runCommand(`sfdx force:source:convert -d ${outputdir} -r ${inputDir}`);
+      await runCommand(`sfdx force:source:convert -d ${outputdir} -r ${inputDir}`, this.ux);
       this.ux.stopSpinner(`Success: Package Created at ${chalk.underline.blue(outputdir)}`);
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');
