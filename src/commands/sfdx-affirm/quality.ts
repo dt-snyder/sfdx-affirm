@@ -113,6 +113,7 @@ export default class Quality extends SfdxCommand {
         this.ux.log(chalk.green(test));
       }
     }
+    // TODO: add check and error handle if target instance is prod and there are no tests
     // start the validation of the package
     const waittime = this.flags.waittime || settings.waitTime;
     const tests = useTestClasses ? ` -l RunSpecifiedTests -r ${useTestClasses}` : ' -l NoTestRun';
