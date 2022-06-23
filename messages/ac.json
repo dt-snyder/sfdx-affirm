@@ -1,6 +1,0 @@
-{
-  "commandDescription": "Creates a testSuite-meta.xml file with the provided list of tests.",
-  "nameFlagDescription": "Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.",
-  "urlonlyFlagDescription": "Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'",
-  "classicFlagDescription": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites"
-}
