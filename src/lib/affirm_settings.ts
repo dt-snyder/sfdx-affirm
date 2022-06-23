@@ -8,7 +8,7 @@ const logYN = `(${chalk.green('y')}/${chalk.red('n')})`;
 
 const defaultSettings: AffirmSettings = {
   primaryBranch: 'remotes/origin/master',
-  buildDirectory: '.releaseArtifacts',
+  buildDirectory: 'releaseArtifacts',
   packageDirectory: 'parcel',
   waitTime: '10',
   declarativeTestClass: undefined
