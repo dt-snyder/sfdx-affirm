@@ -59,14 +59,15 @@ export default class Tests extends SfdxCommand {
       (y/n) Would you like to print the results of each test?: n
     `,
   ];
-  // TODO: v3: add repeating status instead of using wait directly in child_command
+  // TODO: v3.1: add repeating status instead of using wait directly in child_command
   protected static flagsConfig = {
     list: flags.string({ char: "l", description: messages.getMessage("listFlagDescription"), }),
     waittime: flags.integer({ char: "w", description: messages.getMessage("waittimeFlagDescription"), }),
     printresults: flags.boolean({ char: "r", description: messages.getMessage("printresultsFlagDescription"), }),
     alltestsuites: flags.boolean({ char: "a", description: messages.getMessage("alltestsuitesFlagDescription"), default: false, }),
     saveresults: flags.boolean({ char: "e", description: messages.getMessage("saveresultsFlagDescription"), }),
-    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false })
+    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
+    verbose: flags.boolean({ char: 'v', description: messages.getMessage('verboseFlagDescription'), default: false }),
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -137,8 +138,14 @@ export default class Tests extends SfdxCommand {
     const waittime = this.flags.waittime || settings.waitTime;
     // run force:apex:test:run command
     this.ux.startSpinner("Running Tests");
-    // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
-    const testResults = (await runCommand(`sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`)) as unknown as SfdxTestResult;
+    const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`;
+    let testResults;
+    if (this.flags.verbose) {
+      testResults = (await runCommand(testCommand), this.ux) as unknown as SfdxTestResult;
+    } else {
+      testResults = (await runCommand(testCommand)) as unknown as SfdxTestResult;
+    }
+
     this.ux.stopSpinner("Done");
     // this.ux.logJson(testResults.tests);
     this.ux.log("Outcome: " + chalk.cyanBright(testResults.summary.outcome));
