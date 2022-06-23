@@ -60,15 +60,13 @@ export default class Tests extends SfdxCommand {
     `,
   ];
   // TODO: v3: add repeating status instead of using wait directly in child_command
-  // TODO: v3: add save full output
-  // TODO: v3: add flag that gets the parcel directory and gathers all the tests from there instead of the branches test suite
   protected static flagsConfig = {
     list: flags.string({ char: "l", description: messages.getMessage("listFlagDescription"), }),
     waittime: flags.integer({ char: "w", description: messages.getMessage("waittimeFlagDescription"), }),
     printresults: flags.boolean({ char: "r", description: messages.getMessage("printresultsFlagDescription"), }),
     alltestsuites: flags.boolean({ char: "a", description: messages.getMessage("alltestsuitesFlagDescription"), default: false, }),
     saveresults: flags.boolean({ char: "e", description: messages.getMessage("saveresultsFlagDescription"), }),
-    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
+    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -78,7 +76,7 @@ export default class Tests extends SfdxCommand {
   protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
-    if (this.flags.saveresults && this.flags.printall) {
+    if ((this.flags.saveresults && this.flags.printall) || (this.flags.alltestsuites && this.flags.list)) {
       throw SfdxError.create("sfdx-affirm", "tests", "errorToManyFlags");
     }
     const settings: AffirmSettings = await getAffirmSettings();
