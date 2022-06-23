@@ -67,7 +67,7 @@ export default class Tests extends SfdxCommand {
     alltestsuites: flags.boolean({ char: "a", description: messages.getMessage("alltestsuitesFlagDescription"), default: false, }),
     saveresults: flags.boolean({ char: "e", description: messages.getMessage("saveresultsFlagDescription"), }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
-    verbose: flags.boolean({ char: 'v', description: messages.getMessage('verboseFlagDescription'), default: false }),
+    showmore: flags.boolean({ char: 'm', description: messages.getMessage('showmoreFlagDescription'), default: false }),
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -142,7 +142,8 @@ export default class Tests extends SfdxCommand {
     this.ux.startSpinner("Running Tests");
     const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`;
     let testResults;
-    if (this.flags.verbose) {
+    // TODO: make this work with a different flag name
+    if (this.flags.showmore) {
       testResults = (await runCommand(testCommand), this.ux) as unknown as SfdxTestResult;
     } else {
       testResults = (await runCommand(testCommand)) as unknown as SfdxTestResult;
