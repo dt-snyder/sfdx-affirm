@@ -28,7 +28,7 @@ export default class Parcel extends SfdxCommand {
       Converting... Success
       (y/n) There are 7 destructive changes. Create destructive changes xml file? y
       ? Select when the destructive changes should be deployed: before
-      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `,
     `$ sfdx affirm:parcel -d -t before
@@ -37,7 +37,7 @@ export default class Parcel extends SfdxCommand {
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
-      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `
   ];
@@ -80,7 +80,7 @@ export default class Parcel extends SfdxCommand {
     await fsCleanProvidedOutputDir(outputdir);
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
-    await sfcoreFindOrAddReleasePath(pjtJson);
+    await sfcoreFindOrAddReleasePath(pjtJson, settings.buildDirectory);
     // clone the files to a temp folder for convert... will clean this up later
     // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
     const metaDataTypes: DescribeMetadata = (await runCommand('sfdx force:mdapi:describemetadata')).result as unknown as DescribeMetadata;
@@ -125,7 +125,7 @@ export default class Parcel extends SfdxCommand {
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
     this.ux.startSpinner('Cleaning Up');
     await fsCleanupTempDirectory();
-    await sfcoreRemoveReleasePath(pjtJson);
+    await sfcoreRemoveReleasePath(pjtJson, settings.buildDirectory);
     this.ux.stopSpinner('Success');
     return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, includeDestructive: includedestructive || includeDestructivePrompt };
   }

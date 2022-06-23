@@ -22,28 +22,28 @@ export async function sfcoreIsPathProject(projectJson: SfdxProjectJson, provided
   throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorPathIsNotProject');
 }
 
-export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson) {
+export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson, buildDirectory: string) {
   const dirs = await projectJson.getPackageDirectories();
   let foundTempdir: Boolean = false;
   dirs.forEach(element => {
-    if (element.path === '.releaseArtifacts/tempParcel/force-app' || element.path === '.releaseArtifacts\\tempParcel\\force-app')
+    if (element.path === `${buildDirectory}/tempParcel/force-app` || element.path === `${buildDirectory}\\tempParcel\\force-app`)
       foundTempdir = true;
   });
   if (foundTempdir) return;
   const newConfig = await projectJson.read();
-  const newPath: PackageDir = { path: '.releaseArtifacts/tempParcel/force-app', default: false };
+  const newPath: PackageDir = { path: `${buildDirectory}/tempParcel/force-app`, default: false };
   let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
   packageDirectories = [...packageDirectories, newPath];
   const finalConfig = projectJson.set('packageDirectories', packageDirectories as ConfigValue);
   await projectJson.write(finalConfig);
 }
 
-export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson) {
+export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson, buildDirectory: string) {
   const newConfig = await projectJson.read();
   let newPaths: Array<PackageDir> = [];
   let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
   packageDirectories.forEach(element => {
-    if (element.path === '.releaseArtifacts/tempParcel/force-app' || element.path === '.releaseArtifacts\\tempParcel\\force-app')
+    if (element.path === `${buildDirectory}/tempParcel/force-app` || element.path === `${buildDirectory}\\tempParcel\\force-app`)
       return;
     newPaths = [...newPaths, element];
   });

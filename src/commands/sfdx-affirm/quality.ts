@@ -27,8 +27,8 @@ export default class Quality extends SfdxCommand {
     `$ sfdx affirm:quality
       (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
       Selected Org: myOrg@example.com.sandbox
-      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-      Package Directory: ".releaseArtifacts/parcel"
+      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
       (y/n) Are you sure you want to validate without running any tests?: y
       Validating without test classes!
       Validating Package... Succeeded
@@ -40,8 +40,8 @@ export default class Quality extends SfdxCommand {
   `,
     `$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
       Selected Org: myOrg@example.com.sandbox
-      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-      Package Directory: ".releaseArtifacts/parcel"
+      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
       Validating Using Provided Classes: MyTestClass,OtherTestClass
       Validating Package... Succeeded
       Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA

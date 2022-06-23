@@ -22,7 +22,7 @@ export default class Setup extends SfdxCommand {
     `$ sfdx affirm:setup
       Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main
       Primary Branch set to:  remotes/origin/main
-      Provide location where temp build folders and packages will be created and stored  [.releaseArtifacts]: .superArtifacts
+      Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: .superArtifacts
       Build Directory set to:  .superArtifacts
       Provide default directory name for new packages  [parcel]: pack
       Package Directory set to:  pack

@@ -40,14 +40,14 @@ export default class Merge extends SfdxCommand {
     Creating Test Suite... Success
     New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml
     `,
-    `$ sfdx affirm:suite:merge -o .releaseArtifacts/tests
+    `$ sfdx affirm:suite:merge -o releaseArtifacts/tests
     Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
     Git Diff For: remotes/origin/master...pilot/affirm
     The following 2 test suite(s) will me merged into the name-of-epic-branch test suite
     force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
     force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
     Creating Test Suite... Success
-    New Test Suite Written to: .releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
+    New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
     `,
   ];
 

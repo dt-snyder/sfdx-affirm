@@ -22,14 +22,14 @@ export default class Audit extends SfdxCommand {
       Running Command:
       sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC" -u defaultUser --json
       Processing Query Results... Done. Found 1222 results
-      File Saved to: ./.releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
+      File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
     `,
     `$ sfdx affirm:place:audit -n 30 -p "System Administrator" -a caselayout -u aliasName
       Running Command:
       sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail
       WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC" -u aliasName --json
       Processing Query Results... Done. Found 45 results
-      File Saved to: ./.releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
+      File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
     `,
   ];
   protected static flagsConfig = {
