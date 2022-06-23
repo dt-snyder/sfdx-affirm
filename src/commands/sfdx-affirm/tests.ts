@@ -77,8 +77,10 @@ export default class Tests extends SfdxCommand {
   protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
-    if ((this.flags.saveresults && this.flags.printall) || (this.flags.alltestsuites && this.flags.list)) {
-      throw SfdxError.create("sfdx-affirm", "tests", "errorToManyFlags");
+    if (this.flags.saveresults && this.flags.printall) {
+      throw SfdxError.create("sfdx-affirm", "tests", "errorConflictingResultsFlags");
+    } else if (this.flags.alltestsuites && this.flags.list) {
+      throw SfdxError.create("sfdx-affirm", "tests", "errorConflictingUseTestFlags");
     }
     const settings: AffirmSettings = await getAffirmSettings();
     const inputUsername = this.flags.targetusername;
