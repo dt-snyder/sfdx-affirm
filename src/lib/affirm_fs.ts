@@ -296,6 +296,8 @@ export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileNa
   if (obj.StaticResource.contentType !== 'application/zip') {
     if (obj.StaticResource.contentType === 'image/png') {
       fileExtention = '.png';
+    } else if (obj.StaticResource.contentType === 'image/gif') {
+      fileExtention = '.gif';
     } else if (obj.StaticResource.contentType === 'image/svg+xml') {
       fileExtention = '.svg';
     } else if (obj.StaticResource.contentType === 'text/javascript') {
