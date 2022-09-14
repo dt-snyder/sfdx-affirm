@@ -24,7 +24,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx sfdx-affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsetup--b-string--d-string--p-string--w-string--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuitemerge--n-string--o-string--n-string--b-string--l---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmtests--l-string--w-integer--r--a--e--s--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmtests--l-string--w-integer--r--a--e--s--m--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 
 ## `sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -273,7 +273,7 @@ EXAMPLES
          Converting... Success
          (y/n) There are 7 destructive changes. Create destructive changes xml file? y
          ? Select when the destructive changes should be deployed: before
-         Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+         Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
          Cleaning Up... Success
     
   $ sfdx affirm:parcel -d -t before
@@ -282,7 +282,7 @@ EXAMPLES
          Changes: 5, Insertions: 93, Destructive: 7
          Cloning Files... Success: 100 files ready for convert
          Converting... Success
-         Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+         Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
          Cleaning Up... Success
 ```
 
@@ -302,7 +302,7 @@ USAGE
 OPTIONS
   -d, --packagedir=packagedir
       The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file 
-      describing the entities in the directory structure. default: .releaseArtifacts/parcel. You will always be asked to 
+      describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to 
       confirm the path provided before continuing.
 
   -e, --saveresults
@@ -426,7 +426,7 @@ EXAMPLES
          sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate 
   DESC" -u defaultUser --json
          Processing Query Results... Done. Found 1222 results
-         File Saved to: ./.releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
+         File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
     
   $ sfdx affirm:place:audit -n 30 -p "System Administrator" -a caselayout -u aliasName
          Running Command:
@@ -434,7 +434,7 @@ EXAMPLES
          WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System 
   Administrator' ORDER BY CreatedDate DESC" -u aliasName --json
          Processing Query Results... Done. Found 45 results
-         File Saved to: ./.releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
+         File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
 ```
 
 _See code: [lib/commands/sfdx-affirm/place/audit.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/lib/commands/sfdx-affirm/place/audit.js)_
@@ -679,8 +679,8 @@ EXAMPLES
   $ sfdx affirm:quality
          (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
          Selected Org: myOrg@example.com.sandbox
-         (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-         Package Directory: ".releaseArtifacts/parcel"
+         (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+         Package Directory: "releaseArtifacts/parcel"
          (y/n) Are you sure you want to validate without running any tests?: y
          Validating without test classes!
          Validating Package... Succeeded
@@ -692,8 +692,8 @@ EXAMPLES
   
   $ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
          Selected Org: myOrg@example.com.sandbox
-         (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-         Package Directory: ".releaseArtifacts/parcel"
+         (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+         Package Directory: "releaseArtifacts/parcel"
          Validating Using Provided Classes: MyTestClass,OtherTestClass
          Validating Package... Succeeded
          Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
@@ -725,8 +725,8 @@ OPTIONS
 
   -d, --builddir=builddir
       (optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages 
-      are saved, and validation results are saved. Default is '.releaseArtifacts'. Would recommend a folder that is 
-      ignored by git.
+      are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored 
+      by git.
 
   -o, --overwrite
       (optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't 
@@ -757,7 +757,7 @@ EXAMPLES
   $ sfdx affirm:setup
          Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main
          Primary Branch set to:  remotes/origin/main
-         Provide location where temp build folders and packages will be created and stored  [.releaseArtifacts]: 
+         Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: 
   .superArtifacts
          Build Directory set to:  .superArtifacts
          Provide default directory name for new packages  [parcel]: pack
@@ -902,19 +902,19 @@ EXAMPLES
        Creating Test Suite... Success
        New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml
     
-  $ sfdx affirm:suite:merge -o .releaseArtifacts/tests
+  $ sfdx affirm:suite:merge -o releaseArtifacts/tests
        Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
        Git Diff For: remotes/origin/master...pilot/affirm
        The following 2 test suite(s) will me merged into the name-of-epic-branch test suite
        force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
        force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
        Creating Test Suite... Success
-       New Test Suite Written to: .releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
+       New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
 ```
 
 _See code: [lib/commands/sfdx-affirm/suite/merge.js](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/lib/commands/sfdx-affirm/suite/merge.js)_
 
-## `sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Allows user to easily run the relevant tests for their current branch.
 
@@ -922,7 +922,7 @@ Allows user to easily run the relevant tests for their current branch.
 Allows user to easily run the relevant tests for their current branch.
 
 USAGE
-  $ sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] 
+  $ sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] 
   [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 OPTIONS
@@ -937,6 +937,9 @@ OPTIONS
   -l, --list=list
       Comma separated list of tests names that will be used to create the test suite. If none are provided you will be 
       asked to provide a list or exit.
+
+  -m, --showmore
+      (Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run
 
   -r, --printresults
       If provided test results will be printed without being prompted.
