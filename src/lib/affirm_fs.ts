@@ -205,7 +205,7 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
     const emptyPackageObj = {
       package: {
         '@xmlns': 'http://soap.sforce.com/2006/04/metadata',
-        version: '53.0'
+        version: '55.0'
       }
     };
     const emptyPackageFile = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(emptyPackageObj));
