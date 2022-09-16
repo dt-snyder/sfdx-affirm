@@ -1,5 +1,5 @@
 import {  SfdxCommand, flags } from '@salesforce/command';
-import { Messages } from '@salesforce/core';
+import { Messages, SfdxProject } from '@salesforce/core';
 import { runCommand } from '../../../lib/sfdx';
 import { AnyJson } from '@salesforce/ts-types';
 
@@ -8,27 +8,27 @@ Messages.importMessagesDirectory(__dirname);
 
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
 // or any library that is using the messages framework can also be loaded this way.
-const messages = Messages.loadMessages('sfdx-affirm', 'setup');
+const messages = Messages.loadMessages('sfdx-affirm', 'settings');
 
 
-export default class Setup extends SfdxCommand {
+export default class Settings extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:open:setup'];
+  public static aliases = ['affirm:open:settings'];
   public static examples = [
-    `$ sfdx affirm:open:setup
+    `$ sfdx affirm:open:settings
             Open Setup Home page
     `,
-    `$ sfdx affirm:open:setup -d
+    `$ sfdx affirm:open:settings -d
             Open Deployment Status
     `,
-    `$ sfdx affirm:open:setup -n
+    `$ sfdx affirm:open:settings -n
             Open Digital Experience Setup Page 
     `,
-    `$ sfdx affirm:open:setup -u -e
+    `$ sfdx affirm:open:settings -u -e
             Open Email Deliverability page for the given user  
     `,
-    `$ sfdx affirm:open:setup -p
+    `$ sfdx affirm:open:settings -p
             Open Enhanced Profile Setup Page 
     `,
 
@@ -41,13 +41,13 @@ export default class Setup extends SfdxCommand {
     email: flags.boolean({ char: 'e', description: messages.getMessage('emailDescription') }),
     network: flags.boolean({ char: 'n', description: messages.getMessage('networkDescription') }),
     deployment: flags.boolean({ char: 'd', description: messages.getMessage('deploymentStatusDescription') }),
-    username: flags.string({char: 'u', description: messages.getMessage('usernameDescription')}),
     profile: flags.boolean({char: 'p', description: messages.getMessage('profileDescription')})
 
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
   protected static requiresProject = true;
+  protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
     
@@ -63,11 +63,17 @@ export default class Setup extends SfdxCommand {
      path = 'lightning/setup/EnhancedProfiles/home';
    }
    
-   if(this.flags.username != null && this.flags.username.length > 0){
-     path += ' -u '+ this.flags.username
-   }
+   const inputUsername = this.flags.targetusername;
 
-   await runCommand('sfdx force:org:open --path '+ path); 
+   if (!inputUsername) {
+    const project = await SfdxProject.resolve();
+    const pjtJson = await project.resolveProjectConfig();
+    path += ' -u '+ pjtJson.defaultusername;
+  } else {
+    path += ' -u '+ inputUsername;
+  }
+
+  await runCommand('sfdx force:org:open --path '+ path); 
 
     return JSON.stringify('Executed the command');
   }
