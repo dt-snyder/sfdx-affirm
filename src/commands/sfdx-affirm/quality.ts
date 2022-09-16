@@ -129,7 +129,7 @@ export default class Quality extends SfdxCommand {
 
     const validationStatus = (validationResult.status !== 'Succeeded') ? chalk.redBright(validationResult.status) : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
-    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
+    const currentRunName = (validationResult.startDate as string).substring(0, (validationResult.startDate as string).indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
     this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
     this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
     this.ux.log('Component Deployed: ' + chalk.green(validationResult.numberComponentsDeployed));
