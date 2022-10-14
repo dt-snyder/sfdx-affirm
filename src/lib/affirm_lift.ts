@@ -4,7 +4,7 @@ import { UX, TableOptions } from '@salesforce/command';
 import { DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
-import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml } from './affirm_fs';
+import { fsCheckForExistingSuite, fsGetTestStringFromSuiteXml, fsCheckPathExists, fsGetTestsStringFromTestSuiteFolder } from './affirm_fs';
 
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
@@ -105,6 +105,29 @@ export async function printBranchesCompared(ux: UX, providedBranch: string, curr
 
 export async function getYNString() {
   return logYN;
+}
+
+
+export async function getTestsFromParcel(ux:UX, silent?: boolean){
+  let testsToReturn;
+  const defaultPath = 'releaseArtifacts/parcel';
+  const defaultOutputDir = defaultPath + '/testSuites/';
+  const testSuiteFolderExists = await fsCheckPathExists(defaultOutputDir);
+
+  if (!testSuiteFolderExists && !silent) {
+    const provideList = await ux.confirm(logYN + ' Could not find testSuites folder in the releaseArtifact/parcel location. Would you like to provide a list of test classes now?');
+    if (provideList) {
+      const providedTests = await ux.prompt('Please provide a comma separated list of tests names');
+      testsToReturn = await liftCleanProvidedTests(providedTests);
+    }
+  } else if (testSuiteFolderExists) {
+      const proceedWithTests = await ux.confirm(logYN + ' Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?');
+    if (proceedWithTests) {
+     // if a test suite exists then parse the tests out
+      testsToReturn = await fsGetTestsStringFromTestSuiteFolder(defaultOutputDir);
+    } 
+  }
+  return testsToReturn;
 }
 
 export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {

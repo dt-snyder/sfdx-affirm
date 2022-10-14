@@ -3,7 +3,7 @@ import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser } from '../../lib/affirm_lift';
+import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromParcel } from '../../lib/affirm_lift';
 import { fsSaveJson } from '../../lib/affirm_fs';
 import affirm_tables from '../../lib/affirm_tables';
 import { runCommand } from '../../lib/sfdx';
@@ -26,7 +26,21 @@ export default class Quality extends SfdxCommand {
       Selected Org: myOrg@example.com.sandbox
       (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
       Package Directory: "releaseArtifacts/parcel"
-      (y/n) Are you sure you want to validate without running any tests?: y
+      (y/n) Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?: y
+      Validating Using Provided Test Classes:
+      Validating Package... Succeeded
+      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
+      Total Components: 761
+      Component Deployed: 761
+      Component With Errors: 0
+      ? Would you like to print or save the any of the validation results? No
+  `,
+  `$ sfdx affirm:quality
+      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
+      (y/n) Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?: n
       Validating without test classes!
       Validating Package... Succeeded
       Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
@@ -97,18 +111,10 @@ export default class Quality extends SfdxCommand {
     }
     this.ux.log('Package Directory: "' + chalk.underline.blue(packagedir) + '"');
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
-    // TODO: add logic to get tests from the current branch suite like in affirm:tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      useTestClasses = await getTestsFromSuiteOrUser(this.ux, silent);
-      if (!useTestClasses && silent === false) {
-        const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
-        if (!proceedWithoutTests) {
-          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
-          useTestClasses = await liftCleanProvidedTests(providedTestClasses);
-        }
-      }
+      useTestClasses = await getTestsFromParcel(this.ux, silent);
     } else {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     }
