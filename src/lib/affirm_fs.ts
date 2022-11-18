@@ -244,6 +244,7 @@ export async function fsUpdateExistingTestSuite(newTests: string, outputDir: str
   newTests.split(',').forEach(test => {
     if (!allTests.has(test)) allTests.add(test);
   });
+  // TODO: improve sort by implementing custom function that ignores case.
   allTests = new Set(Array.from(allTests).sort());
   const testArray = [...allTests];
   const testSuite: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
