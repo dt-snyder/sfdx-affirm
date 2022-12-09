@@ -3,7 +3,7 @@ import { Messages, SfdxError, SfdxProject } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
-import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromSuiteOrUser } from '../../lib/affirm_lift';
+import { liftCleanProvidedTests, liftPrintTable, getYNString, getTestsFromParcel } from '../../lib/affirm_lift';
 import { fsSaveJson } from '../../lib/affirm_fs';
 import affirm_tables from '../../lib/affirm_tables';
 import { runCommand } from '../../lib/sfdx';
@@ -24,9 +24,23 @@ export default class Quality extends SfdxCommand {
     `$ sfdx affirm:quality
       (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
       Selected Org: myOrg@example.com.sandbox
-      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-      Package Directory: ".releaseArtifacts/parcel"
-      (y/n) Are you sure you want to validate without running any tests?: y
+      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
+      (y/n) Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?: y
+      Validating Using Provided Test Classes:
+      Validating Package... Succeeded
+      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
+      Total Components: 761
+      Component Deployed: 761
+      Component With Errors: 0
+      ? Would you like to print or save the any of the validation results? No
+  `,
+  `$ sfdx affirm:quality
+      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
+      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
+      (y/n) Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?: n
       Validating without test classes!
       Validating Package... Succeeded
       Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
@@ -37,8 +51,8 @@ export default class Quality extends SfdxCommand {
   `,
     `$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
       Selected Org: myOrg@example.com.sandbox
-      (y/n) Are you sure you want to validate the package located in the ".releaseArtifacts/parcel" folder?: y
-      Package Directory: ".releaseArtifacts/parcel"
+      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
       Validating Using Provided Classes: MyTestClass,OtherTestClass
       Validating Package... Succeeded
       Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
@@ -85,30 +99,22 @@ export default class Quality extends SfdxCommand {
     }
     this.ux.log('Selected Org: ' + chalk.greenBright(username));
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
-    const packagedir = this.flags.packagedir || '.releaseArtifacts/parcel';
+    const packagedir = this.flags.packagedir || 'releaseArtifacts/parcel';
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists && silent === false) {
       const confirmParcelDir = logYN + ' Are you sure you want to validate the package located in the "' + chalk.underline.blue(packagedir) + '" folder?';
       const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
       if (!proceedWithDefault) return { packageValidated: false, message: 'user said no to ' + packagedir + ' folder' };
     } else if (parcelExists === false) {
-      const errorType = packagedir === '.releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
+      const errorType = packagedir === 'releaseArtifacts/parcel' ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
       throw SfdxError.create('sfdx-affirm', 'quality', errorType);
     }
     this.ux.log('Package Directory: "' + chalk.underline.blue(packagedir) + '"');
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
-    // TODO: add logic to get tests from the current branch suite like in affirm:tests
     const testclasses = this.flags.testclasses;
     let useTestClasses;
     if (!testclasses) {
-      useTestClasses = await getTestsFromSuiteOrUser(this.ux, silent);
-      if (!useTestClasses && silent === false) {
-        const proceedWithoutTests = await this.ux.confirm(logYN + ' Are you sure you want to validate without running any tests?');
-        if (!proceedWithoutTests) {
-          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
-          useTestClasses = await liftCleanProvidedTests(providedTestClasses);
-        }
-      }
+      useTestClasses = await getTestsFromParcel(this.ux, silent);
     } else {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     }
@@ -129,7 +135,7 @@ export default class Quality extends SfdxCommand {
 
     const validationStatus = (validationResult.status !== 'Succeeded') ? chalk.redBright(validationResult.status) : chalk.cyanBright(validationResult.status);
     this.ux.stopSpinner(validationStatus);
-    const currentRunName = validationResult.startDate.substring(0, validationResult.startDate.indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
+    const currentRunName = (validationResult.startDate as string).substring(0, (validationResult.startDate as string).indexOf('.')).replace('T', '_').split(':').join('_') + '_' + validationResult.id;
     this.ux.log('Deployment Status Date_Time_Id: ' + chalk.cyanBright(currentRunName));
     this.ux.log('Total Components: ' + chalk.cyan(validationResult.numberComponentsTotal));
     this.ux.log('Component Deployed: ' + chalk.green(validationResult.numberComponentsDeployed));
@@ -184,7 +190,7 @@ export default class Quality extends SfdxCommand {
           } else if (resultType !== 'runTestResult' && selectedType === 'print') {
             await liftPrintTable(printResultType, validationResult.details[resultType], columns[resultType], this.ux);
           } else if (selectedType === 'save') {
-            const fileName = '.releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
+            const fileName = 'releaseArtifacts/validationResults/' + currentRunName + '/' + resultType;
             await fsSaveJson(fileName, validationResult.details[resultType], this.ux);
           }
         }

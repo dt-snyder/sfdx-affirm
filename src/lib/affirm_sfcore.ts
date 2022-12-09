@@ -26,12 +26,12 @@ export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson) {
   const dirs = await projectJson.getPackageDirectories();
   let foundTempdir: Boolean = false;
   dirs.forEach(element => {
-    if (element.path === '.releaseArtifacts/tempParcel/force-app' || element.path === '.releaseArtifacts\\tempParcel\\force-app')
+    if (element.path === 'releaseArtifacts/tempParcel/force-app' || element.path === 'releaseArtifacts\\tempParcel\\force-app')
       foundTempdir = true;
   });
   if (foundTempdir) return;
   const newConfig = await projectJson.read();
-  const newPath: PackageDir = { path: '.releaseArtifacts/tempParcel/force-app', default: false };
+  const newPath: PackageDir = { path: 'releaseArtifacts/tempParcel/force-app', default: false };
   let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
   packageDirectories = [...packageDirectories, newPath];
   const finalConfig = projectJson.set('packageDirectories', packageDirectories as ConfigValue);
@@ -43,7 +43,7 @@ export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson) {
   let newPaths: Array<PackageDir> = [];
   let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
   packageDirectories.forEach(element => {
-    if (element.path === '.releaseArtifacts/tempParcel/force-app' || element.path === '.releaseArtifacts\\tempParcel\\force-app')
+    if (element.path === 'releaseArtifacts/tempParcel/force-app' || element.path === 'releaseArtifacts\\tempParcel\\force-app')
       return;
     newPaths = [...newPaths, element];
   });
