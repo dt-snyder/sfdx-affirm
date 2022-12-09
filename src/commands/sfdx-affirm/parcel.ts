@@ -71,7 +71,7 @@ export default class Parcel extends SfdxCommand {
     // use the users provided dir name or the default of parcel for saving the package.
     const outputdir = this.flags.outputdir ? `${settings.buildDirectory}/${this.flags.outputdir}` : `${settings.buildDirectory}/${settings.packageDirectory}`;
     // tell user what we are going to run git diff on and do it
-    const currentBranch = await getCurrentBranchName();
+    const currentBranch =  await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
     this.ux.log(`Changes: ${chalk.yellow(diffResult.changed.size)}, Insertions: ${chalk.green(diffResult.insertion.size)}, Destructive: ${chalk.red(diffResult.destructive.size)}`);

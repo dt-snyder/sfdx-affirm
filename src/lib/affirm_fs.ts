@@ -91,6 +91,12 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
       if (!copiedPaths.has(parentFile) && !ignoreMissingFile.includes(fileType)) copiedPaths.add(parentFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
+    } else if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && foldersThatShouldBeReviewed.includes(folder)) {
+      const suffix = '.' + folderMdtInfo.suffix.toLowerCase() + '-meta.xml';
+      const parentFile = file.replace(suffix, '');
+      if (!copiedPaths.has(parentFile)) copiedPaths.add(parentFile);
+      if (!copiedPaths.has(file)) copiedPaths.add(file);
+      continue;
     }
     if (!copiedPaths.has(file)) copiedPaths.add(file);
   };
@@ -261,6 +267,30 @@ export async function fsCheckForExistingSuite(outputDir: string, fileName: strin
   return outputFileName;
 }
 
+export async function fsCheckPathExists(outputDir: string) {
+  const folderStillExists = await fs.pathExists(outputDir);
+  if (!folderStillExists) return null;
+  return folderStillExists;
+}
+
+export async function fsGetTestsStringFromTestSuiteFolder(pathToFolder: string) {
+  let tests: Set<string> = new Set();
+  fs.readdirSync(pathToFolder).forEach(file => {
+    let testFilePath = pathToFolder + file;
+    const testSuite = fs.readFileSync(testFilePath, 'utf8');
+    const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
+    if (Array.isArray(obj.ApexTestSuite.testClassName)) {
+      obj.ApexTestSuite.testClassName.forEach(test => {
+        if (!tests.has(test)) tests.add(test);
+      });
+    } else {
+      if (!tests.has(obj.ApexTestSuite.testClassName)) tests.add(obj.ApexTestSuite.testClassName);
+    }
+  });
+  let testsArray = Array.from(tests);
+  return testsArray.join(',');
+}
+
 export async function fsGetTestStringFromSuiteXml(pathToSuite: string): Promise<string> {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
@@ -273,6 +303,7 @@ export async function fsGetTestStringFromSuiteXml(pathToSuite: string): Promise<
   }
   return tests;
 }
+
 
 export async function fsGetTestSetFromSuiteXml(pathToSuite: string): Promise<Set<string>> {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
