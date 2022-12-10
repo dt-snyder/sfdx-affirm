@@ -1,4 +1,4 @@
-import { SfdxError } from '@salesforce/core';
+import { SfError } from '@salesforce/core';
 import { Dictionary, get } from '@salesforce/ts-types';
 import * as child from 'child_process';
 import { UX } from '@salesforce/command';
@@ -35,7 +35,7 @@ export const runCommand = (fullCommand: string, ux?: UX): Promise<Dictionary> =>
         console.warn(`No parsable results from command "${fullCommand}"`);
       }
       if (code > 0 && !json.result) {
-        const sfdxError = SfdxError.wrap(error);
+        const sfdxError = SfError.wrap(error);
         // console.log(json);
         sfdxError.message = `Command "${commandName}" failed with message: ${get(json, 'message')}`;
         sfdxError.setData(json);

@@ -1,28 +1,29 @@
 // Use this file to store all @salesforce/core helper methods
-import { SfdxProjectJson, SfdxError, ConfigValue } from '@salesforce/core';
-import { PackageDir } from '@salesforce/core/lib/sfdxProject';
-
-export async function sfcoreGetDefaultPath(projectJson: SfdxProjectJson) {
+import { SfProjectJson, SfError, ConfigValue, Messages } from '@salesforce/core';
+import { PackageDir } from '@salesforce/core/lib/sfProject';
+Messages.importMessagesDirectory(__dirname);
+const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
+export async function sfcoreGetDefaultPath(projectJson: SfProjectJson) {
   const dirs = await projectJson.getPackageDirectories();
   let defaultPath;
   dirs.forEach(element => {
     if (element.default) defaultPath = element.path;
   });
   if (defaultPath) return defaultPath;
-  throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoDefaultPath');
+  throw new SfError(messages.getMessage('errorNoDefaultPath'));
 }
 
-export async function sfcoreIsPathProject(projectJson: SfdxProjectJson, providedPath: string) {
+export async function sfcoreIsPathProject(projectJson: SfProjectJson, providedPath: string) {
   const dirs = await projectJson.getPackageDirectories();
   let foundPath: boolean = false;
   dirs.forEach(element => {
     if (element.path === providedPath) foundPath = true;
   });
   if (foundPath) return;
-  throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorPathIsNotProject');
+  throw new SfError(messages.getMessage('errorPathIsNotProject'));
 }
 
-export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson, buildDirectory: string) {
+export async function sfcoreFindOrAddReleasePath(projectJson: SfProjectJson, buildDirectory: string) {
   const dirs = await projectJson.getPackageDirectories();
   let foundTempdir: Boolean = false;
   dirs.forEach(element => {
@@ -34,11 +35,11 @@ export async function sfcoreFindOrAddReleasePath(projectJson: SfdxProjectJson, b
   const newPath: PackageDir = { path: `${buildDirectory}/tempParcel/force-app`, default: false };
   let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
   packageDirectories = [...packageDirectories, newPath];
-  const finalConfig = projectJson.set('packageDirectories', packageDirectories as ConfigValue);
-  await projectJson.write(finalConfig);
+  projectJson.set('packageDirectories', packageDirectories as ConfigValue);
+  await projectJson.write();
 }
 
-export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson, buildDirectory: string) {
+export async function sfcoreRemoveReleasePath(projectJson: SfProjectJson, buildDirectory: string) {
   const newConfig = await projectJson.read();
   let newPaths: Array<PackageDir> = [];
   let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
@@ -47,6 +48,6 @@ export async function sfcoreRemoveReleasePath(projectJson: SfdxProjectJson, buil
       return;
     newPaths = [...newPaths, element];
   });
-  const finalConfig = projectJson.set('packageDirectories', newPaths as ConfigValue);
-  await projectJson.write(finalConfig);
+  projectJson.set('packageDirectories', newPaths as ConfigValue);
+  await projectJson.write();
 }

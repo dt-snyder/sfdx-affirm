@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError } from '@salesforce/core';
+import { Messages, SfError } from '@salesforce/core';
 import * as fs from 'fs-extra';
 import {
   AnyJson,
@@ -69,7 +69,7 @@ export default class Place extends SfdxCommand {
       if (!proceedWithDefault) return { packageValidated: false, message: `user said no to ${packagedir} folder` };
     } else if (parcelExists === false) {
       const errorType = packagedir === `${settings.buildDirectory}/${settings.packageDirectory}` ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
-      throw SfdxError.create('sfdx-affirm', 'place', errorType);
+      throw new SfError(messages.getMessage(errorType));
     }
     this.ux.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
     // TODO: add logic to get the default test class for production deployments

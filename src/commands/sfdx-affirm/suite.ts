@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfError, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, gitDiffSum } from '../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../lib/affirm_fs';
@@ -58,7 +58,7 @@ export default class Suite extends SfdxCommand {
     if (!tests) {
       useTests = await this.ux.prompt('Please provide a comma separated list of the test names to add to the suite');
       if (!useTests) {
-        throw SfdxError.create('sfdx-affirm', 'suite', 'errorNoTestsProvided');
+        throw new SfError(messages.getMessage('errorNoTestsProvided'));
       }
     } else {
       useTests = tests;
@@ -73,11 +73,11 @@ export default class Suite extends SfdxCommand {
     const name = this.flags.name || defaultFileName;
     await checkName(name, this.ux);
     if (name.length > 35) {
-      throw SfdxError.create('sfdx-affirm', 'suite', 'errorNameIsToLong');
+      throw new SfError(messages.getMessage('errorNameIsToLong'));
     }
     let nameToUse = name;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
+    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
     const addtotests = this.flags.addtotests;
@@ -87,7 +87,7 @@ export default class Suite extends SfdxCommand {
       const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, defaultPath);
       const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
       if (suitesToMerge.size > 1) {
-        throw SfdxError.create('sfdx-affirm', 'suite', 'errorTooManySuites');
+        throw new SfError(messages.getMessage('errorTooManySuites'));
       } else if (suitesToMerge.size === 1) {
         existingTestSuiteToUse = Array.from(suitesToMerge)[0];
         nameToUse = existingTestSuiteToUse.substring(existingTestSuiteToUse.indexOf('testSuites/') + 11);
@@ -121,7 +121,7 @@ export default class Suite extends SfdxCommand {
       pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, nameToUse);
     } else {
       this.ux.stopSpinner('FAIL');
-      throw SfdxError.create('sfdx-affirm', 'suite', 'errorUnknown');
+      throw new SfError(messages.getMessage('errorUnknown'));
     }
     this.ux.stopSpinner('Success');
     this.ux.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));

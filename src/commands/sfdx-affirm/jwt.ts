@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError } from '@salesforce/core';
+import { Messages, SfError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 // Use this file to store all fs-extra helper methods
 /// <reference types="fs-extra" />
@@ -43,10 +43,10 @@ export default class Jwt extends SfdxCommand {
   public async run(): Promise<AnyJson> {
     const pathExists = await fs.pathExists(this.flags.privatekey);
     if (!pathExists) {
-      throw SfdxError.create('sfdx-affirm', 'jwt', 'dirmissingErrorMessage');
+      throw new SfError(messages.getMessage('dirmissingErrorMessage'));
     }
     if (this.flags.exp && this.flags.exp > 3) {
-      throw SfdxError.create('sfdx-affirm', 'jwt', 'exptobigErrorMessage');
+      throw new SfError(messages.getMessage('exptobigErrorMessage'));
     }
     const file = await fs.readFile(this.flags.privatekey, 'utf8');
     const useExp = this.flags.exp || 3;

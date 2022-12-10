@@ -1,5 +1,5 @@
 // Use this file to store all custom interfaces
-import { AnyJson } from '@salesforce/ts-types';
+import { AnyJson, JsonMap } from '@salesforce/ts-types';
 export interface DiffObj {
   changed: Set<String>;
   insertion: Set<String>;
@@ -115,7 +115,7 @@ export interface SfdxOrgOpenResult {
   username: string
 }
 
-export interface AffirmAuditResult {
+export interface AffirmAuditConfig {
   dateOfRun: string,
   username: string,
   queryUsed: string,
@@ -131,6 +131,11 @@ export interface AffirmAuditResult {
   savedirFlag: string | undefined,
   printonlyFlag: string | undefined,
   whereFlag: string | undefined
+}
+
+export interface AffirmAuditResult {
+  currentRunConfiguration: AffirmAuditConfig,
+  results: Array<JsonMap>
 }
 
 

@@ -1,15 +1,17 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
-import { SfdxError, SfdxProject, SfdxProjectJson } from '@salesforce/core';
-import { UX, TableOptions } from '@salesforce/command';
+import { SfError, SfProject, SfProjectJson, Messages } from '@salesforce/core';
+import { UX, TableColumns } from '@salesforce/command';
 import { AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
-import { fsCheckForExistingSuite, fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml } from './affirm_fs';
+import { fsCheckForExistingSuite, fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml, fsCheckPathExists, fsGetTestsStringFromTestSuiteFolder } from './affirm_fs';
 import { runCommand } from './sfdx';
 import { ensureAnyJson } from '@salesforce/ts-types';
 import { DeployMessage, RunTestResult } from '@salesforce/source-deploy-retrieve';
 import { componentTable, codeCoverageTable, successesTable, failuresTable } from './affirm_tables';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
+Messages.importMessagesDirectory(__dirname);
+const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
 export async function liftShortBranchName(currentBranch: string, topCharCount: number, keepBranchType?: boolean) {
@@ -54,21 +56,21 @@ export async function checkName(name: string, ux?: UX) {
   const startsWithLetter = new RegExp(/^[a-zA-Z]/);
   if (!letterNumberUnderScore.test(name)) {
     if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
-    throw SfdxError.create('sfdx-affirm', 'helper_files', 'alphanumericSuiteNameIssue');
+    throw new SfError(messages.getMessage('alphanumericSuiteNameIssue'));
   } else if (!startsWithLetter.test(name)) {
     if (ux) ux.log('Affirm created name from Branch: ' + chalk.red(name))
-    throw SfdxError.create('sfdx-affirm', 'helper_files', 'startswithLetterSuiteNameIssue');
+    throw new SfError(messages.getMessage('startswithLetterSuiteNameIssue'));
   }
 }
 export async function liftCleanProvidedTests(tests: string) {
   if (tests.includes('.cls')) {
-    throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoToFileName');
+    throw new SfError(messages.getMessage('errorNoToFileName'));
   }
   // clear the value provided by the user; remove white space and .cls
   return tests.trim().replace(/\s+/g, '');
 }
 
-export async function liftPrintTable(tableName: string, data: any[], options: TableOptions, ux: UX) {
+export async function liftPrintTable(tableName: string, data: any[], options: TableColumns, ux: UX) {
   const start = '_______________________Start ' + tableName + '_______________________';
   const end = '_______________________End ' + tableName + '_______________________';
   ux.log(chalk.green(start));
@@ -160,7 +162,7 @@ export async function getYNString() {
 }
 
 
-export async function getTestsFromParcel(ux:UX, silent?: boolean){
+export async function getTestsFromParcel(ux: UX, silent?: boolean) {
   let testsToReturn;
   const defaultPath = 'releaseArtifacts/parcel';
   const defaultOutputDir = defaultPath + '/testSuites/';
@@ -173,9 +175,9 @@ export async function getTestsFromParcel(ux:UX, silent?: boolean){
       testsToReturn = await liftCleanProvidedTests(providedTests);
     }
   } else if (testSuiteFolderExists) {
-      const proceedWithTests = await ux.confirm(logYN + ' Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?');
+    const proceedWithTests = await ux.confirm(logYN + ' Found TestSuites from the releaseArtifact/parcel, do you wish to run the testSuite(s)?');
     if (proceedWithTests) {
-     // if a test suite exists then parse the tests out
+      // if a test suite exists then parse the tests out
       testsToReturn = await fsGetTestsStringFromTestSuiteFolder(defaultOutputDir);
     }
   }
@@ -188,8 +190,8 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
   const currentBranch = await getCurrentBranchName();
   const defaultFileName = await liftShortBranchName(currentBranch, 25);
   // look for test suite with the current name
-  const project = await SfdxProject.resolve();
-  const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+  const project = await SfProject.resolve();
+  const pjtJson: SfProjectJson = await project.retrieveSfProjectJson();
   const defaultPath = await sfcoreGetDefaultPath(pjtJson);
   const defaultOutputDir = defaultPath + '/main/default/testSuites/';
   const defaultSuiteExists = await fsCheckForExistingSuite(defaultOutputDir, defaultFileName);
@@ -229,7 +231,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
           const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
           testsToReturn = await liftCleanProvidedTests(providedTestClasses);
           if (!testsToReturn) {
-            throw SfdxError.create('sfdx-affirm', 'helper_files', 'noTestProvidedAfterRequest');
+            throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
           }
         }
       } else if (settings.declarativeTestClass && silent === false) { // has default... ask
@@ -242,7 +244,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
             const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
             testsToReturn = await liftCleanProvidedTests(providedTestClasses);
             if (!testsToReturn) {
-              throw SfdxError.create('sfdx-affirm', 'helper_files', 'noTestProvidedAfterRequest');
+              throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
             }
           }
         }
@@ -266,7 +268,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
         testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
       }
       if (!testsToReturn) { // no tests provided for prod.... throw error
-        throw SfdxError.create('sfdx-affirm', 'helper_files', 'productionRequiresTestClasses');
+        throw new SfError(messages.getMessage('productionRequiresTestClasses'));
       }
     }
   }
@@ -301,12 +303,12 @@ export async function liftGetTestsFromSuites(suitesToMerge: Set<string>): Promis
 export async function verifyUsername(username?: string, ux?: UX): Promise<string> {
   let usernameToReturn;
   if (!username) {
-    const project = await SfdxProject.resolve();
+    const project = await SfProject.resolve();
     const pjtJson = await project.resolveProjectConfig();
     if (ux) {
       const proceedWithDefault = await ux.confirm(`${logYN} Are you sure you want to use the "${chalk.cyanBright(pjtJson.defaultusername)}" org ?`);
       if (!proceedWithDefault) {
-        throw SfdxError.create('sfdx-affirm', 'helper_files', 'noToDefaultUserName');
+        throw new SfError(messages.getMessage('noToDefaultUserName'));
       }
     }
     usernameToReturn = pjtJson.defaultusername;
@@ -320,7 +322,7 @@ export async function verifyUsername(username?: string, ux?: UX): Promise<string
       }
     });
     if (!foundUsername) {
-      throw SfdxError.create('sfdx-affirm', 'helper_files', 'couldNotFindProvidedUsername');
+      throw new SfError(messages.getMessage('couldNotFindProvidedUsername'));
     }
     usernameToReturn = username;
   }

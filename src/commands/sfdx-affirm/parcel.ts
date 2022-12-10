@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../lib/affirm_fs';
@@ -64,14 +64,14 @@ export default class Parcel extends SfdxCommand {
     await getRemoteInfo(this.ux);
     const branch = this.flags.branch || settings.primaryBranch;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
+    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
     const outputdir = this.flags.outputdir ? `${settings.buildDirectory}/${this.flags.outputdir}` : `${settings.buildDirectory}/${settings.packageDirectory}`;
     // tell user what we are going to run git diff on and do it
-    const currentBranch =  await getCurrentBranchName();
+    const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
     this.ux.log(`Changes: ${chalk.yellow(diffResult.changed.size)}, Insertions: ${chalk.green(diffResult.insertion.size)}, Destructive: ${chalk.red(diffResult.destructive.size)}`);

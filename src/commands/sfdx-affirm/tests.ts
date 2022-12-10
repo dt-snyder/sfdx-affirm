@@ -1,9 +1,10 @@
-import { flags, SfdxCommand, TableOptions } from "@salesforce/command";
-import { Messages, SfdxError, SfdxProjectJson } from "@salesforce/core";
+import { flags, SfdxCommand } from '@salesforce/command';
+import { Messages, SfError, SfProjectJson } from "@salesforce/core";
 import { AnyJson } from "@salesforce/ts-types";
 import { fsSaveJson } from "../../lib/affirm_fs";
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from "../../lib/affirm_git";
 import { AffirmSettings, DiffObj, SfdxTestResult } from "../../lib/affirm_interfaces";
+import { CliUx } from '@oclif/core';
 import {
   liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getAffirmFormattedDate
 } from "../../lib/affirm_lift";
@@ -78,9 +79,9 @@ export default class Tests extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     if (this.flags.saveresults && this.flags.printall) {
-      throw SfdxError.create("sfdx-affirm", "tests", "errorConflictingResultsFlags");
+      throw new SfError(messages.getMessage('errorConflictingResultsFlags'));
     } else if (this.flags.alltestsuites && this.flags.list) {
-      throw SfdxError.create("sfdx-affirm", "tests", "errorConflictingUseTestFlags");
+      throw new SfError(messages.getMessage('errorConflictingUseTestFlags'));
     }
     const settings: AffirmSettings = await getAffirmSettings();
     const inputUsername = this.flags.targetusername;
@@ -89,7 +90,7 @@ export default class Tests extends SfdxCommand {
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     let inputdir;
     if (this.flags.alltestsuites) {
-      const sfPjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
+      const sfPjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
       inputdir = await sfcoreGetDefaultPath(sfPjtJson);
     }
     const silent = this.flags.silent;
@@ -173,14 +174,12 @@ export default class Tests extends SfdxCommand {
       printTestResults = printResults;
     }
     if (printTestResults) {
-      const whatToPrint: TableOptions = {
-        columns: [
-          { key: "FullName", label: "Name" },
-          { key: "Outcome", label: "Outcome" },
-          { key: "RunTime", label: " Run Time (ms)" },
-          { key: "StackTrace", label: "Stack Trace" },
-          { key: "Message", label: "Message" },
-        ],
+      const whatToPrint: CliUx.Table.table.Columns<any> = {
+        "FullName": { header: "Name" },
+        "Outcome": { header: "Outcome" },
+        "RunTime": { header: " Run Time (ms)" },
+        "StackTrace": { header: "Stack Trace" },
+        "Message": { header: "Message" },
       };
       await liftPrintTable(
         "Test Results",

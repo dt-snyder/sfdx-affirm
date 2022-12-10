@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError } from '@salesforce/core';
+import { Messages, SfError } from '@salesforce/core';
 import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
@@ -73,9 +73,9 @@ export default class Quality extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     if (this.flags.noresults && this.flags.saveresults && this.flags.printall) {
-      throw SfdxError.create('sfdx-affirm', 'quality', 'errorResultsFlags');
+      throw new SfError(messages.getMessage('errorResultsFlags'));
     } else if (this.flags.testclasses && this.flags.notestsrun) {
-      throw SfdxError.create('sfdx-affirm', 'quality', 'errorTestFlags');
+      throw new SfError(messages.getMessage('errorTestFlags'));
     }
     const settings: AffirmSettings = await getAffirmSettings();
     const logYN = await getYNString();
@@ -94,7 +94,7 @@ export default class Quality extends SfdxCommand {
       if (!proceedWithDefault) return { packageValidated: false, message: `user said no to ${packagedir} folder` };
     } else if (parcelExists === false) {
       const errorType = packagedir === (`${settings.buildDirectory}/${settings.packageDirectory}`) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
-      throw SfdxError.create('sfdx-affirm', 'quality', errorType);
+      throw new SfError(messages.getMessage(errorType));
     }
     this.ux.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests

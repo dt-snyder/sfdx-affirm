@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
@@ -64,7 +64,7 @@ export default class Changes extends SfdxCommand {
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
+    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);

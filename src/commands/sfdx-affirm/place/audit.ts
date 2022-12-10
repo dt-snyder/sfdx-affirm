@@ -1,6 +1,6 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { AnyJson } from '@salesforce/ts-types';
-import { Messages, SfdxError } from '@salesforce/core';
+import { AnyJson, asJsonArray, ensureJsonMap, JsonMap } from '@salesforce/ts-types';
+import { Messages, SfError } from '@salesforce/core';
 import { sfdxQuery } from '../../../lib/affirm_sfdx';
 import { verifyUsername } from '../../../lib/affirm_lift';
 import { getAffirmSettings } from '../../../lib/affirm_settings';
@@ -50,11 +50,11 @@ export default class Audit extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     if (this.flags.date && this.flags.lastndays) {
-      throw SfdxError.create('sfdx-affirm', 'audit', 'errorDateAndDays');
+      throw new SfError(messages.getMessage('errorDateAndDays'));
     } else if (this.flags.savedir && this.flags.printonly) {
-      throw SfdxError.create('sfdx-affirm', 'audit', 'errorPrintAndSave');
+      throw new SfError(messages.getMessage('errorPrintAndSave'));
     } else if ((this.flags.action || this.flags.section || this.flags.display || this.flags.createdbyuser || this.flags.createdbyprofile || this.flags.date || this.flags.lastndays) && this.flags.where) {
-      throw SfdxError.create('sfdx-affirm', 'audit', 'errorWhereAndFilters');
+      throw new SfError(messages.getMessage('errorWhereAndFilters'));
     }
     let whereClause;
     if (this.flags.where) {
@@ -84,62 +84,69 @@ export default class Audit extends SfdxCommand {
     const orderBy = 'ORDER BY CreatedDate DESC';
     const query = (whereClause) ? `SELECT ${fields} FROM SetupAuditTrail ${whereClause} ${orderBy}` : `SELECT ${fields} FROM SetupAuditTrail ${orderBy}`;
     this.ux.startSpinner('Processing Query Results');
-    const result: object = await sfdxQuery(username, query, this.ux);
-    if ("status" in result && result["status"] == 0 && "result" in result && "records" in result["result"]) {
-      let resultList: Array<object> = [];
-      if (result["result"]["records"].length === 0) {
+    const response: JsonMap = ensureJsonMap((await sfdxQuery(username, query, this.ux)));
+
+    if ("status" in response && response["status"] == 0 && "result" in response) {
+      const result: JsonMap = ensureJsonMap(response.result);
+      let resultList: Array<JsonMap> = [];
+      const records: Array<JsonMap> = asJsonArray(result.records, Array<JsonMap>()) as Array<JsonMap>;
+      if (records.length === 0) {
         this.ux.stopSpinner(`Query ran successfully but returned zero (0) results.`);
       } else if (this.flags.section) {
-        result["result"]["records"].forEach(record => {
-          if ('Section' in record && record['Section']) {
-            const sectionString: string = record['Section'] as string;
+        records.forEach(record => {
+          const recordMap: JsonMap = ensureJsonMap(record);
+          if ('Section' in recordMap && recordMap.Section) {
+            const sectionString: string = recordMap.Section as string;
             if (sectionString.includes(this.flags.section)) {
-              resultList = [...resultList, record];
+              resultList = [...resultList, recordMap];
             }
           }
         });
       } else if (this.flags.display) {
-        result["result"]["records"].forEach(record => {
-          if ('Display' in record && record['Display']) {
-            const sectionString: string = record['Display'] as string;
+        records.forEach(record => {
+          const recordMap: JsonMap = ensureJsonMap(record);
+          if ('Display' in recordMap && recordMap.Display) {
+            const sectionString: string = recordMap.Display as string;
             if (sectionString.includes(this.flags.display)) {
-              resultList = [...resultList, record];
+              resultList = [...resultList, recordMap];
             }
           }
         });
       } else {
-        resultList = [...result["result"]["records"]];
+        resultList = [...records];
       }
       const auditResult: AffirmAuditResult = {
-        dateOfRun: (new Date).toLocaleString('en-US'),
-        username: username,
-        queryUsed: query,
-        totalResults: result["result"]["records"].length,
-        filteredResults: resultList.length,
-        actionFlag: this.flags.action,
-        sectionFlag: this.flags.section,
-        displayFlag: this.flags.display,
-        createdbyuserFlag: this.flags.createdbyuser,
-        createdbyprofileFlag: this.flags.createdbyprofile,
-        dateFlag: this.flags.date,
-        lastndaysFlag: this.flags.lastndays,
-        savedirFlag: this.flags.savedir,
-        printonlyFlag: this.flags.printonly,
-        whereFlag: this.flags.where
+        currentRunConfiguration: {
+          dateOfRun: (new Date).toLocaleString('en-US'),
+          username: username,
+          queryUsed: query,
+          totalResults: records.length,
+          filteredResults: resultList.length,
+          actionFlag: this.flags.action,
+          sectionFlag: this.flags.section,
+          displayFlag: this.flags.display,
+          createdbyuserFlag: this.flags.createdbyuser,
+          createdbyprofileFlag: this.flags.createdbyprofile,
+          dateFlag: this.flags.date,
+          lastndaysFlag: this.flags.lastndays,
+          savedirFlag: this.flags.savedir,
+          printonlyFlag: this.flags.printonly,
+          whereFlag: this.flags.where
+        },
+        results: resultList
       };
-      resultList = [auditResult, ...resultList];
       if (this.flags.printonly) {
         this.ux.stopSpinner(`Done. Found ${resultList.length} results`);
-        this.ux.logJson(resultList);
+        this.ux.logJson(ensureJsonMap(auditResult as unknown as AnyJson));
       } else {
         const dateString = (new Date).toJSON().trim().replace('.', '_').replace('.', '_').replace('-', '_').replace('-', '_').replace(':', '_').replace(':', '_');
         const cleanUserName = username.trim();
         const fileName = (this.flags.savedir) ? `${this.flags.savedir}/${(new Date).toJSON()}` : `${settings.buildDirectory}/auditResults/${cleanUserName}/${dateString}`;
         this.ux.stopSpinner(`Done. Found ${resultList.length} results`);
-        await fsSaveJson(fileName, resultList, this.ux);
+        await fsSaveJson(fileName, auditResult, this.ux);
       }
     }
-    return JSON.stringify(result);
+    return JSON.stringify(response);
   }
 }
 

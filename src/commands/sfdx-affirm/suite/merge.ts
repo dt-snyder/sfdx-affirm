@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxError, SfdxProjectJson } from '@salesforce/core';
+import { Messages, SfError, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../../lib/affirm_fs';
@@ -67,7 +67,7 @@ export default class Merge extends SfdxCommand {
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const pjtJson: SfdxProjectJson = await this.project.retrieveSfdxProjectJson();
+    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
     const listOnly = this.flags.list;
@@ -81,7 +81,7 @@ export default class Merge extends SfdxCommand {
     const name = this.flags.name || defaultFileName;
     if (!listOnly) await checkName(name, this.ux);
     if (name.length > 35 && !listOnly) {
-      throw SfdxError.create('sfdx-affirm', 'suite', 'errorNameIsToLong');
+      throw new SfError(messages.getMessage('errorNameIsToLong'));
     }
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';

@@ -1,12 +1,13 @@
 // Use this file to store all simple-git helper methods
-import simpleGit, { SimpleGit, StatusResult, DiffResult, DiffResultTextFile, DiffResultBinaryFile } from 'simple-git'; // Docs: https://github.com/steveukx/git-js#readme
-import { SfdxError } from '@salesforce/core';
+import { simpleGit, SimpleGit, StatusResult, DiffResult, DiffResultTextFile, DiffResultBinaryFile } from 'simple-git';// Docs: https://github.com/steveukx/git-js#readme
+import { SfError, Messages } from '@salesforce/core';
 import { UX } from '@salesforce/command';
 import { DiffObj } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
-
+Messages.importMessagesDirectory(__dirname);
+const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
 const filesToIgnore = ['**/jsconfig.json', '**/.eslintrc.json'];
 
 function ignoreFile(file: string) {
@@ -18,7 +19,9 @@ function ignoreFile(file: string) {
 
 export async function checkForRepoAndRemote() {
   const isRepo = git.checkIsRepo();
-  if (!isRepo) throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoGitRepo');
+  if (!isRepo) {
+    throw new SfError(messages.getMessage('errorNoGitRepo'));
+  }
 }
 
 export async function getCurrentBranchName(ux?: UX) {
@@ -32,7 +35,8 @@ export async function getCurrentBranchName(ux?: UX) {
 export async function getRemoteInfo(ux?: UX) {
   await checkForRepoAndRemote();
   const remotes = await git.getRemotes(true);
-  if (!remotes) throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorNoGitRemote');
+
+  if (!remotes) throw new SfError(messages.getMessage('errorNoGitRemote'));
   const currentRemote = remotes[0].name + ' => ' + remotes[0].refs.push;
   if (ux) ux.log('Current Remote: ' + chalk.greenBright(currentRemote));
   return currentRemote;
@@ -51,7 +55,6 @@ export async function gitDiffSum(branch: string, inputdir: string) {
   // sort the changed files into their specific location
   diffSum.files.forEach(file => {
     if (!isDiffResultTextFile(file)) return;
-
     if (!file.file.startsWith(inputdir) || ignoreFile(file.file)) return;
     if (file.changes === file.insertions && file.deletions === 0 && !file.file.includes('=>')) {
       result.insertion.add(file.file);

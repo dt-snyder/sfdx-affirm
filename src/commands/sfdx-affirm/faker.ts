@@ -61,7 +61,7 @@ export default class Faker extends SfdxCommand {
 
   public async run(): Promise<AnyJson> {
     const listOfFiles = await fsGetSuitesInParcel('.releaseArtifacts/parcel');
-    this.ux.logJson(listOfFiles);
+    this.ux.log(JSON.stringify(listOfFiles));
     const tests = await fsGetTestStringFromSuiteXml(`.releaseArtifacts/parcel/testSuites/${listOfFiles[0]}`);
     this.ux.log(tests);
     return 'Complete';

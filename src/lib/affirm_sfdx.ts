@@ -7,7 +7,7 @@
 // import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
 import { runCommand } from './sfdx';
 import { UX } from '@salesforce/command';
-import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
+import { AnyJson, ensureAnyJson, ensureJsonMap } from '@salesforce/ts-types';
 // TODO: move reporting of wait time based on id here for both test and deploy. neither has been built yet.
 // TODO: remove timeToWait, get Id, then run force:apex:test:report, to print and update a progress bar
 // TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
@@ -23,8 +23,8 @@ export async function sfdxGetIsSandbox(username: string, ux?: UX): Promise<boole
   return booleanToReturn;
 }
 
-export async function sfdxQuery(username: string, query: string, ux?: UX): Promise<object> {
-  const response: object = ensureAnyJson((await runCommand(`sfdx force:data:soql:query -q "${query}" -u ${username} --json`, ux))) as object;
+export async function sfdxQuery(username: string, query: string, ux?: UX): Promise<AnyJson> {
+  const response: AnyJson = ensureJsonMap(ensureAnyJson((await runCommand(`sfdx force:data:soql:query -q "${query}" -u ${username} --json`, ux))));
   return response;
 }
 

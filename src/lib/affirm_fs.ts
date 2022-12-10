@@ -3,12 +3,13 @@
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { UX } from '@salesforce/command';
-import { SfdxError } from '@salesforce/core';
+import { SfError, Messages } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata, AffirmSettings } from './affirm_interfaces';
 import { getAffirmSettings } from './affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // TODO: add https://www.npmjs.com/package/extract-zip for zipping and unzipping packages
-
+Messages.importMessagesDirectory(__dirname);
+const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
 const foldersNeedingFolder = ['aura', 'lwc', 'documents', 'bots'];
 const foldersThatShouldBeReviewed = ['staticresources'];
 const ignoreMissingFile = ['emailFolder'];
@@ -143,7 +144,9 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
     const fileName = pathCrums[pathCrums.length - 1];
     const folder = pathCrums[3];
     const folderMdtInfo = metaDataTypes.metadataObjects.find(mdt => mdt.directoryName === folder);
-    if (!folderMdtInfo) throw SfdxError.create('sfdx-affirm', 'helper_files', 'errorMdapiFindFailed');
+    if (!folderMdtInfo) {
+      throw new SfError(messages.getMessage('errorMdapiFindFailed'));
+    }
     if (fileName.indexOf('-meta.xml') >= 0 && folderMdtInfo.metaFile) continue;
     let xmlName;
     let newMembers;

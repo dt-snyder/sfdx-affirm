@@ -1,49 +1,33 @@
-import { TableOptions } from '@salesforce/command';
-const componentTable: TableOptions = {
-  columns: [
-    { key: 'componentType', label: 'Type' },
-    { key: 'fullName', label: 'Name' },
-    { key: 'fileName', label: 'File' },
-    { key: 'success', label: 'Success' },
-    { key: 'deleted', label: 'Deleted' },
-    { key: 'changed', label: 'Changed' },
-    { key: 'problem', label: 'Problem' },
-    { key: 'problemType', label: 'Problem Type' }
-  ]
+import { CliUx } from '@oclif/core';
+const componentTable: CliUx.Table.table.Columns<any> = {
+  "componentType": { header: 'Type' },
+  "fullName": { header: 'Name' },
+  "fileName": { header: 'File' },
+  "success": { header: 'Success' },
+  "deleted": { header: 'Deleted' },
+  "changed": { header: 'changed' },
+  "problem": { header: 'Problem' },
+  "problemType": { header: 'Problem Type' }
 };
-const codeCoverageTable: TableOptions = {
-  columns: [
-    { key: 'name', label: 'Class' },
-    { key: 'numLocations', label: 'Covered Lines' },
-    { key: 'numLocationsNotCovered', label: 'Not Covered Lines' },
-    { key: 'listLocationsNotCovered', label: 'Lines not Covered' }
-  ]
+const codeCoverageTable: CliUx.Table.table.Columns<any> = {
+  "name": { header: 'Class' },
+  "numLocations": { header: 'Covered Lines' },
+  "numLocationsNotCovered": { header: 'Not Covered Lines' },
+  "listLocationsNotCovered": { header: 'Lines not Covered' }
 };
-const failuresTable: TableOptions = {
-  columns: [
-    { key: 'name', label: 'Class Name' },
-    { key: 'methodName', label: 'Method' },
-    { key: 'type', label: 'Type' },
-    { key: 'time', label: 'Run Time' },
-    { key: 'message', label: 'Error' },
-    { key: 'stackTrace', label: 'Stack Trace' }
-  ]
+
+const failuresTable: CliUx.Table.table.Columns<any> = {
+  "name": { header: 'Class Name' },
+  "methodName": { header: 'Method' },
+  "type": { header: 'Type' },
+  "time": { header: 'Run Time' },
+  "message": { header: 'Error' },
+  "stackTrace": { header: 'Stack Trace' }
 };
-// const flowCoverageTable: TableOptions = {
-//   columns: [
-//     { key: 'componentType', label: 'Type' }
-//   ]
-// };
-// const codeCoverageWarningsTable: TableOptions = {
-//   columns: [
-//     { key: 'componentType', label: 'Type' }
-//   ]
-// };
-const successesTable: TableOptions = {
-  columns: [
-    { key: 'name', label: 'Class Name' },
-    { key: 'methodName', label: 'Method' },
-    { key: 'time', label: 'Run Time' }
-  ]
+
+const successesTable: CliUx.Table.table.Columns<any> = {
+  "name": { header: 'Class Name' },
+  "methodName": { header: 'Method' },
+  "time": { header: 'Run Time' }
 };
 export { componentTable, codeCoverageTable, successesTable, failuresTable };
