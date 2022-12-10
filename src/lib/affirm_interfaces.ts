@@ -138,4 +138,21 @@ export interface AffirmAuditResult {
   results: Array<JsonMap>
 }
 
+export interface AffirmOpenLocation {
+  displayName: string,
+  classic: string,
+  lightning: string,
+  supportsId: boolean,
+  classicIdPath?: string,
+  lightningIdPath?: string
+}
+
+export interface AffirmOpenLocations {
+  home: AffirmOpenLocation,
+  network: AffirmOpenLocation,
+  deployment: AffirmOpenLocation,
+  profile: AffirmOpenLocation,
+  email: AffirmOpenLocation,
+}
+
 

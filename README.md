@@ -11,36 +11,195 @@ Commands for creating a package from git diff and validating it against a specif
 # Commands
 
 <!-- commands -->
+* [`sfdx a:o [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-ao--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmchanges--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmfaker--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:open:settings [-e] [-n] [-d] [-p] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmopensettings--e--n--d--p--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:place:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplaceaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:place:email [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplaceemail--o--d--c--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:place:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplaceform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:place:status [-i <string>] [-u] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplacestatus--i-string--u--d--c--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmquality--d-string--t-string--s--w-integer--r--e--p--o--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsetup--b-string--d-string--p-string--w-string--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsuitemerge--n-string--o-string--n-string--b-string--l---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmtests--l-string--w-integer--r--a--e--s--m--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmchanges--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmfaker--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:open:settings [-e] [-n] [-d] [-p] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmopensettings--e--n--d--p--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:place:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplaceaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:place:email [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplaceemail--o--d--c--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:place:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplaceform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:place:status [-i <string>] [-u] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplacestatus--i-string--u--d--c--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmquality--d-string--t-string--s--w-integer--r--e--p--o--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsetup--b-string--d-string--p-string--w-string--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuitemerge--n-string--o-string--n-string--b-string--l---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmtests--l-string--w-integer--r--a--e--s--m--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+
+## `sfdx a:o [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page in Lightning.
+
+```
+USAGE
+  $ sfdx a:o [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>]
+    [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+
+FLAGS
+  -c, --classic                                                                     Optional | if provided the page will
+                                                                                    open in Classic otherwise it opens
+                                                                                    in Lightning by default.
+  -d, --deployment                                                                  Optional Path | Supports Id | Opens
+                                                                                    directly to Deployment status.
+  -d, --displayurl                                                                  Optional | If provided the url will
+                                                                                    be printed in the terminal.
+  -e, --email                                                                       Optional Path | Opens directly to
+                                                                                    Email Deliverability Settings
+  -i, --id=<value>                                                                  Optional | if provided with a Path
+                                                                                    Flag that supports Id the specific
+                                                                                    record will be opened rather than
+                                                                                    the path home page.
+  -n, --network                                                                     Optional Path | Opens directly to
+                                                                                    Digital Experiences
+  -o, --urlonly                                                                     Optional | If provided the page will
+                                                                                    not be opened in a browser it will
+                                                                                    just be printed in the terminal.
+  -p, --profile                                                                     Optional Path | Supports Id | Opens
+                                                                                    directly to Profile List Views
+  -u, --targetusername=<value>                                                      username or alias for the target
+                                                                                    org; overrides default target org
+  --apiversion=<value>                                                              override the api version used for
+                                                                                    api requests made by this command
+  --json                                                                            format output as json
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
+                                                                                    this command invocation
+  --verbose                                                                         emit additional command output to
+                                                                                    stdout
+
+DESCRIPTION
+  Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page
+  in Lightning.
+
+ALIASES
+  $ sfdx affirm:open
+  $ sfdx a:o
+
+EXAMPLES
+  $ sfdx affirm:open
+          Opening Setup Home in Production Org: defaultOrg
+          Done
+        
+
+  $ sfdx affirm:open --profile -u sandboxAlias
+          Opening Profile List Views in Sandbox Org: sandboxAlias
+          Done
+        
+
+  $ sfdx affirm:open -e --verbose
+          (y/n) Are you sure you want to use the "defaultOrg" org ?: y
+          Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrg --json
+          Opening Email Deliverability Settings in Production Org: defaultOrg
+          Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json
+          Done
+        
+
+  $ sfdx affirm:open -e --verbose
+          (y/n) Are you sure you want to use the "defaultOrg" org ?: y
+          Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrg --json
+          Opening Email Deliverability Settings in Production Org: defaultOrg
+          Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json
+          Done
+        
+
+  $ sfdx affirm:open --deployment -i 0Af6S00000pzZSS
+          Opening Deployment Status in Production Org: defaultOrg
+          Done
+```
+
+## `sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Queries and downloads audit logs from the target org
+
+```
+USAGE
+  $ sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n
+    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel
+    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+
+FLAGS
+  -a, --action=<value>
+      Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where'
+      flag.
+
+  -c, --createdbyuser=<value>
+      Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
+      'where' flag.
+
+  -d, --savedir=<value>
+      Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can
+      not be used with the 'printonly' flag.
+
+  -i, --display=<value>
+      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.
+
+  -n, --lastndays=<value>
+      Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the
+      'where' flag. Can not be used with the 'date' flag.
+
+  -o, --printonly
+      Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir'
+      flag.
+
+  -p, --createdbyprofile=<value>
+      Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
+      'where' flag.
+
+  -s, --section=<value>
+      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.
+
+  -t, --date=<value>
+      Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
+      'where' flag. Can not be used with the 'lastndays' flag.
+
+  -u, --targetusername=<value>
+      username or alias for the target org; overrides default target org
+
+  -w, --where=<value>
+      Optional: provide your own custom where clause. Can not be used with any of the other filter flags.
+
+  --apiversion=<value>
+      override the api version used for api requests made by this command
+
+  --json
+      format output as json
+
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
+      [default: warn] logging level for this command invocation
+
+DESCRIPTION
+  Queries and downloads audit logs from the target org
+
+ALIASES
+  $ sfdx affirm:audit
+
+EXAMPLES
+  $ sfdx affirm:place:audit
+        Running Command:
+        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC" -u defaultUser --json
+        Processing Query Results... Done. Found 1222 results
+        File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
+    
+
+  $ sfdx affirm:place:audit -n 30 -p "System Administrator" -a caselayout -u aliasName
+        Running Command:
+        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail
+        WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC" -u aliasName --json
+        Processing Query Results... Done. Found 45 results
+        File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
+```
 
 ## `sfdx affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -166,6 +325,43 @@ EXAMPLES
               CHANGED: MyClass.cls
 ```
 
+## `sfdx affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Queries the provided org and tells you if it's a production org or sandbox
+
+```
+USAGE
+  $ sfdx affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel
+    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+
+FLAGS
+  -u, --targetusername=<value>                                                      username or alias for the target
+                                                                                    org; overrides default target org
+  --apiversion=<value>                                                              override the api version used for
+                                                                                    api requests made by this command
+  --json                                                                            format output as json
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
+                                                                                    this command invocation
+
+DESCRIPTION
+  Queries the provided org and tells you if it's a production org or sandbox
+
+ALIASES
+  $ sfdx affirm:form
+
+EXAMPLES
+  $ sfdx affirm:place:form
+        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrgAlias --json
+        Organization.IsSandbox = true
+        Org defaultOrgAlias is a Sandbox instance
+    
+
+  $ sfdx affirm:place:form -u prodAlias
+        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u prodAlias --json
+        Organization.IsSandbox = false
+        Org prodAlias is a Production instance
+```
+
 ## `sfdx affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Creates a JWT token that can be used to auth against a connected app.
@@ -218,20 +414,36 @@ EXAMPLES
         eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT
 ```
 
-## `sfdx affirm:open:settings [-e] [-n] [-d] [-p] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
-open setup page
+Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page in Lightning.
 
 ```
 USAGE
-  $ sfdx affirm:open:settings [-e] [-n] [-d] [-p] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+  $ sfdx affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>]
+    [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
-  -d, --deployment                                                                  open deployment status
-  -e, --email                                                                       open email deliverabilty
-  -n, --network                                                                     open all sites
-  -p, --profile                                                                     open profile setup page
+  -c, --classic                                                                     Optional | if provided the page will
+                                                                                    open in Classic otherwise it opens
+                                                                                    in Lightning by default.
+  -d, --deployment                                                                  Optional Path | Supports Id | Opens
+                                                                                    directly to Deployment status.
+  -d, --displayurl                                                                  Optional | If provided the url will
+                                                                                    be printed in the terminal.
+  -e, --email                                                                       Optional Path | Opens directly to
+                                                                                    Email Deliverability Settings
+  -i, --id=<value>                                                                  Optional | if provided with a Path
+                                                                                    Flag that supports Id the specific
+                                                                                    record will be opened rather than
+                                                                                    the path home page.
+  -n, --network                                                                     Optional Path | Opens directly to
+                                                                                    Digital Experiences
+  -o, --urlonly                                                                     Optional | If provided the page will
+                                                                                    not be opened in a browser it will
+                                                                                    just be printed in the terminal.
+  -p, --profile                                                                     Optional Path | Supports Id | Opens
+                                                                                    directly to Profile List Views
   -u, --targetusername=<value>                                                      username or alias for the target
                                                                                     org; overrides default target org
   --apiversion=<value>                                                              override the api version used for
@@ -239,32 +451,47 @@ FLAGS
   --json                                                                            format output as json
   --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
                                                                                     this command invocation
+  --verbose                                                                         emit additional command output to
+                                                                                    stdout
 
 DESCRIPTION
-  open setup page
+  Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page
+  in Lightning.
 
 ALIASES
-  $ sfdx affirm:open:settings
+  $ sfdx affirm:open
+  $ sfdx a:o
 
 EXAMPLES
-  $ sfdx affirm:open:settings
-              Open Setup Home page
-    
+  $ sfdx affirm:open
+          Opening Setup Home in Production Org: defaultOrg
+          Done
+        
 
-  $ sfdx affirm:open:settings -d
-              Open Deployment Status
-    
+  $ sfdx affirm:open --profile -u sandboxAlias
+          Opening Profile List Views in Sandbox Org: sandboxAlias
+          Done
+        
 
-  $ sfdx affirm:open:settings -n
-              Open Digital Experience Setup Page
-    
+  $ sfdx affirm:open -e --verbose
+          (y/n) Are you sure you want to use the "defaultOrg" org ?: y
+          Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrg --json
+          Opening Email Deliverability Settings in Production Org: defaultOrg
+          Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json
+          Done
+        
 
-  $ sfdx affirm:open:settings -u -e
-              Open Email Deliverability page for the given user
-    
+  $ sfdx affirm:open -e --verbose
+          (y/n) Are you sure you want to use the "defaultOrg" org ?: y
+          Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrg --json
+          Opening Email Deliverability Settings in Production Org: defaultOrg
+          Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json
+          Done
+        
 
-  $ sfdx affirm:open:settings -p
-              Open Enhanced Profile Setup Page
+  $ sfdx affirm:open --deployment -i 0Af6S00000pzZSS
+          Opening Deployment Status in Production Org: defaultOrg
+          Done
 ```
 
 ## `sfdx affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
@@ -394,241 +621,6 @@ ALIASES
 
 EXAMPLES
   $ sfdx affirm:place
-```
-
-## `sfdx affirm:place:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Queries and downloads audit logs from the target org
-
-```
-USAGE
-  $ sfdx affirm:place:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n
-    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -a, --action=<value>
-      Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where'
-      flag.
-
-  -c, --createdbyuser=<value>
-      Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
-      'where' flag.
-
-  -d, --savedir=<value>
-      Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can
-      not be used with the 'printonly' flag.
-
-  -i, --display=<value>
-      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.
-
-  -n, --lastndays=<value>
-      Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the
-      'where' flag. Can not be used with the 'date' flag.
-
-  -o, --printonly
-      Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir'
-      flag.
-
-  -p, --createdbyprofile=<value>
-      Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
-      'where' flag.
-
-  -s, --section=<value>
-      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.
-
-  -t, --date=<value>
-      Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
-      'where' flag. Can not be used with the 'lastndays' flag.
-
-  -u, --targetusername=<value>
-      username or alias for the target org; overrides default target org
-
-  -w, --where=<value>
-      Optional: provide your own custom where clause. Can not be used with any of the other filter flags.
-
-  --apiversion=<value>
-      override the api version used for api requests made by this command
-
-  --json
-      format output as json
-
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
-      [default: warn] logging level for this command invocation
-
-DESCRIPTION
-  Queries and downloads audit logs from the target org
-
-ALIASES
-  $ sfdx affirm:place:audit
-
-EXAMPLES
-  $ sfdx affirm:place:audit
-        Running Command:
-        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC" -u defaultUser --json
-        Processing Query Results... Done. Found 1222 results
-        File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
-    
-
-  $ sfdx affirm:place:audit -n 30 -p "System Administrator" -a caselayout -u aliasName
-        Running Command:
-        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail
-        WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC" -u aliasName --json
-        Processing Query Results... Done. Found 45 results
-        File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
-```
-
-## `sfdx affirm:place:email [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Opens the Email Deliverability page in the target org.
-
-```
-USAGE
-  $ sfdx affirm:place:email [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -c, --classic                                                                     Optional:(Default: false) If
-                                                                                    provided the page will be opened in
-                                                                                    the Classic UI. Default is Lightning
-                                                                                    UI.
-  -d, --displayurl                                                                  Optional:(Default: false) If
-                                                                                    provided the url will be printed in
-                                                                                    the terminal.
-  -o, --urlonly                                                                     Optional:(Default: false) If
-                                                                                    provided the page will not be opened
-                                                                                    in a browser it will just be printed
-                                                                                    in the terminal.
-  -u, --targetusername=<value>                                                      username or alias for the target
-                                                                                    org; overrides default target org
-  --apiversion=<value>                                                              override the api version used for
-                                                                                    api requests made by this command
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  Opens the Email Deliverability page in the target org.
-
-ALIASES
-  $ sfdx affirm:place:email
-
-EXAMPLES
-  $ sfdx affirm:place:email
-        Opening Email Deliverability in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg --json
-        Done
-    
-
-  $ sfdx affirm:place:email -d -c
-        Opening Email Deliverability in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p email-admin/editOrgEmailSettings.apexp -u defaultOrg --json
-        URL: https://defaultOrg.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=email-admin%2FeditOrgEmailSettings.apexp
-        Done
-    
-
-  $ sfdx affirm:place:email -d -u sandboxAlias -o
-        Getting URL for Email Deliverability in Selected Org: sandboxAlias
-        Running Command: sfdx force:org:open -p email-admin/editOrgEmailSettings.apexp -u sandboxAlias --json
-        URL: https://sandboxAlias.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=lightning%2Fsetup%2FOrgEmailSettings%2Fhome
-        Done
-```
-
-## `sfdx affirm:place:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Queries the provided org and tells you if it's a production org or sandbox
-
-```
-USAGE
-  $ sfdx affirm:place:form [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -u, --targetusername=<value>                                                      username or alias for the target
-                                                                                    org; overrides default target org
-  --apiversion=<value>                                                              override the api version used for
-                                                                                    api requests made by this command
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  Queries the provided org and tells you if it's a production org or sandbox
-
-ALIASES
-  $ sfdx affirm:place:form
-
-EXAMPLES
-  $ sfdx affirm:place:form
-        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrgAlias --json
-        Organization.IsSandbox = true
-        Org defaultOrgAlias is a Sandbox instance
-    
-
-  $ sfdx affirm:place:form -u prodAlias
-        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u prodAlias --json
-        Organization.IsSandbox = false
-        Org prodAlias is a Production instance
-```
-
-## `sfdx affirm:place:status [-i <string>] [-u] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Opens the Deployment Status page in the target org.
-
-```
-USAGE
-  $ sfdx affirm:place:status [-i <string>] [-u] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -c, --classic                                                                     Optional:(Default: false) If
-                                                                                    provided the page will be opened in
-                                                                                    the Classic UI. Default is Lightning
-                                                                                    UI.
-  -d, --displayurl                                                                  Optional:(Default: false) If
-                                                                                    provided the url will be printed in
-                                                                                    the terminal.
-  -i, --id=<value>                                                                  Optional: Provide an id of a
-                                                                                    validation or deployment to be taken
-                                                                                    directly to the specific deployment
-                                                                                    status page.
-  -u, --targetusername=<value>                                                      username or alias for the target
-                                                                                    org; overrides default target org
-  -u, --urlonly                                                                     Optional:(Default: false) If
-                                                                                    provided the page will not be opened
-                                                                                    in a browser it will just be printed
-                                                                                    in the terminal.
-  --apiversion=<value>                                                              override the api version used for
-                                                                                    api requests made by this command
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  Opens the Deployment Status page in the target org.
-
-ALIASES
-  $ sfdx affirm:place:status
-
-EXAMPLES
-  $ sfdx affirm:place:status
-        Opening Deployment Status in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p lightning/setup/DeployStatus/home -u defaultOrg --json
-        Done
-    
-
-  $ sfdx affirm:place:status -d -c
-        Opening Deployment Status in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p changemgmt/monitorDeployment.apexp -u defaultOrg --json
-        URL: https://defaultOrg.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=changemgmt%2FmonitorDeployment.apexp
-        Done
-    
-
-  $ sfdx affirm:place:status -d -u sandboxAlias
-        Opening Deployment Status in Selected Org: sandboxAlias
-        Running Command: sfdx force:org:open -p changemgmt/monitorDeployment.apexp -u sandboxAlias --json
-        URL: https://sandboxAlias.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=changemgmt%2FmonitorDeployment.apexp
-        Done
 ```
 
 ## `sfdx affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
@@ -1011,6 +1003,90 @@ EXAMPLES
         (y/n) Would you like to print the results of each test?: n
 ```
 
+## `sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Queries and downloads audit logs from the target org
+
+```
+USAGE
+  $ sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n
+    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel
+    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+
+FLAGS
+  -a, --action=<value>
+      Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where'
+      flag.
+
+  -c, --createdbyuser=<value>
+      Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
+      'where' flag.
+
+  -d, --savedir=<value>
+      Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can
+      not be used with the 'printonly' flag.
+
+  -i, --display=<value>
+      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.
+
+  -n, --lastndays=<value>
+      Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the
+      'where' flag. Can not be used with the 'date' flag.
+
+  -o, --printonly
+      Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir'
+      flag.
+
+  -p, --createdbyprofile=<value>
+      Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
+      'where' flag.
+
+  -s, --section=<value>
+      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.
+
+  -t, --date=<value>
+      Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
+      'where' flag. Can not be used with the 'lastndays' flag.
+
+  -u, --targetusername=<value>
+      username or alias for the target org; overrides default target org
+
+  -w, --where=<value>
+      Optional: provide your own custom where clause. Can not be used with any of the other filter flags.
+
+  --apiversion=<value>
+      override the api version used for api requests made by this command
+
+  --json
+      format output as json
+
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
+      [default: warn] logging level for this command invocation
+
+DESCRIPTION
+  Queries and downloads audit logs from the target org
+
+ALIASES
+  $ sfdx affirm:audit
+
+EXAMPLES
+  $ sfdx affirm:place:audit
+        Running Command:
+        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC" -u defaultUser --json
+        Processing Query Results... Done. Found 1222 results
+        File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
+    
+
+  $ sfdx affirm:place:audit -n 30 -p "System Administrator" -a caselayout -u aliasName
+        Running Command:
+        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail
+        WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC" -u aliasName --json
+        Processing Query Results... Done. Found 45 results
+        File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
+```
+
+_See code: [src/commands/sfdx-affirm/audit.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/audit.ts)_
+
 ## `sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 returns a diff against the specified branch
@@ -1139,6 +1215,45 @@ EXAMPLES
 
 _See code: [src/commands/sfdx-affirm/faker.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/faker.ts)_
 
+## `sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+
+Queries the provided org and tells you if it's a production org or sandbox
+
+```
+USAGE
+  $ sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel
+    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+
+FLAGS
+  -u, --targetusername=<value>                                                      username or alias for the target
+                                                                                    org; overrides default target org
+  --apiversion=<value>                                                              override the api version used for
+                                                                                    api requests made by this command
+  --json                                                                            format output as json
+  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
+                                                                                    this command invocation
+
+DESCRIPTION
+  Queries the provided org and tells you if it's a production org or sandbox
+
+ALIASES
+  $ sfdx affirm:form
+
+EXAMPLES
+  $ sfdx affirm:place:form
+        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrgAlias --json
+        Organization.IsSandbox = true
+        Org defaultOrgAlias is a Sandbox instance
+    
+
+  $ sfdx affirm:place:form -u prodAlias
+        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u prodAlias --json
+        Organization.IsSandbox = false
+        Org prodAlias is a Production instance
+```
+
+_See code: [src/commands/sfdx-affirm/form.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/form.ts)_
+
 ## `sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Creates a JWT token that can be used to auth against a connected app.
@@ -1193,20 +1308,36 @@ EXAMPLES
 
 _See code: [src/commands/sfdx-affirm/jwt.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/jwt.ts)_
 
-## `sfdx sfdx-affirm:open:settings [-e] [-n] [-d] [-p] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
-open setup page
+Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page in Lightning.
 
 ```
 USAGE
-  $ sfdx sfdx-affirm:open:settings [-e] [-n] [-d] [-p] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+  $ sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>]
+    [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
-  -d, --deployment                                                                  open deployment status
-  -e, --email                                                                       open email deliverabilty
-  -n, --network                                                                     open all sites
-  -p, --profile                                                                     open profile setup page
+  -c, --classic                                                                     Optional | if provided the page will
+                                                                                    open in Classic otherwise it opens
+                                                                                    in Lightning by default.
+  -d, --deployment                                                                  Optional Path | Supports Id | Opens
+                                                                                    directly to Deployment status.
+  -d, --displayurl                                                                  Optional | If provided the url will
+                                                                                    be printed in the terminal.
+  -e, --email                                                                       Optional Path | Opens directly to
+                                                                                    Email Deliverability Settings
+  -i, --id=<value>                                                                  Optional | if provided with a Path
+                                                                                    Flag that supports Id the specific
+                                                                                    record will be opened rather than
+                                                                                    the path home page.
+  -n, --network                                                                     Optional Path | Opens directly to
+                                                                                    Digital Experiences
+  -o, --urlonly                                                                     Optional | If provided the page will
+                                                                                    not be opened in a browser it will
+                                                                                    just be printed in the terminal.
+  -p, --profile                                                                     Optional Path | Supports Id | Opens
+                                                                                    directly to Profile List Views
   -u, --targetusername=<value>                                                      username or alias for the target
                                                                                     org; overrides default target org
   --apiversion=<value>                                                              override the api version used for
@@ -1214,35 +1345,50 @@ FLAGS
   --json                                                                            format output as json
   --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
                                                                                     this command invocation
+  --verbose                                                                         emit additional command output to
+                                                                                    stdout
 
 DESCRIPTION
-  open setup page
+  Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page
+  in Lightning.
 
 ALIASES
-  $ sfdx affirm:open:settings
+  $ sfdx affirm:open
+  $ sfdx a:o
 
 EXAMPLES
-  $ sfdx affirm:open:settings
-              Open Setup Home page
-    
+  $ sfdx affirm:open
+          Opening Setup Home in Production Org: defaultOrg
+          Done
+        
 
-  $ sfdx affirm:open:settings -d
-              Open Deployment Status
-    
+  $ sfdx affirm:open --profile -u sandboxAlias
+          Opening Profile List Views in Sandbox Org: sandboxAlias
+          Done
+        
 
-  $ sfdx affirm:open:settings -n
-              Open Digital Experience Setup Page
-    
+  $ sfdx affirm:open -e --verbose
+          (y/n) Are you sure you want to use the "defaultOrg" org ?: y
+          Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrg --json
+          Opening Email Deliverability Settings in Production Org: defaultOrg
+          Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json
+          Done
+        
 
-  $ sfdx affirm:open:settings -u -e
-              Open Email Deliverability page for the given user
-    
+  $ sfdx affirm:open -e --verbose
+          (y/n) Are you sure you want to use the "defaultOrg" org ?: y
+          Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrg --json
+          Opening Email Deliverability Settings in Production Org: defaultOrg
+          Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json
+          Done
+        
 
-  $ sfdx affirm:open:settings -p
-              Open Enhanced Profile Setup Page
+  $ sfdx affirm:open --deployment -i 0Af6S00000pzZSS
+          Opening Deployment Status in Production Org: defaultOrg
+          Done
 ```
 
-_See code: [src/commands/sfdx-affirm/open/settings.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/open/settings.ts)_
+_See code: [src/commands/sfdx-affirm/open.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/open.ts)_
 
 ## `sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1376,249 +1522,6 @@ EXAMPLES
 ```
 
 _See code: [src/commands/sfdx-affirm/place.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/place.ts)_
-
-## `sfdx sfdx-affirm:place:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Queries and downloads audit logs from the target org
-
-```
-USAGE
-  $ sfdx sfdx-affirm:place:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n
-    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -a, --action=<value>
-      Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where'
-      flag.
-
-  -c, --createdbyuser=<value>
-      Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
-      'where' flag.
-
-  -d, --savedir=<value>
-      Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can
-      not be used with the 'printonly' flag.
-
-  -i, --display=<value>
-      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.
-
-  -n, --lastndays=<value>
-      Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the
-      'where' flag. Can not be used with the 'date' flag.
-
-  -o, --printonly
-      Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir'
-      flag.
-
-  -p, --createdbyprofile=<value>
-      Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
-      'where' flag.
-
-  -s, --section=<value>
-      Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.
-
-  -t, --date=<value>
-      Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the
-      'where' flag. Can not be used with the 'lastndays' flag.
-
-  -u, --targetusername=<value>
-      username or alias for the target org; overrides default target org
-
-  -w, --where=<value>
-      Optional: provide your own custom where clause. Can not be used with any of the other filter flags.
-
-  --apiversion=<value>
-      override the api version used for api requests made by this command
-
-  --json
-      format output as json
-
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
-      [default: warn] logging level for this command invocation
-
-DESCRIPTION
-  Queries and downloads audit logs from the target org
-
-ALIASES
-  $ sfdx affirm:place:audit
-
-EXAMPLES
-  $ sfdx affirm:place:audit
-        Running Command:
-        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC" -u defaultUser --json
-        Processing Query Results... Done. Found 1222 results
-        File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json
-    
-
-  $ sfdx affirm:place:audit -n 30 -p "System Administrator" -a caselayout -u aliasName
-        Running Command:
-        sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail
-        WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC" -u aliasName --json
-        Processing Query Results... Done. Found 45 results
-        File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
-```
-
-_See code: [src/commands/sfdx-affirm/place/audit.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/place/audit.ts)_
-
-## `sfdx sfdx-affirm:place:email [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Opens the Email Deliverability page in the target org.
-
-```
-USAGE
-  $ sfdx sfdx-affirm:place:email [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -c, --classic                                                                     Optional:(Default: false) If
-                                                                                    provided the page will be opened in
-                                                                                    the Classic UI. Default is Lightning
-                                                                                    UI.
-  -d, --displayurl                                                                  Optional:(Default: false) If
-                                                                                    provided the url will be printed in
-                                                                                    the terminal.
-  -o, --urlonly                                                                     Optional:(Default: false) If
-                                                                                    provided the page will not be opened
-                                                                                    in a browser it will just be printed
-                                                                                    in the terminal.
-  -u, --targetusername=<value>                                                      username or alias for the target
-                                                                                    org; overrides default target org
-  --apiversion=<value>                                                              override the api version used for
-                                                                                    api requests made by this command
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  Opens the Email Deliverability page in the target org.
-
-ALIASES
-  $ sfdx affirm:place:email
-
-EXAMPLES
-  $ sfdx affirm:place:email
-        Opening Email Deliverability in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg --json
-        Done
-    
-
-  $ sfdx affirm:place:email -d -c
-        Opening Email Deliverability in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p email-admin/editOrgEmailSettings.apexp -u defaultOrg --json
-        URL: https://defaultOrg.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=email-admin%2FeditOrgEmailSettings.apexp
-        Done
-    
-
-  $ sfdx affirm:place:email -d -u sandboxAlias -o
-        Getting URL for Email Deliverability in Selected Org: sandboxAlias
-        Running Command: sfdx force:org:open -p email-admin/editOrgEmailSettings.apexp -u sandboxAlias --json
-        URL: https://sandboxAlias.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=lightning%2Fsetup%2FOrgEmailSettings%2Fhome
-        Done
-```
-
-_See code: [src/commands/sfdx-affirm/place/email.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/place/email.ts)_
-
-## `sfdx sfdx-affirm:place:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Queries the provided org and tells you if it's a production org or sandbox
-
-```
-USAGE
-  $ sfdx sfdx-affirm:place:form [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -u, --targetusername=<value>                                                      username or alias for the target
-                                                                                    org; overrides default target org
-  --apiversion=<value>                                                              override the api version used for
-                                                                                    api requests made by this command
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  Queries the provided org and tells you if it's a production org or sandbox
-
-ALIASES
-  $ sfdx affirm:place:form
-
-EXAMPLES
-  $ sfdx affirm:place:form
-        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrgAlias --json
-        Organization.IsSandbox = true
-        Org defaultOrgAlias is a Sandbox instance
-    
-
-  $ sfdx affirm:place:form -u prodAlias
-        Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u prodAlias --json
-        Organization.IsSandbox = false
-        Org prodAlias is a Production instance
-```
-
-_See code: [src/commands/sfdx-affirm/place/form.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/place/form.ts)_
-
-## `sfdx sfdx-affirm:place:status [-i <string>] [-u] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-Opens the Deployment Status page in the target org.
-
-```
-USAGE
-  $ sfdx sfdx-affirm:place:status [-i <string>] [-u] [-d] [-c] [-u <string>] [--apiversion <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -c, --classic                                                                     Optional:(Default: false) If
-                                                                                    provided the page will be opened in
-                                                                                    the Classic UI. Default is Lightning
-                                                                                    UI.
-  -d, --displayurl                                                                  Optional:(Default: false) If
-                                                                                    provided the url will be printed in
-                                                                                    the terminal.
-  -i, --id=<value>                                                                  Optional: Provide an id of a
-                                                                                    validation or deployment to be taken
-                                                                                    directly to the specific deployment
-                                                                                    status page.
-  -u, --targetusername=<value>                                                      username or alias for the target
-                                                                                    org; overrides default target org
-  -u, --urlonly                                                                     Optional:(Default: false) If
-                                                                                    provided the page will not be opened
-                                                                                    in a browser it will just be printed
-                                                                                    in the terminal.
-  --apiversion=<value>                                                              override the api version used for
-                                                                                    api requests made by this command
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  Opens the Deployment Status page in the target org.
-
-ALIASES
-  $ sfdx affirm:place:status
-
-EXAMPLES
-  $ sfdx affirm:place:status
-        Opening Deployment Status in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p lightning/setup/DeployStatus/home -u defaultOrg --json
-        Done
-    
-
-  $ sfdx affirm:place:status -d -c
-        Opening Deployment Status in Selected Org: defaultOrg
-        Running Command: sfdx force:org:open -p changemgmt/monitorDeployment.apexp -u defaultOrg --json
-        URL: https://defaultOrg.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=changemgmt%2FmonitorDeployment.apexp
-        Done
-    
-
-  $ sfdx affirm:place:status -d -u sandboxAlias
-        Opening Deployment Status in Selected Org: sandboxAlias
-        Running Command: sfdx force:org:open -p changemgmt/monitorDeployment.apexp -u sandboxAlias --json
-        URL: https://sandboxAlias.my.salesforce.com/secur/frontdoor.jsp?sid=token&retURL=changemgmt%2FmonitorDeployment.apexp
-        Done
-```
-
-_See code: [src/commands/sfdx-affirm/place/status.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/place/status.ts)_
 
 ## `sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 

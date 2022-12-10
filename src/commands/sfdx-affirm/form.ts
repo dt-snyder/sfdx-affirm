@@ -1,8 +1,8 @@
 import { SfdxCommand } from '@salesforce/command';
 import { AnyJson } from '@salesforce/ts-types';
 import { Messages } from '@salesforce/core';
-import { sfdxGetIsSandbox } from '../../../lib/affirm_sfdx';
-import { verifyUsername } from '../../../lib/affirm_lift';
+import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
+import { verifyUsername } from '../../lib/affirm_lift';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -14,7 +14,7 @@ const messages = Messages.loadMessages('sfdx-affirm', 'form');
 export default class Form extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:place:form'];
+  public static aliases = ['affirm:form'];
   public static examples = [
     `$ sfdx affirm:place:form
       Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrgAlias --json

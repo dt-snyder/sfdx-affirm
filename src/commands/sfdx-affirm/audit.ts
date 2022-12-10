@@ -1,11 +1,11 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { AnyJson, asJsonArray, ensureJsonMap, JsonMap } from '@salesforce/ts-types';
 import { Messages, SfError } from '@salesforce/core';
-import { sfdxQuery } from '../../../lib/affirm_sfdx';
-import { verifyUsername } from '../../../lib/affirm_lift';
-import { getAffirmSettings } from '../../../lib/affirm_settings';
-import { AffirmSettings, AffirmAuditResult } from '../../../lib/affirm_interfaces';
-import { fsSaveJson } from '../../../lib/affirm_fs';
+import { sfdxQuery } from '../../lib/affirm_sfdx';
+import { verifyUsername } from '../../lib/affirm_lift';
+import { getAffirmSettings } from '../../lib/affirm_settings';
+import { AffirmSettings, AffirmAuditResult } from '../../lib/affirm_interfaces';
+import { fsSaveJson } from '../../lib/affirm_fs';
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 
@@ -16,7 +16,7 @@ const messages = Messages.loadMessages('sfdx-affirm', 'audit');
 export default class Audit extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:place:audit'];
+  public static aliases = ['affirm:audit'];
   public static examples = [
     `$ sfdx affirm:place:audit
       Running Command:

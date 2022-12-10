@@ -1,5 +1,5 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
-import { SfError, SfProject, SfProjectJson, Messages } from '@salesforce/core';
+import { SfError, SfProject, SfProjectJson, Messages, ConfigAggregator } from '@salesforce/core';
 import { UX, TableColumns } from '@salesforce/command';
 import { AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
@@ -303,15 +303,17 @@ export async function liftGetTestsFromSuites(suitesToMerge: Set<string>): Promis
 export async function verifyUsername(username?: string, ux?: UX): Promise<string> {
   let usernameToReturn;
   if (!username) {
-    const project = await SfProject.resolve();
-    const pjtJson = await project.resolveProjectConfig();
-    if (ux) {
-      const proceedWithDefault = await ux.confirm(`${logYN} Are you sure you want to use the "${chalk.cyanBright(pjtJson.defaultusername)}" org ?`);
+    const aggregator = await ConfigAggregator.create();
+    const defaultUsername = aggregator.getPropertyValue('target-org');
+    if (defaultUsername && ux) {
+      const proceedWithDefault = await ux.confirm(`${logYN} Are you sure you want to use the "${chalk.cyanBright(defaultUsername)}" org ?`);
       if (!proceedWithDefault) {
         throw new SfError(messages.getMessage('noToDefaultUserName'));
       }
+    } else if (!defaultUsername) {
+      throw new SfError(messages.getMessage('noToDefaultUserName'));
     }
-    usernameToReturn = pjtJson.defaultusername;
+    usernameToReturn = defaultUsername;
   } else {
     // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
     const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`))) as object;
