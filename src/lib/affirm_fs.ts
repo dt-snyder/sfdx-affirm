@@ -181,8 +181,9 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
     } else {
       //  get name of metaData
       xmlName = folderMdtInfo.xmlName;
+      const getMemberNameBy = (fileName.indexOf(folderMdtInfo.suffix) > 0) ? `.${folderMdtInfo.suffix}` : '.';
       //  add file name to types array by name.
-      const memberName = fileName.substring(0, fileName.indexOf('.'));
+      const memberName = fileName.substring(0, fileName.indexOf(getMemberNameBy));
       newMembers = [memberName];
     }
 
