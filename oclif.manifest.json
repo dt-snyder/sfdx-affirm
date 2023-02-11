@@ -948,7 +948,7 @@
       "id": "sfdx-affirm:parcel",
       "description": "Creates a parcel (package) using git diff",
       "strict": true,
-      "usage": "<%= command.id %> [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -1013,14 +1013,14 @@
           "name": "inputdir",
           "type": "option",
           "char": "i",
-          "description": "The root directory get the source tracked files from. Defaults to the path indicated as default in sfdx-project.json.",
+          "description": "The root directory to compare other than the force-app default",
           "multiple": false
         },
-        "packagename": {
-          "name": "packagename",
+        "outputdir": {
+          "name": "outputdir",
           "type": "option",
-          "char": "p",
-          "description": "The output directory to store the Metadata API–formatted metadata files in. Use affirm:setup to configure the default.",
+          "char": "o",
+          "description": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
           "multiple": false
         },
         "includedestructive": {
@@ -1055,15 +1055,15 @@
         "inputdir": {
           "kind": "string",
           "char": "i",
-          "description": "The root directory get the source tracked files from. Defaults to the path indicated as default in sfdx-project.json.",
+          "description": "The root directory to compare other than the force-app default",
           "input": [],
           "multiple": false,
           "type": "option"
         },
-        "packagename": {
+        "outputdir": {
           "kind": "string",
-          "char": "p",
-          "description": "The output directory to store the Metadata API–formatted metadata files in. Use affirm:setup to configure the default.",
+          "char": "o",
+          "description": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
           "input": [],
           "multiple": false,
           "type": "option"
@@ -1533,18 +1533,18 @@
           "description": "(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.",
           "multiple": false
         },
-        "affirmdir": {
-          "name": "affirmdir",
+        "builddir": {
+          "name": "builddir",
           "type": "option",
           "char": "d",
-          "description": "(optional | Default: releaseArtifacts) The directory where Affirm will save the results of your command. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
+          "description": "(optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
           "multiple": false
         },
-        "packagename": {
-          "name": "packagename",
+        "packagedir": {
+          "name": "packagedir",
           "type": "option",
           "char": "p",
-          "description": "(optional | Default: parcel) The default directory name for new packages. This folder will always be placed in the ./affirmdir/packages/ directory.",
+          "description": "(optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will always be placed in the default builddir or the one you indicated",
           "multiple": false
         },
         "waittime": {
@@ -1586,18 +1586,18 @@
           "multiple": false,
           "type": "option"
         },
-        "affirmdir": {
+        "builddir": {
           "kind": "string",
           "char": "d",
-          "description": "(optional | Default: releaseArtifacts) The directory where Affirm will save the results of your command. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
+          "description": "(optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
           "input": [],
           "multiple": false,
           "type": "option"
         },
-        "packagename": {
+        "packagedir": {
           "kind": "string",
           "char": "p",
-          "description": "(optional | Default: parcel) The default directory name for new packages. This folder will always be placed in the ./affirmdir/packages/ directory.",
+          "description": "(optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will always be placed in the default builddir or the one you indicated",
           "input": [],
           "multiple": false,
           "type": "option"
@@ -1914,7 +1914,6 @@
         }
       },
       "requiresProject": true,
-      "requiresUsername": true,
       "supportsUsername": true
     },
     "sfdx-affirm:suite:merge": {

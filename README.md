@@ -17,7 +17,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:parcel [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmparcel--b-string--i-string--p-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmquality--d-string--t-string--s--w-integer--r--e--p--o--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsetup--b-string--d-string--p-string--w-string--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -30,7 +30,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmparcel--b-string--i-string--p-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmquality--d-string--t-string--s--w-integer--r--e--p--o--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsetup--b-string--d-string--p-string--w-string--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -493,13 +493,13 @@ EXAMPLES
           Done
 ```
 
-## `sfdx affirm:parcel [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Creates a parcel (package) using git diff
 
 ```
 USAGE
-  $ sfdx affirm:parcel [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion
+  $ sfdx affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion
     <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
@@ -509,14 +509,11 @@ FLAGS
   -d, --includedestructive                                                          If provided and there are
                                                                                     destructive changes you will not be
                                                                                     asked if you want to include them
-  -i, --inputdir=<value>                                                            The root directory get the source
-                                                                                    tracked files from. Defaults to the
-                                                                                    path indicated as default in
-                                                                                    sfdx-project.json.
-  -p, --packagename=<value>                                                         The output directory to store the
+  -i, --inputdir=<value>                                                            The root directory to compare other
+                                                                                    than the force-app default
+  -o, --outputdir=<value>                                                           The output directory to store the
                                                                                     Metadata API–formatted metadata
-                                                                                    files in. Use affirm:setup to
-                                                                                    configure the default.
+                                                                                    files in. Default: './parcel'
   -t, --destructivetiming=<option>                                                  Allows you to indicate if you want
                                                                                     to process the destructive changes
                                                                                     before or after the deployment.
@@ -733,17 +730,18 @@ FLAGS
       (optional | Default: master) The primary branch should be the remote branch that is linked to your Production
       Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.
 
-  -d, --affirmdir=<value>
-      (optional | Default: releaseArtifacts) The directory where Affirm will save the results of your command. Default is
-      'releaseArtifacts'. Would recommend a folder that is ignored by git.
+  -d, --builddir=<value>
+      (optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages
+      are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored
+      by git.
 
   -o, --overwrite
       (optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't
       want to be asked about overwriting it.
 
-  -p, --packagename=<value>
-      (optional | Default: parcel) The default directory name for new packages. This folder will always be placed in the
-      ./affirmdir/packages/ directory.
+  -p, --packagedir=<value>
+      (optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will
+      always be placed in the default builddir or the one you indicated
 
   -t, --declarativetestclass=<value>
       (optional | Default: undefined) The test class to use when no test classes are provided. Mainly used for declarative
@@ -1391,13 +1389,13 @@ EXAMPLES
 
 _See code: [src/commands/sfdx-affirm/open.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/open.ts)_
 
-## `sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Creates a parcel (package) using git diff
 
 ```
 USAGE
-  $ sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion
+  $ sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion
     <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
@@ -1407,14 +1405,11 @@ FLAGS
   -d, --includedestructive                                                          If provided and there are
                                                                                     destructive changes you will not be
                                                                                     asked if you want to include them
-  -i, --inputdir=<value>                                                            The root directory get the source
-                                                                                    tracked files from. Defaults to the
-                                                                                    path indicated as default in
-                                                                                    sfdx-project.json.
-  -p, --packagename=<value>                                                         The output directory to store the
+  -i, --inputdir=<value>                                                            The root directory to compare other
+                                                                                    than the force-app default
+  -o, --outputdir=<value>                                                           The output directory to store the
                                                                                     Metadata API–formatted metadata
-                                                                                    files in. Use affirm:setup to
-                                                                                    configure the default.
+                                                                                    files in. Default: './parcel'
   -t, --destructivetiming=<option>                                                  Allows you to indicate if you want
                                                                                     to process the destructive changes
                                                                                     before or after the deployment.
@@ -1637,17 +1632,18 @@ FLAGS
       (optional | Default: master) The primary branch should be the remote branch that is linked to your Production
       Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.
 
-  -d, --affirmdir=<value>
-      (optional | Default: releaseArtifacts) The directory where Affirm will save the results of your command. Default is
-      'releaseArtifacts'. Would recommend a folder that is ignored by git.
+  -d, --builddir=<value>
+      (optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages
+      are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored
+      by git.
 
   -o, --overwrite
       (optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't
       want to be asked about overwriting it.
 
-  -p, --packagename=<value>
-      (optional | Default: parcel) The default directory name for new packages. This folder will always be placed in the
-      ./affirmdir/packages/ directory.
+  -p, --packagedir=<value>
+      (optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will
+      always be placed in the default builddir or the one you indicated
 
   -t, --declarativetestclass=<value>
       (optional | Default: undefined) The test class to use when no test classes are provided. Mainly used for declarative
