@@ -1,1 +1,2048 @@
-{"version":"2.5.0","commands":{"sfdx-affirm:audit":{"id":"sfdx-affirm:audit","description":"Queries and downloads audit logs from the target org","strict":true,"usage":"<%= command.id %> [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:audit"],"examples":["$ sfdx affirm:place:audit\n      Running Command:\n      sfdx force:data:soql:query -q \"SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC\" -u defaultUser --json\n      Processing Query Results... Done. Found 1222 results\n      File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json\n    ","$ sfdx affirm:place:audit -n 30 -p \"System Administrator\" -a caselayout -u aliasName\n      Running Command:\n      sfdx force:data:soql:query -q \"SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail\n      WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC\" -u aliasName --json\n      Processing Query Results... Done. Found 45 results\n      File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false},"action":{"name":"action","type":"option","char":"a","description":"Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where' flag.","required":false,"multiple":false},"section":{"name":"section","type":"option","char":"s","description":"Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.","required":false,"multiple":false},"display":{"name":"display","type":"option","char":"i","description":"Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.","required":false,"multiple":false},"createdbyuser":{"name":"createdbyuser","type":"option","char":"c","description":"Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.","required":false,"multiple":false},"createdbyprofile":{"name":"createdbyprofile","type":"option","char":"p","description":"Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.","required":false,"multiple":false},"date":{"name":"date","type":"option","char":"t","description":"Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'lastndays' flag.","required":false,"multiple":false},"lastndays":{"name":"lastndays","type":"option","char":"n","description":"Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'date' flag.","required":false,"multiple":false},"where":{"name":"where","type":"option","char":"w","description":"Optional: provide your own custom where clause. Can not be used with any of the other filter flags.","required":false,"multiple":false},"savedir":{"name":"savedir","type":"option","char":"d","description":"Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can not be used with the 'printonly' flag.","required":false,"multiple":false},"printonly":{"name":"printonly","type":"boolean","char":"o","description":"Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir' flag.","required":false,"allowNo":false}},"args":[],"flagsConfig":{"action":{"kind":"string","char":"a","description":"Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where' flag.","required":false,"input":[],"multiple":false,"type":"option"},"section":{"kind":"string","char":"s","description":"Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.","required":false,"input":[],"multiple":false,"type":"option"},"display":{"kind":"string","char":"i","description":"Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.","required":false,"input":[],"multiple":false,"type":"option"},"createdbyuser":{"kind":"string","char":"c","description":"Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.","required":false,"input":[],"multiple":false,"type":"option"},"createdbyprofile":{"kind":"string","char":"p","description":"Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.","required":false,"input":[],"multiple":false,"type":"option"},"date":{"kind":"string","char":"t","description":"Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'lastndays' flag.","required":false,"input":[],"multiple":false,"type":"option"},"lastndays":{"kind":"number","char":"n","description":"Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'date' flag.","required":false,"input":[],"multiple":false,"type":"option"},"where":{"kind":"string","char":"w","description":"Optional: provide your own custom where clause. Can not be used with any of the other filter flags.","required":false,"input":[],"multiple":false,"type":"option"},"savedir":{"kind":"string","char":"d","description":"Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can not be used with the 'printonly' flag.","required":false,"input":[],"multiple":false,"type":"option"},"printonly":{"kind":"boolean","char":"o","description":"Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir' flag.","required":false,"allowNo":false,"type":"boolean"}},"requiresProject":true,"supportsUsername":true},"sfdx-affirm:changes":{"id":"sfdx-affirm:changes","description":"returns a diff against the specified branch","strict":true,"usage":"<%= command.id %> [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:changes"],"examples":["$ sfdx affirm:changes\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls,MySecondClass.cls\n            INSERTION: MyTestClass.cls\n            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls\n        ","$ sfdx affirm:changes --showdestructive\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            DESTRUCTIVE: MyOldClass.cls\n        ","$ sfdx affirm:changes --showinsertion\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            INSERTION: MyTestClass.cls\n        ","$ sfdx affirm:changes --showchanged\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls\n        "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"branch":{"name":"branch","type":"option","char":"b","description":"the branch other than remotes/origin/master to diff against","multiple":false},"inputdir":{"name":"inputdir","type":"option","char":"n","description":"the root directory to compare other than the sfdx-project.json default","multiple":false},"showdestructive":{"name":"showdestructive","type":"boolean","char":"d","description":"If provided alone shows destructive changes only.","allowNo":false},"showinsertion":{"name":"showinsertion","type":"boolean","char":"i","description":"If provided alone shows insertion changes only.","allowNo":false},"showchanged":{"name":"showchanged","type":"boolean","char":"c","description":"If provided alone shows changes only.","allowNo":false},"silent":{"name":"silent","type":"boolean","char":"s","description":"runs without printing to console","allowNo":false},"outfilename":{"name":"outfilename","type":"option","char":"o","description":"if provided results will be save to a file using the provided name as json","multiple":false}},"args":[],"flagsConfig":{"branch":{"kind":"string","char":"b","description":"the branch other than remotes/origin/master to diff against","input":[],"multiple":false,"type":"option"},"inputdir":{"kind":"string","char":"n","description":"the root directory to compare other than the sfdx-project.json default","input":[],"multiple":false,"type":"option"},"showdestructive":{"kind":"boolean","char":"d","description":"If provided alone shows destructive changes only.","allowNo":false,"type":"boolean"},"showinsertion":{"kind":"boolean","char":"i","description":"If provided alone shows insertion changes only.","allowNo":false,"type":"boolean"},"showchanged":{"kind":"boolean","char":"c","description":"If provided alone shows changes only.","allowNo":false,"type":"boolean"},"silent":{"kind":"boolean","char":"s","description":"runs without printing to console","allowNo":false,"type":"boolean"},"outfilename":{"kind":"string","char":"o","description":"if provided results will be save to a file using the provided name as json","input":[],"multiple":false,"type":"option"}},"requiresProject":true},"sfdx-affirm:faker":{"id":"sfdx-affirm:faker","description":"returns a diff against the specified branch","strict":true,"usage":"<%= command.id %> [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:faker"],"examples":["$ sfdx affirm:changes\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls,MySecondClass.cls\n            INSERTION: MyTestClass.cls\n            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls\n        ","$ sfdx affirm:changes --showdestructive\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            DESTRUCTIVE: MyOldClass.cls\n        ","$ sfdx affirm:changes --showinsertion\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            INSERTION: MyTestClass.cls\n        ","$ sfdx affirm:changes --showchanged\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls\n        "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"branch":{"name":"branch","type":"option","char":"b","description":"the branch other than remotes/origin/master to diff against","multiple":false},"inputdir":{"name":"inputdir","type":"option","char":"n","description":"the root directory to compare other than the sfdx-project.json default","multiple":false},"showdestructive":{"name":"showdestructive","type":"boolean","char":"d","description":"If provided alone shows destructive changes only.","allowNo":false},"showinsertion":{"name":"showinsertion","type":"boolean","char":"i","description":"If provided alone shows insertion changes only.","allowNo":false},"showchanged":{"name":"showchanged","type":"boolean","char":"c","description":"If provided alone shows changes only.","allowNo":false},"silent":{"name":"silent","type":"boolean","char":"s","description":"runs without printing to console","allowNo":false},"outfilename":{"name":"outfilename","type":"option","char":"o","description":"if provided results will be save to a file using the provided name as json","multiple":false}},"args":[],"flagsConfig":{"branch":{"kind":"string","char":"b","description":"the branch other than remotes/origin/master to diff against","input":[],"multiple":false,"type":"option"},"inputdir":{"kind":"string","char":"n","description":"the root directory to compare other than the sfdx-project.json default","input":[],"multiple":false,"type":"option"},"showdestructive":{"kind":"boolean","char":"d","description":"If provided alone shows destructive changes only.","allowNo":false,"type":"boolean"},"showinsertion":{"kind":"boolean","char":"i","description":"If provided alone shows insertion changes only.","allowNo":false,"type":"boolean"},"showchanged":{"kind":"boolean","char":"c","description":"If provided alone shows changes only.","allowNo":false,"type":"boolean"},"silent":{"kind":"boolean","char":"s","description":"runs without printing to console","allowNo":false,"type":"boolean"},"outfilename":{"kind":"string","char":"o","description":"if provided results will be save to a file using the provided name as json","input":[],"multiple":false,"type":"option"}},"requiresProject":true},"sfdx-affirm:form":{"id":"sfdx-affirm:form","description":"Queries the provided org and tells you if it's a production org or sandbox","strict":true,"usage":"<%= command.id %> [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:form"],"examples":["$ sfdx affirm:place:form\n      Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u defaultOrgAlias --json\n      Organization.IsSandbox = true\n      Org defaultOrgAlias is a Sandbox instance\n    ","$ sfdx affirm:place:form -u prodAlias\n      Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u prodAlias --json\n      Organization.IsSandbox = false\n      Org prodAlias is a Production instance\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false}},"args":[],"requiresProject":true,"supportsUsername":true},"sfdx-affirm:jwt":{"id":"sfdx-affirm:jwt","description":"Creates a JWT token that can be used to auth against a connected app.","strict":true,"usage":"<%= command.id %> -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:jwt"],"examples":["$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com -a https://login.salesforce.com\n      Token Created:\n      eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT\n    ","$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com.test -a https://test.salesforce.com -e 1\n      Token Created:\n      eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"privatekey":{"name":"privatekey","type":"option","char":"p","description":"the location of the private key","required":true,"multiple":false},"iss":{"name":"iss","type":"option","char":"i","description":"The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.","required":true,"multiple":false},"sub":{"name":"sub","type":"option","char":"s","description":"The subject must contain the username of the user if implementing for an Experience Cloud site.","required":true,"multiple":false},"aud":{"name":"aud","type":"option","char":"a","description":"The audience identifies the authorization server as an intended audience. The authorization server must verify that it’s an intended audience for the token. Use the authorization server’s URL for the audience value: https://login.salesforce.com, https://test.salesforce.com, or https://site.force.com/customers if implementing for an Experience Cloud site.","required":true,"multiple":false},"exp":{"name":"exp","type":"option","char":"e","description":"Optional: (Default: 3) The validity must be the expiration time of the assertion within 3 minutes.","required":false,"multiple":false}},"args":[],"flagsConfig":{"privatekey":{"kind":"string","char":"p","description":"the location of the private key","required":true,"input":[],"multiple":false,"type":"option"},"iss":{"kind":"string","char":"i","description":"The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.","required":true,"input":[],"multiple":false,"type":"option"},"sub":{"kind":"string","char":"s","description":"The subject must contain the username of the user if implementing for an Experience Cloud site.","required":true,"input":[],"multiple":false,"type":"option"},"aud":{"kind":"string","char":"a","description":"The audience identifies the authorization server as an intended audience. The authorization server must verify that it’s an intended audience for the token. Use the authorization server’s URL for the audience value: https://login.salesforce.com, https://test.salesforce.com, or https://site.force.com/customers if implementing for an Experience Cloud site.","required":true,"input":[],"multiple":false,"type":"option"},"exp":{"kind":"number","char":"e","description":"Optional: (Default: 3) The validity must be the expiration time of the assertion within 3 minutes.","required":false,"input":[],"multiple":false,"type":"option"}},"requiresProject":true},"sfdx-affirm:open":{"id":"sfdx-affirm:open","description":"Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page in Lightning.","strict":true,"usage":"<%= command.id %> [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:open","a:o"],"examples":["$ sfdx affirm:open\n        Opening Setup Home in Production Org: defaultOrg\n        Done\n        ","$ sfdx affirm:open --profile -u sandboxAlias\n        Opening Profile List Views in Sandbox Org: sandboxAlias\n        Done\n        ","$ sfdx affirm:open -e --verbose\n        (y/n) Are you sure you want to use the \"defaultOrg\" org ?: y\n        Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u defaultOrg --json\n        Opening Email Deliverability Settings in Production Org: defaultOrg\n        Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json\n        Done\n        ","$ sfdx affirm:open -e --verbose\n        (y/n) Are you sure you want to use the \"defaultOrg\" org ?: y\n        Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u defaultOrg --json\n        Opening Email Deliverability Settings in Production Org: defaultOrg\n        Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json\n        Done\n        ","$ sfdx affirm:open --deployment -i 0Af6S00000pzZSS\n        Opening Deployment Status in Production Org: defaultOrg\n        Done\n        "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false},"email":{"name":"email","type":"boolean","char":"e","description":"Optional Path | Opens directly to Email Deliverability Settings","allowNo":false},"network":{"name":"network","type":"boolean","char":"n","description":"Optional Path | Opens directly to Digital Experiences","allowNo":false},"deployment":{"name":"deployment","type":"boolean","char":"d","description":"Optional Path | Supports Id | Opens directly to Deployment status.","allowNo":false},"profile":{"name":"profile","type":"boolean","char":"p","description":"Optional Path | Supports Id | Opens directly to Profile List Views","allowNo":false},"id":{"name":"id","type":"option","char":"i","description":"Optional | if provided with a Path Flag that supports Id the specific record will be opened rather than the path home page.","multiple":false},"urlonly":{"name":"urlonly","type":"boolean","char":"o","description":"Optional | If provided the page will not be opened in a browser it will just be printed in the terminal.","allowNo":false},"displayurl":{"name":"displayurl","type":"boolean","char":"d","description":"Optional | If provided the url will be printed in the terminal.","allowNo":false},"classic":{"name":"classic","type":"boolean","char":"c","description":"Optional | if provided the page will open in Classic otherwise it opens in Lightning by default.","allowNo":false},"verbose":{"name":"verbose","type":"boolean","description":"emit additional command output to stdout","allowNo":false}},"args":[],"flagsConfig":{"email":{"kind":"boolean","char":"e","description":"Optional Path | Opens directly to Email Deliverability Settings","default":false,"allowNo":false,"type":"boolean"},"network":{"kind":"boolean","char":"n","description":"Optional Path | Opens directly to Digital Experiences","default":false,"allowNo":false,"type":"boolean"},"deployment":{"kind":"boolean","char":"d","description":"Optional Path | Supports Id | Opens directly to Deployment status.","default":false,"allowNo":false,"type":"boolean"},"profile":{"kind":"boolean","char":"p","description":"Optional Path | Supports Id | Opens directly to Profile List Views","default":false,"allowNo":false,"type":"boolean"},"id":{"kind":"string","char":"i","description":"Optional | if provided with a Path Flag that supports Id the specific record will be opened rather than the path home page.","input":[],"multiple":false,"type":"option"},"urlonly":{"kind":"boolean","char":"o","description":"Optional | If provided the page will not be opened in a browser it will just be printed in the terminal.","default":false,"allowNo":false,"type":"boolean"},"displayurl":{"kind":"boolean","char":"d","description":"Optional | If provided the url will be printed in the terminal.","default":false,"allowNo":false,"type":"boolean"},"classic":{"kind":"boolean","char":"c","description":"Optional | if provided the page will open in Classic otherwise it opens in Lightning by default.","default":false,"allowNo":false,"type":"boolean"},"verbose":{"type":"boolean","kind":"boolean","description":"emit additional command output to stdout","longDescription":"Emit additional command output to stdout.","allowNo":false}},"requiresProject":true,"supportsUsername":true},"sfdx-affirm:parcel":{"id":"sfdx-affirm:parcel","description":"Creates a parcel (package) using git diff","strict":true,"usage":"<%= command.id %> [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:parcel"],"examples":["$ sfdx affirm:parcel\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/master...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      (y/n) There are 7 destructive changes. Create destructive changes xml file? y\n      ? Select when the destructive changes should be deployed: before\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    ","$ sfdx affirm:parcel -d -t before\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/master...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false},"branch":{"name":"branch","type":"option","char":"b","description":"The branch other than remotes/origin/master to diff against","multiple":false},"inputdir":{"name":"inputdir","type":"option","char":"i","description":"The root directory to compare other than the force-app default","multiple":false},"outputdir":{"name":"outputdir","type":"option","char":"o","description":"The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'","multiple":false},"includedestructive":{"name":"includedestructive","type":"boolean","char":"d","description":"If provided and there are destructive changes you will not be asked if you want to include them","allowNo":false},"destructivetiming":{"name":"destructivetiming","type":"option","char":"t","description":"Allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after","multiple":false,"options":["before","after"]}},"args":[],"flagsConfig":{"branch":{"kind":"string","char":"b","description":"The branch other than remotes/origin/master to diff against","input":[],"multiple":false,"type":"option"},"inputdir":{"kind":"string","char":"i","description":"The root directory to compare other than the force-app default","input":[],"multiple":false,"type":"option"},"outputdir":{"kind":"string","char":"o","description":"The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'","input":[],"multiple":false,"type":"option"},"includedestructive":{"kind":"boolean","char":"d","description":"If provided and there are destructive changes you will not be asked if you want to include them","allowNo":false,"type":"boolean"},"destructivetiming":{"kind":"string","char":"t","description":"Allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after","options":["before","after"],"input":[],"multiple":false,"type":"option"}},"requiresProject":true,"requiresUsername":true,"supportsUsername":true},"sfdx-affirm:place":{"id":"sfdx-affirm:place","description":"Deploys a Package to the specific place","strict":true,"usage":"<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:place"],"examples":["$ sfdx affirm:place"],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false},"packagedir":{"name":"packagedir","type":"option","char":"d","description":"The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.","multiple":false},"testclasses":{"name":"testclasses","type":"option","char":"t","description":"Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.","multiple":false},"silent":{"name":"silent","type":"boolean","char":"s","description":"If provided, you will not be prompted at all for input. If correct input isn't provided command fails.","allowNo":false},"waittime":{"name":"waittime","type":"option","char":"w","description":"The number of minutes to wait for the command to complete. The default is 10.","multiple":false},"noresults":{"name":"noresults","type":"boolean","char":"r","description":"If provided, you will not be asked if you would like to print the component details or test details after validation completes.","allowNo":false},"openstatus":{"name":"openstatus","type":"boolean","char":"o","description":"If provided, the deployment status page will be opened in the default or specified org.","allowNo":false},"saveresults":{"name":"saveresults","type":"boolean","char":"e","description":"(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.","allowNo":false},"printall":{"name":"printall","type":"boolean","char":"p","description":"(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.","allowNo":false},"notestsrun":{"name":"notestsrun","type":"boolean","char":"n","description":"(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.","allowNo":false}},"args":[],"flagsConfig":{"packagedir":{"kind":"string","char":"d","description":"The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.","input":[],"multiple":false,"type":"option"},"testclasses":{"kind":"string","char":"t","description":"Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.","input":[],"multiple":false,"type":"option"},"silent":{"kind":"boolean","char":"s","description":"If provided, you will not be prompted at all for input. If correct input isn't provided command fails.","default":false,"allowNo":false,"type":"boolean"},"waittime":{"kind":"integer","char":"w","description":"The number of minutes to wait for the command to complete. The default is 10.","input":[],"multiple":false,"type":"option"},"noresults":{"kind":"boolean","char":"r","description":"If provided, you will not be asked if you would like to print the component details or test details after validation completes.","allowNo":false,"type":"boolean"},"openstatus":{"kind":"boolean","char":"o","description":"If provided, the deployment status page will be opened in the default or specified org.","allowNo":false,"type":"boolean"},"saveresults":{"kind":"boolean","char":"e","description":"(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.","allowNo":false,"type":"boolean"},"printall":{"kind":"boolean","char":"p","description":"(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.","allowNo":false,"type":"boolean"},"notestsrun":{"kind":"boolean","char":"n","description":"(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.","allowNo":false,"type":"boolean"}},"supportsUsername":true,"requiresProject":true},"sfdx-affirm:quality":{"id":"sfdx-affirm:quality","description":"Validates a package against the provided org","strict":true,"usage":"<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:quality"],"examples":["$ sfdx affirm:quality\n      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y\n      Selected Org: myOrg@example.com.sandbox\n      (y/n) Are you sure you want to validate the package located in the \"releaseArtifacts/parcel\" folder?: y\n      Package Directory: \"releaseArtifacts/parcel\"\n      (y/n) Are you sure you want to validate without running any tests?: y\n      Validating without test classes!\n      Validating Package... Succeeded\n      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA\n      Total Components: 761\n      Component Deployed: 761\n      Component With Errors: 0\n      ? Would you like to print or save the any of the validation results? No\n  ","$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r\n      Selected Org: myOrg@example.com.sandbox\n      (y/n) Are you sure you want to validate the package located in the \"releaseArtifacts/parcel\" folder?: y\n      Package Directory: \"releaseArtifacts/parcel\"\n      Validating Using Provided Classes: MyTestClass,OtherTestClass\n      Validating Package... Succeeded\n      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA\n      Total Components: 761\n      Component Deployed: 761\n      Component With Errors: 0\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false},"packagedir":{"name":"packagedir","type":"option","char":"d","description":"(Optional) The root of the directory tree that contains the files to validate. The root must contain a valid package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from AffirmSettings.","multiple":false},"testclasses":{"name":"testclasses","type":"option","char":"t","description":"(Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites found in the 'packagedir' will be use. If none are found and target org is production the default 'declarativeTestClass' is used if one is set.","multiple":false},"silent":{"name":"silent","type":"boolean","char":"s","description":"(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.","allowNo":false},"waittime":{"name":"waittime","type":"option","char":"w","description":"(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.","multiple":false},"noresults":{"name":"noresults","type":"boolean","char":"r","description":"(Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print results. Can not be used with --printall or --saveresults.","allowNo":false},"saveresults":{"name":"saveresults","type":"boolean","char":"e","description":"(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.","allowNo":false},"printall":{"name":"printall","type":"boolean","char":"p","description":"(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.","allowNo":false},"openstatus":{"name":"openstatus","type":"boolean","char":"o","description":"(Optional) if provided the deployment status page will be opened in the default or specified org.","allowNo":false},"notestsrun":{"name":"notestsrun","type":"boolean","char":"n","description":"(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.","allowNo":false}},"args":[],"flagsConfig":{"packagedir":{"kind":"string","char":"d","description":"(Optional) The root of the directory tree that contains the files to validate. The root must contain a valid package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from AffirmSettings.","input":[],"multiple":false,"type":"option"},"testclasses":{"kind":"string","char":"t","description":"(Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites found in the 'packagedir' will be use. If none are found and target org is production the default 'declarativeTestClass' is used if one is set.","input":[],"multiple":false,"type":"option"},"silent":{"kind":"boolean","char":"s","description":"(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.","default":false,"allowNo":false,"type":"boolean"},"waittime":{"kind":"integer","char":"w","description":"(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.","input":[],"multiple":false,"type":"option"},"noresults":{"kind":"boolean","char":"r","description":"(Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print results. Can not be used with --printall or --saveresults.","allowNo":false,"type":"boolean"},"saveresults":{"kind":"boolean","char":"e","description":"(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.","allowNo":false,"type":"boolean"},"printall":{"kind":"boolean","char":"p","description":"(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.","allowNo":false,"type":"boolean"},"openstatus":{"kind":"boolean","char":"o","description":"(Optional) if provided the deployment status page will be opened in the default or specified org.","allowNo":false,"type":"boolean"},"notestsrun":{"kind":"boolean","char":"n","description":"(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.","allowNo":false,"type":"boolean"}},"supportsUsername":true,"requiresProject":true},"sfdx-affirm:setup":{"id":"sfdx-affirm:setup","description":"Allows users to configure project specific settings for Affirm","strict":true,"usage":"<%= command.id %> [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:setup"],"examples":["$ sfdx affirm:setup\n      Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main\n      Primary Branch set to:  remotes/origin/main\n      Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: .superArtifacts\n      Build Directory set to:  .superArtifacts\n      Provide default directory name for new packages  [parcel]: pack\n      Package Directory set to:  pack\n      Provide default wait time for async commands  [10]: 5\n      Wait Time set to:  5\n      Provide the name of a test class you would like to run for declarative dev by default if no test suite is created : Test_DeclarativeDefault\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    ","$ sfdx affirm:setup -b remotes/origin/main -d .superArtifacts -p pack -w 5 -t Test_DeclarativeDefault -o\n      Primary Branch set to:  remotes/origin/main\n      Build Directory set to:  .superArtifacts\n      Package Directory set to:  pack\n      Wait Time set to:  5\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"primarybranch":{"name":"primarybranch","type":"option","char":"b","description":"(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.","multiple":false},"builddir":{"name":"builddir","type":"option","char":"d","description":"(optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.","multiple":false},"packagedir":{"name":"packagedir","type":"option","char":"p","description":"(optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will always be placed in the default builddir or the one you indicated","multiple":false},"waittime":{"name":"waittime","type":"option","char":"w","description":"(optional | Default: 10) The default wait time for all validation, deployment and test commands. The default is '10' for ten minutes but you can make this lower or higher for your project.","multiple":false},"declarativetestclass":{"name":"declarativetestclass","type":"option","char":"t","description":"(optional | Default: undefined) The test class to use when no test classes are provided. Mainly used for declarative changes that don't require specific code coverage.","multiple":false},"acceptdefaults":{"name":"acceptdefaults","type":"boolean","char":"a","description":"(optional) If provided only those items provided as a flag will be changed all others will be set to the default","allowNo":false},"overwrite":{"name":"overwrite","type":"boolean","char":"o","description":"(optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't want to be asked about overwriting it.","allowNo":false}},"args":[],"flagsConfig":{"primarybranch":{"kind":"string","char":"b","description":"(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.","input":[],"multiple":false,"type":"option"},"builddir":{"kind":"string","char":"d","description":"(optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.","input":[],"multiple":false,"type":"option"},"packagedir":{"kind":"string","char":"p","description":"(optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will always be placed in the default builddir or the one you indicated","input":[],"multiple":false,"type":"option"},"waittime":{"kind":"string","char":"w","description":"(optional | Default: 10) The default wait time for all validation, deployment and test commands. The default is '10' for ten minutes but you can make this lower or higher for your project.","input":[],"multiple":false,"type":"option"},"declarativetestclass":{"kind":"string","char":"t","description":"(optional | Default: undefined) The test class to use when no test classes are provided. Mainly used for declarative changes that don't require specific code coverage.","input":[],"multiple":false,"type":"option"},"acceptdefaults":{"kind":"boolean","char":"a","description":"(optional) If provided only those items provided as a flag will be changed all others will be set to the default","default":false,"allowNo":false,"type":"boolean"},"overwrite":{"kind":"boolean","char":"o","description":"(optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't want to be asked about overwriting it.","default":false,"allowNo":false,"type":"boolean"}},"requiresProject":true},"sfdx-affirm:suite":{"id":"sfdx-affirm:suite","description":"Creates a testSuite-meta.xml file with the provided list of tests.","strict":true,"usage":"<%= command.id %> [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:suite"],"examples":["$ sfdx affirm:suite\n    Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n    ","$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo\n    Found existing suite at force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n    ? Would you like to update the list of tests, overwrite it completely, or keep the current list and exit? Update\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n    ","$ sfdx affirm:suite --addtotests -t testClassNameOne,TestClassNameTwo\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"tests":{"name":"tests","type":"option","char":"t","description":"Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.","multiple":false},"name":{"name":"name","type":"option","char":"n","description":"Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'","multiple":false},"outputdir":{"name":"outputdir","type":"option","char":"o","description":"Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites","multiple":false},"addtotests":{"name":"addtotests","type":"boolean","char":"a","description":"Optional: Indicates that you would like the provided tests to be added to the existing test suite instead of overwriting it.","allowNo":false}},"args":[],"flagsConfig":{"tests":{"kind":"string","char":"t","description":"Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.","input":[],"multiple":false,"type":"option"},"name":{"kind":"string","char":"n","description":"Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'","input":[],"multiple":false,"type":"option"},"outputdir":{"kind":"string","char":"o","description":"Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites","input":[],"multiple":false,"type":"option"},"addtotests":{"kind":"boolean","char":"a","description":"Optional: Indicates that you would like the provided tests to be added to the existing test suite instead of overwriting it.","allowNo":false,"type":"boolean"}},"requiresProject":true},"sfdx-affirm:tests":{"id":"sfdx-affirm:tests","description":"Allows user to easily run the relevant tests for their current branch.","strict":true,"usage":"<%= command.id %> [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:tests"],"examples":["$ sfdx affirm:tests\n      (y/n) Are you sure you want to run tests against myOrg@example.com.sandbox?: y\n      Selected Org: myOrg@example.com.sandbox\n      (y/n) Could not find test suite for the current branch. Would you like to provide a list of test classes now?: y\n      Please provide a comma separated list of tests names: MyTestClassName,OtherTestClassName\n      Count of Test Classes: 2\n      Test Classes: MyTestClassName,OtherTestClassName\n      Running Tests... Done\n      Outcome: Passed\n      Tests Ran: 10\n      Passing: 10\n      Failing: 0\n      Skipped: 0\n      PassRate: 100%\n      FailRate: 0%\n      Test Total Time: 27317 ms\n      (y/n) Would you like to print the results of each test?: n\n    ","$ sfdx affirm:tests -u myOrg@example.com.sandbox\n      Selected Org: myOrg@example.com.sandbox\n      Found Test Suite for Current Branch: testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n      Count of Test Classes: 2\n      Test Classes: MyTestClassName,OtherTestClassName\n      Running Tests... Done\n      Outcome: Passed\n      Tests Ran: 16\n      Passing: 16\n      Failing: 0\n      Skipped: 0\n      PassRate: 100%\n      FailRate: 0%\n      Test Total Time: 72004 ms\n      (y/n) Would you like to print the results of each test?: n\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"targetusername":{"name":"targetusername","type":"option","char":"u","description":"username or alias for the target org; overrides default target org","multiple":false},"apiversion":{"name":"apiversion","type":"option","description":"override the api version used for api requests made by this command","multiple":false},"list":{"name":"list","type":"option","char":"l","description":"Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.","multiple":false},"waittime":{"name":"waittime","type":"option","char":"w","description":"The number of minutes to wait for the command to complete. The default is 10.","multiple":false},"printresults":{"name":"printresults","type":"boolean","char":"r","description":"If provided test results will be printed without being prompted.","allowNo":false},"alltestsuites":{"name":"alltestsuites","type":"boolean","char":"a","description":"(Optional) if provided then all changed or inserted test suites on the branch will be collected and their tests will be used. Otherwise, only the test suite with the matching branch name will be used.","allowNo":false},"saveresults":{"name":"saveresults","type":"boolean","char":"e","description":"(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printresults","allowNo":false},"silent":{"name":"silent","type":"boolean","char":"s","description":"(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.","allowNo":false},"showmore":{"name":"showmore","type":"boolean","char":"m","description":"(Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run","allowNo":false}},"args":[],"flagsConfig":{"list":{"kind":"string","char":"l","description":"Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.","input":[],"multiple":false,"type":"option"},"waittime":{"kind":"integer","char":"w","description":"The number of minutes to wait for the command to complete. The default is 10.","input":[],"multiple":false,"type":"option"},"printresults":{"kind":"boolean","char":"r","description":"If provided test results will be printed without being prompted.","allowNo":false,"type":"boolean"},"alltestsuites":{"kind":"boolean","char":"a","description":"(Optional) if provided then all changed or inserted test suites on the branch will be collected and their tests will be used. Otherwise, only the test suite with the matching branch name will be used.","default":false,"allowNo":false,"type":"boolean"},"saveresults":{"kind":"boolean","char":"e","description":"(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printresults","allowNo":false,"type":"boolean"},"silent":{"kind":"boolean","char":"s","description":"(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.","default":false,"allowNo":false,"type":"boolean"},"showmore":{"kind":"boolean","char":"m","description":"(Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run","default":false,"allowNo":false,"type":"boolean"}},"requiresProject":true,"supportsUsername":true},"sfdx-affirm:suite:merge":{"id":"sfdx-affirm:suite:merge","description":"Creates or Updates a testSuite-meta.xml file using the tests from all inserted or changed test suite files in the current branch","strict":true,"usage":"<%= command.id %> [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]","pluginName":"sfdx-affirm","pluginAlias":"sfdx-affirm","pluginType":"core","aliases":["affirm:suite:merge"],"examples":["$ sfdx affirm:suite:merge\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 3 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_3###_some_branch2.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/name-of-epic-branch.testSuite-meta.xml\n    ","$ sfdx affirm:suite:merge -n funky_suite_name\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 2 test suite(s) will me merged into the funky_suite_name test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml\n    ","$ sfdx affirm:suite:merge -o releaseArtifacts/tests\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 2 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml\n    "],"flags":{"json":{"name":"json","type":"boolean","description":"format output as json","allowNo":false},"loglevel":{"name":"loglevel","type":"option","description":"logging level for this command invocation","required":false,"helpValue":"(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)","multiple":false,"options":["trace","debug","info","warn","error","fatal","TRACE","DEBUG","INFO","WARN","ERROR","FATAL"],"default":"warn"},"name":{"name":"name","type":"option","char":"n","description":"Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'","multiple":false},"outputdir":{"name":"outputdir","type":"option","char":"o","description":"Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites","multiple":false},"inputdir":{"name":"inputdir","type":"option","char":"n","description":"Optional: the root directory to compare other than the sfdx-project.json default","multiple":false},"branch":{"name":"branch","type":"option","char":"b","description":"Optional: the branch other than remotes/origin/master to diff against","multiple":false},"list":{"name":"list","type":"boolean","char":"l","description":"Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed","allowNo":false}},"args":[],"flagsConfig":{"name":{"kind":"string","char":"n","description":"Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'","input":[],"multiple":false,"type":"option"},"outputdir":{"kind":"string","char":"o","description":"Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites","input":[],"multiple":false,"type":"option"},"inputdir":{"kind":"string","char":"n","description":"Optional: the root directory to compare other than the sfdx-project.json default","input":[],"multiple":false,"type":"option"},"branch":{"kind":"string","char":"b","description":"Optional: the branch other than remotes/origin/master to diff against","input":[],"multiple":false,"type":"option"},"list":{"kind":"boolean","char":"l","description":"Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed","default":false,"allowNo":false,"type":"boolean"}},"requiresProject":true}}}
+{
+  "version": "2.5.0",
+  "commands": {
+    "sfdx-affirm:audit": {
+      "id": "sfdx-affirm:audit",
+      "description": "Queries and downloads audit logs from the target org",
+      "strict": true,
+      "usage": "<%= command.id %> [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:audit"
+      ],
+      "examples": [
+        "$ sfdx affirm:place:audit\n      Running Command:\n      sfdx force:data:soql:query -q \"SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC\" -u defaultUser --json\n      Processing Query Results... Done. Found 1222 results\n      File Saved to: ./releaseArtifacts/auditResults/defaultUser/2021_08_27T17_26_15_429Z.json\n    ",
+        "$ sfdx affirm:place:audit -n 30 -p \"System Administrator\" -a caselayout -u aliasName\n      Running Command:\n      sfdx force:data:soql:query -q \"SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail\n      WHERE CreatedDate >= LAST_N_DAYS:30 AND Action LIKE '%caselayout%' AND CreatedBy.Profile.Name = 'System Administrator' ORDER BY CreatedDate DESC\" -u aliasName --json\n      Processing Query Results... Done. Found 45 results\n      File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        },
+        "action": {
+          "name": "action",
+          "type": "option",
+          "char": "a",
+          "description": "Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+          "required": false,
+          "multiple": false
+        },
+        "section": {
+          "name": "section",
+          "type": "option",
+          "char": "s",
+          "description": "Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.",
+          "required": false,
+          "multiple": false
+        },
+        "display": {
+          "name": "display",
+          "type": "option",
+          "char": "i",
+          "description": "Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.",
+          "required": false,
+          "multiple": false
+        },
+        "createdbyuser": {
+          "name": "createdbyuser",
+          "type": "option",
+          "char": "c",
+          "description": "Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+          "required": false,
+          "multiple": false
+        },
+        "createdbyprofile": {
+          "name": "createdbyprofile",
+          "type": "option",
+          "char": "p",
+          "description": "Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+          "required": false,
+          "multiple": false
+        },
+        "date": {
+          "name": "date",
+          "type": "option",
+          "char": "t",
+          "description": "Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'lastndays' flag.",
+          "required": false,
+          "multiple": false
+        },
+        "lastndays": {
+          "name": "lastndays",
+          "type": "option",
+          "char": "n",
+          "description": "Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'date' flag.",
+          "required": false,
+          "multiple": false
+        },
+        "where": {
+          "name": "where",
+          "type": "option",
+          "char": "w",
+          "description": "Optional: provide your own custom where clause. Can not be used with any of the other filter flags.",
+          "required": false,
+          "multiple": false
+        },
+        "savedir": {
+          "name": "savedir",
+          "type": "option",
+          "char": "d",
+          "description": "Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can not be used with the 'printonly' flag.",
+          "required": false,
+          "multiple": false
+        },
+        "printonly": {
+          "name": "printonly",
+          "type": "boolean",
+          "char": "o",
+          "description": "Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir' flag.",
+          "required": false,
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "action": {
+          "kind": "string",
+          "char": "a",
+          "description": "Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "section": {
+          "kind": "string",
+          "char": "s",
+          "description": "Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "display": {
+          "kind": "string",
+          "char": "i",
+          "description": "Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "createdbyuser": {
+          "kind": "string",
+          "char": "c",
+          "description": "Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "createdbyprofile": {
+          "kind": "string",
+          "char": "p",
+          "description": "Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "date": {
+          "kind": "string",
+          "char": "t",
+          "description": "Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'lastndays' flag.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "lastndays": {
+          "kind": "number",
+          "char": "n",
+          "description": "Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'date' flag.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "where": {
+          "kind": "string",
+          "char": "w",
+          "description": "Optional: provide your own custom where clause. Can not be used with any of the other filter flags.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "savedir": {
+          "kind": "string",
+          "char": "d",
+          "description": "Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can not be used with the 'printonly' flag.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "printonly": {
+          "kind": "boolean",
+          "char": "o",
+          "description": "Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir' flag.",
+          "required": false,
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "requiresProject": true,
+      "supportsUsername": true
+    },
+    "sfdx-affirm:changes": {
+      "id": "sfdx-affirm:changes",
+      "description": "returns a diff against the specified branch",
+      "strict": true,
+      "usage": "<%= command.id %> [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:changes"
+      ],
+      "examples": [
+        "$ sfdx affirm:changes\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls,MySecondClass.cls\n            INSERTION: MyTestClass.cls\n            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls\n        ",
+        "$ sfdx affirm:changes --showdestructive\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            DESTRUCTIVE: MyOldClass.cls\n        ",
+        "$ sfdx affirm:changes --showinsertion\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            INSERTION: MyTestClass.cls\n        ",
+        "$ sfdx affirm:changes --showchanged\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls\n        "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "branch": {
+          "name": "branch",
+          "type": "option",
+          "char": "b",
+          "description": "the branch other than remotes/origin/master to diff against",
+          "multiple": false
+        },
+        "inputdir": {
+          "name": "inputdir",
+          "type": "option",
+          "char": "n",
+          "description": "the root directory to compare other than the sfdx-project.json default",
+          "multiple": false
+        },
+        "showdestructive": {
+          "name": "showdestructive",
+          "type": "boolean",
+          "char": "d",
+          "description": "If provided alone shows destructive changes only.",
+          "allowNo": false
+        },
+        "showinsertion": {
+          "name": "showinsertion",
+          "type": "boolean",
+          "char": "i",
+          "description": "If provided alone shows insertion changes only.",
+          "allowNo": false
+        },
+        "showchanged": {
+          "name": "showchanged",
+          "type": "boolean",
+          "char": "c",
+          "description": "If provided alone shows changes only.",
+          "allowNo": false
+        },
+        "silent": {
+          "name": "silent",
+          "type": "boolean",
+          "char": "s",
+          "description": "runs without printing to console",
+          "allowNo": false
+        },
+        "outfilename": {
+          "name": "outfilename",
+          "type": "option",
+          "char": "o",
+          "description": "if provided results will be save to a file using the provided name as json",
+          "multiple": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "branch": {
+          "kind": "string",
+          "char": "b",
+          "description": "the branch other than remotes/origin/master to diff against",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "inputdir": {
+          "kind": "string",
+          "char": "n",
+          "description": "the root directory to compare other than the sfdx-project.json default",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "showdestructive": {
+          "kind": "boolean",
+          "char": "d",
+          "description": "If provided alone shows destructive changes only.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "showinsertion": {
+          "kind": "boolean",
+          "char": "i",
+          "description": "If provided alone shows insertion changes only.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "showchanged": {
+          "kind": "boolean",
+          "char": "c",
+          "description": "If provided alone shows changes only.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "silent": {
+          "kind": "boolean",
+          "char": "s",
+          "description": "runs without printing to console",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "outfilename": {
+          "kind": "string",
+          "char": "o",
+          "description": "if provided results will be save to a file using the provided name as json",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "requiresProject": true
+    },
+    "sfdx-affirm:faker": {
+      "id": "sfdx-affirm:faker",
+      "description": "returns a diff against the specified branch",
+      "strict": true,
+      "usage": "<%= command.id %> [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:faker"
+      ],
+      "examples": [
+        "$ sfdx affirm:changes\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls,MySecondClass.cls\n            INSERTION: MyTestClass.cls\n            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls\n        ",
+        "$ sfdx affirm:changes --showdestructive\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            DESTRUCTIVE: MyOldClass.cls\n        ",
+        "$ sfdx affirm:changes --showinsertion\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            INSERTION: MyTestClass.cls\n        ",
+        "$ sfdx affirm:changes --showchanged\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls\n        "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "branch": {
+          "name": "branch",
+          "type": "option",
+          "char": "b",
+          "description": "the branch other than remotes/origin/master to diff against",
+          "multiple": false
+        },
+        "inputdir": {
+          "name": "inputdir",
+          "type": "option",
+          "char": "n",
+          "description": "the root directory to compare other than the sfdx-project.json default",
+          "multiple": false
+        },
+        "showdestructive": {
+          "name": "showdestructive",
+          "type": "boolean",
+          "char": "d",
+          "description": "If provided alone shows destructive changes only.",
+          "allowNo": false
+        },
+        "showinsertion": {
+          "name": "showinsertion",
+          "type": "boolean",
+          "char": "i",
+          "description": "If provided alone shows insertion changes only.",
+          "allowNo": false
+        },
+        "showchanged": {
+          "name": "showchanged",
+          "type": "boolean",
+          "char": "c",
+          "description": "If provided alone shows changes only.",
+          "allowNo": false
+        },
+        "silent": {
+          "name": "silent",
+          "type": "boolean",
+          "char": "s",
+          "description": "runs without printing to console",
+          "allowNo": false
+        },
+        "outfilename": {
+          "name": "outfilename",
+          "type": "option",
+          "char": "o",
+          "description": "if provided results will be save to a file using the provided name as json",
+          "multiple": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "branch": {
+          "kind": "string",
+          "char": "b",
+          "description": "the branch other than remotes/origin/master to diff against",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "inputdir": {
+          "kind": "string",
+          "char": "n",
+          "description": "the root directory to compare other than the sfdx-project.json default",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "showdestructive": {
+          "kind": "boolean",
+          "char": "d",
+          "description": "If provided alone shows destructive changes only.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "showinsertion": {
+          "kind": "boolean",
+          "char": "i",
+          "description": "If provided alone shows insertion changes only.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "showchanged": {
+          "kind": "boolean",
+          "char": "c",
+          "description": "If provided alone shows changes only.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "silent": {
+          "kind": "boolean",
+          "char": "s",
+          "description": "runs without printing to console",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "outfilename": {
+          "kind": "string",
+          "char": "o",
+          "description": "if provided results will be save to a file using the provided name as json",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "requiresProject": true
+    },
+    "sfdx-affirm:form": {
+      "id": "sfdx-affirm:form",
+      "description": "Queries the provided org and tells you if it's a production org or sandbox",
+      "strict": true,
+      "usage": "<%= command.id %> [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:form"
+      ],
+      "examples": [
+        "$ sfdx affirm:place:form\n      Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u defaultOrgAlias --json\n      Organization.IsSandbox = true\n      Org defaultOrgAlias is a Sandbox instance\n    ",
+        "$ sfdx affirm:place:form -u prodAlias\n      Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u prodAlias --json\n      Organization.IsSandbox = false\n      Org prodAlias is a Production instance\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        }
+      },
+      "args": {},
+      "requiresProject": true,
+      "supportsUsername": true
+    },
+    "sfdx-affirm:jwt": {
+      "id": "sfdx-affirm:jwt",
+      "description": "Creates a JWT token that can be used to auth against a connected app.",
+      "strict": true,
+      "usage": "<%= command.id %> -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:jwt"
+      ],
+      "examples": [
+        "$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com -a https://login.salesforce.com\n      Token Created:\n      eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT\n    ",
+        "$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com.test -a https://test.salesforce.com -e 1\n      Token Created:\n      eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "privatekey": {
+          "name": "privatekey",
+          "type": "option",
+          "char": "p",
+          "description": "the location of the private key",
+          "required": true,
+          "multiple": false
+        },
+        "iss": {
+          "name": "iss",
+          "type": "option",
+          "char": "i",
+          "description": "The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.",
+          "required": true,
+          "multiple": false
+        },
+        "sub": {
+          "name": "sub",
+          "type": "option",
+          "char": "s",
+          "description": "The subject must contain the username of the user if implementing for an Experience Cloud site.",
+          "required": true,
+          "multiple": false
+        },
+        "aud": {
+          "name": "aud",
+          "type": "option",
+          "char": "a",
+          "description": "The audience identifies the authorization server as an intended audience. The authorization server must verify that it’s an intended audience for the token. Use the authorization server’s URL for the audience value: https://login.salesforce.com, https://test.salesforce.com, or https://site.force.com/customers if implementing for an Experience Cloud site.",
+          "required": true,
+          "multiple": false
+        },
+        "exp": {
+          "name": "exp",
+          "type": "option",
+          "char": "e",
+          "description": "Optional: (Default: 3) The validity must be the expiration time of the assertion within 3 minutes.",
+          "required": false,
+          "multiple": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "privatekey": {
+          "kind": "string",
+          "char": "p",
+          "description": "the location of the private key",
+          "required": true,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "iss": {
+          "kind": "string",
+          "char": "i",
+          "description": "The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.",
+          "required": true,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "sub": {
+          "kind": "string",
+          "char": "s",
+          "description": "The subject must contain the username of the user if implementing for an Experience Cloud site.",
+          "required": true,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "aud": {
+          "kind": "string",
+          "char": "a",
+          "description": "The audience identifies the authorization server as an intended audience. The authorization server must verify that it’s an intended audience for the token. Use the authorization server’s URL for the audience value: https://login.salesforce.com, https://test.salesforce.com, or https://site.force.com/customers if implementing for an Experience Cloud site.",
+          "required": true,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "exp": {
+          "kind": "number",
+          "char": "e",
+          "description": "Optional: (Default: 3) The validity must be the expiration time of the assertion within 3 minutes.",
+          "required": false,
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "requiresProject": true
+    },
+    "sfdx-affirm:open": {
+      "id": "sfdx-affirm:open",
+      "description": "Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page in Lightning.",
+      "strict": true,
+      "usage": "<%= command.id %> [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:open",
+        "a:o"
+      ],
+      "examples": [
+        "$ sfdx affirm:open\n        Opening Setup Home in Production Org: defaultOrg\n        Done\n        ",
+        "$ sfdx affirm:open --profile -u sandboxAlias\n        Opening Profile List Views in Sandbox Org: sandboxAlias\n        Done\n        ",
+        "$ sfdx affirm:open -e --verbose\n        (y/n) Are you sure you want to use the \"defaultOrg\" org ?: y\n        Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u defaultOrg --json\n        Opening Email Deliverability Settings in Production Org: defaultOrg\n        Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json\n        Done\n        ",
+        "$ sfdx affirm:open -e --verbose\n        (y/n) Are you sure you want to use the \"defaultOrg\" org ?: y\n        Running Command: sfdx force:data:soql:query -q \"SELECT Id, IsSandbox FROM Organization LIMIT 1\" -u defaultOrg --json\n        Opening Email Deliverability Settings in Production Org: defaultOrg\n        Running Command: sfdx force:org:open -p lightning/setup/OrgEmailSettings/home -u defaultOrg  --json\n        Done\n        ",
+        "$ sfdx affirm:open --deployment -i 0Af6S00000pzZSS\n        Opening Deployment Status in Production Org: defaultOrg\n        Done\n        "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        },
+        "email": {
+          "name": "email",
+          "type": "boolean",
+          "char": "e",
+          "description": "Optional Path | Opens directly to Email Deliverability Settings",
+          "allowNo": false
+        },
+        "network": {
+          "name": "network",
+          "type": "boolean",
+          "char": "n",
+          "description": "Optional Path | Opens directly to Digital Experiences",
+          "allowNo": false
+        },
+        "deployment": {
+          "name": "deployment",
+          "type": "boolean",
+          "char": "d",
+          "description": "Optional Path | Supports Id | Opens directly to Deployment status.",
+          "allowNo": false
+        },
+        "profile": {
+          "name": "profile",
+          "type": "boolean",
+          "char": "p",
+          "description": "Optional Path | Supports Id | Opens directly to Profile List Views",
+          "allowNo": false
+        },
+        "id": {
+          "name": "id",
+          "type": "option",
+          "char": "i",
+          "description": "Optional | if provided with a Path Flag that supports Id the specific record will be opened rather than the path home page.",
+          "multiple": false
+        },
+        "urlonly": {
+          "name": "urlonly",
+          "type": "boolean",
+          "char": "o",
+          "description": "Optional | If provided the page will not be opened in a browser it will just be printed in the terminal.",
+          "allowNo": false
+        },
+        "displayurl": {
+          "name": "displayurl",
+          "type": "boolean",
+          "char": "d",
+          "description": "Optional | If provided the url will be printed in the terminal.",
+          "allowNo": false
+        },
+        "classic": {
+          "name": "classic",
+          "type": "boolean",
+          "char": "c",
+          "description": "Optional | if provided the page will open in Classic otherwise it opens in Lightning by default.",
+          "allowNo": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "emit additional command output to stdout",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "email": {
+          "kind": "boolean",
+          "char": "e",
+          "description": "Optional Path | Opens directly to Email Deliverability Settings",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "network": {
+          "kind": "boolean",
+          "char": "n",
+          "description": "Optional Path | Opens directly to Digital Experiences",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "deployment": {
+          "kind": "boolean",
+          "char": "d",
+          "description": "Optional Path | Supports Id | Opens directly to Deployment status.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "profile": {
+          "kind": "boolean",
+          "char": "p",
+          "description": "Optional Path | Supports Id | Opens directly to Profile List Views",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "id": {
+          "kind": "string",
+          "char": "i",
+          "description": "Optional | if provided with a Path Flag that supports Id the specific record will be opened rather than the path home page.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "urlonly": {
+          "kind": "boolean",
+          "char": "o",
+          "description": "Optional | If provided the page will not be opened in a browser it will just be printed in the terminal.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "displayurl": {
+          "kind": "boolean",
+          "char": "d",
+          "description": "Optional | If provided the url will be printed in the terminal.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "classic": {
+          "kind": "boolean",
+          "char": "c",
+          "description": "Optional | if provided the page will open in Classic otherwise it opens in Lightning by default.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "verbose": {
+          "type": "boolean",
+          "kind": "boolean",
+          "description": "emit additional command output to stdout",
+          "longDescription": "Emit additional command output to stdout.",
+          "allowNo": false
+        }
+      },
+      "requiresProject": true,
+      "supportsUsername": true
+    },
+    "sfdx-affirm:parcel": {
+      "id": "sfdx-affirm:parcel",
+      "description": "Creates a parcel (package) using git diff",
+      "strict": true,
+      "usage": "<%= command.id %> [-b <string>] [-i <string>] [-p <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:parcel"
+      ],
+      "examples": [
+        "$ sfdx affirm:parcel\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/master...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      (y/n) There are 7 destructive changes. Create destructive changes xml file? y\n      ? Select when the destructive changes should be deployed: before\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    ",
+        "$ sfdx affirm:parcel -d -t before\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/master...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        },
+        "branch": {
+          "name": "branch",
+          "type": "option",
+          "char": "b",
+          "description": "The branch other than remotes/origin/master to diff against",
+          "multiple": false
+        },
+        "inputdir": {
+          "name": "inputdir",
+          "type": "option",
+          "char": "i",
+          "description": "The root directory get the source tracked files from. Defaults to the path indicated as default in sfdx-project.json.",
+          "multiple": false
+        },
+        "packagename": {
+          "name": "packagename",
+          "type": "option",
+          "char": "p",
+          "description": "The output directory to store the Metadata API–formatted metadata files in. Use affirm:setup to configure the default.",
+          "multiple": false
+        },
+        "includedestructive": {
+          "name": "includedestructive",
+          "type": "boolean",
+          "char": "d",
+          "description": "If provided and there are destructive changes you will not be asked if you want to include them",
+          "allowNo": false
+        },
+        "destructivetiming": {
+          "name": "destructivetiming",
+          "type": "option",
+          "char": "t",
+          "description": "Allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after",
+          "multiple": false,
+          "options": [
+            "before",
+            "after"
+          ]
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "branch": {
+          "kind": "string",
+          "char": "b",
+          "description": "The branch other than remotes/origin/master to diff against",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "inputdir": {
+          "kind": "string",
+          "char": "i",
+          "description": "The root directory get the source tracked files from. Defaults to the path indicated as default in sfdx-project.json.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "packagename": {
+          "kind": "string",
+          "char": "p",
+          "description": "The output directory to store the Metadata API–formatted metadata files in. Use affirm:setup to configure the default.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "includedestructive": {
+          "kind": "boolean",
+          "char": "d",
+          "description": "If provided and there are destructive changes you will not be asked if you want to include them",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "destructivetiming": {
+          "kind": "string",
+          "char": "t",
+          "description": "Allows you to indicate if you want to process the destructive changes before or after the deployment. options: before, after",
+          "options": [
+            "before",
+            "after"
+          ],
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "requiresProject": true,
+      "requiresUsername": true,
+      "supportsUsername": true
+    },
+    "sfdx-affirm:place": {
+      "id": "sfdx-affirm:place",
+      "description": "Deploys a Package to the specific place",
+      "strict": true,
+      "usage": "<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:place"
+      ],
+      "examples": [
+        "$ sfdx affirm:place"
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        },
+        "packagedir": {
+          "name": "packagedir",
+          "type": "option",
+          "char": "d",
+          "description": "The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.",
+          "multiple": false
+        },
+        "testclasses": {
+          "name": "testclasses",
+          "type": "option",
+          "char": "t",
+          "description": "Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.",
+          "multiple": false
+        },
+        "silent": {
+          "name": "silent",
+          "type": "boolean",
+          "char": "s",
+          "description": "If provided, you will not be prompted at all for input. If correct input isn't provided command fails.",
+          "allowNo": false
+        },
+        "waittime": {
+          "name": "waittime",
+          "type": "option",
+          "char": "w",
+          "description": "The number of minutes to wait for the command to complete. The default is 10.",
+          "multiple": false
+        },
+        "noresults": {
+          "name": "noresults",
+          "type": "boolean",
+          "char": "r",
+          "description": "If provided, you will not be asked if you would like to print the component details or test details after validation completes.",
+          "allowNo": false
+        },
+        "openstatus": {
+          "name": "openstatus",
+          "type": "boolean",
+          "char": "o",
+          "description": "If provided, the deployment status page will be opened in the default or specified org.",
+          "allowNo": false
+        },
+        "saveresults": {
+          "name": "saveresults",
+          "type": "boolean",
+          "char": "e",
+          "description": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
+          "allowNo": false
+        },
+        "printall": {
+          "name": "printall",
+          "type": "boolean",
+          "char": "p",
+          "description": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
+          "allowNo": false
+        },
+        "notestsrun": {
+          "name": "notestsrun",
+          "type": "boolean",
+          "char": "n",
+          "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "packagedir": {
+          "kind": "string",
+          "char": "d",
+          "description": "The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to confirm the path provided before continuing.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "testclasses": {
+          "kind": "string",
+          "char": "t",
+          "description": "Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate without tests before continuing without tests.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "silent": {
+          "kind": "boolean",
+          "char": "s",
+          "description": "If provided, you will not be prompted at all for input. If correct input isn't provided command fails.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "waittime": {
+          "kind": "integer",
+          "char": "w",
+          "description": "The number of minutes to wait for the command to complete. The default is 10.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "noresults": {
+          "kind": "boolean",
+          "char": "r",
+          "description": "If provided, you will not be asked if you would like to print the component details or test details after validation completes.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "openstatus": {
+          "kind": "boolean",
+          "char": "o",
+          "description": "If provided, the deployment status page will be opened in the default or specified org.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "saveresults": {
+          "kind": "boolean",
+          "char": "e",
+          "description": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "printall": {
+          "kind": "boolean",
+          "char": "p",
+          "description": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "notestsrun": {
+          "kind": "boolean",
+          "char": "n",
+          "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "supportsUsername": true,
+      "requiresProject": true
+    },
+    "sfdx-affirm:quality": {
+      "id": "sfdx-affirm:quality",
+      "description": "Validates a package against the provided org",
+      "strict": true,
+      "usage": "<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:quality"
+      ],
+      "examples": [
+        "$ sfdx affirm:quality\n      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y\n      Selected Org: myOrg@example.com.sandbox\n      (y/n) Are you sure you want to validate the package located in the \"releaseArtifacts/parcel\" folder?: y\n      Package Directory: \"releaseArtifacts/parcel\"\n      (y/n) Are you sure you want to validate without running any tests?: y\n      Validating without test classes!\n      Validating Package... Succeeded\n      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA\n      Total Components: 761\n      Component Deployed: 761\n      Component With Errors: 0\n      ? Would you like to print or save the any of the validation results? No\n  ",
+        "$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r\n      Selected Org: myOrg@example.com.sandbox\n      (y/n) Are you sure you want to validate the package located in the \"releaseArtifacts/parcel\" folder?: y\n      Package Directory: \"releaseArtifacts/parcel\"\n      Validating Using Provided Classes: MyTestClass,OtherTestClass\n      Validating Package... Succeeded\n      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA\n      Total Components: 761\n      Component Deployed: 761\n      Component With Errors: 0\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        },
+        "packagedir": {
+          "name": "packagedir",
+          "type": "option",
+          "char": "d",
+          "description": "(Optional) The root of the directory tree that contains the files to validate. The root must contain a valid package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from AffirmSettings.",
+          "multiple": false
+        },
+        "testclasses": {
+          "name": "testclasses",
+          "type": "option",
+          "char": "t",
+          "description": "(Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites found in the 'packagedir' will be use. If none are found and target org is production the default 'declarativeTestClass' is used if one is set.",
+          "multiple": false
+        },
+        "silent": {
+          "name": "silent",
+          "type": "boolean",
+          "char": "s",
+          "description": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+          "allowNo": false
+        },
+        "waittime": {
+          "name": "waittime",
+          "type": "option",
+          "char": "w",
+          "description": "(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.",
+          "multiple": false
+        },
+        "noresults": {
+          "name": "noresults",
+          "type": "boolean",
+          "char": "r",
+          "description": "(Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print results. Can not be used with --printall or --saveresults.",
+          "allowNo": false
+        },
+        "saveresults": {
+          "name": "saveresults",
+          "type": "boolean",
+          "char": "e",
+          "description": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
+          "allowNo": false
+        },
+        "printall": {
+          "name": "printall",
+          "type": "boolean",
+          "char": "p",
+          "description": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
+          "allowNo": false
+        },
+        "openstatus": {
+          "name": "openstatus",
+          "type": "boolean",
+          "char": "o",
+          "description": "(Optional) if provided the deployment status page will be opened in the default or specified org.",
+          "allowNo": false
+        },
+        "notestsrun": {
+          "name": "notestsrun",
+          "type": "boolean",
+          "char": "n",
+          "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "packagedir": {
+          "kind": "string",
+          "char": "d",
+          "description": "(Optional) The root of the directory tree that contains the files to validate. The root must contain a valid package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from AffirmSettings.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "testclasses": {
+          "kind": "string",
+          "char": "t",
+          "description": "(Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites found in the 'packagedir' will be use. If none are found and target org is production the default 'declarativeTestClass' is used if one is set.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "silent": {
+          "kind": "boolean",
+          "char": "s",
+          "description": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "waittime": {
+          "kind": "integer",
+          "char": "w",
+          "description": "(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "noresults": {
+          "kind": "boolean",
+          "char": "r",
+          "description": "(Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print results. Can not be used with --printall or --saveresults.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "saveresults": {
+          "kind": "boolean",
+          "char": "e",
+          "description": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "printall": {
+          "kind": "boolean",
+          "char": "p",
+          "description": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "openstatus": {
+          "kind": "boolean",
+          "char": "o",
+          "description": "(Optional) if provided the deployment status page will be opened in the default or specified org.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "notestsrun": {
+          "kind": "boolean",
+          "char": "n",
+          "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "supportsUsername": true,
+      "requiresProject": true
+    },
+    "sfdx-affirm:setup": {
+      "id": "sfdx-affirm:setup",
+      "description": "Allows users to configure project specific settings for Affirm",
+      "strict": true,
+      "usage": "<%= command.id %> [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:setup"
+      ],
+      "examples": [
+        "$ sfdx affirm:setup\n      Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main\n      Primary Branch set to:  remotes/origin/main\n      Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: .superArtifacts\n      Build Directory set to:  .superArtifacts\n      Provide default directory name for new packages  [parcel]: pack\n      Package Directory set to:  pack\n      Provide default wait time for async commands  [10]: 5\n      Wait Time set to:  5\n      Provide the name of a test class you would like to run for declarative dev by default if no test suite is created : Test_DeclarativeDefault\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    ",
+        "$ sfdx affirm:setup -b remotes/origin/main -d .superArtifacts -p pack -w 5 -t Test_DeclarativeDefault -o\n      Primary Branch set to:  remotes/origin/main\n      Build Directory set to:  .superArtifacts\n      Package Directory set to:  pack\n      Wait Time set to:  5\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "primarybranch": {
+          "name": "primarybranch",
+          "type": "option",
+          "char": "b",
+          "description": "(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.",
+          "multiple": false
+        },
+        "affirmdir": {
+          "name": "affirmdir",
+          "type": "option",
+          "char": "d",
+          "description": "(optional | Default: releaseArtifacts) The directory where Affirm will save the results of your command. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
+          "multiple": false
+        },
+        "packagename": {
+          "name": "packagename",
+          "type": "option",
+          "char": "p",
+          "description": "(optional | Default: parcel) The default directory name for new packages. This folder will always be placed in the ./affirmdir/packages/ directory.",
+          "multiple": false
+        },
+        "waittime": {
+          "name": "waittime",
+          "type": "option",
+          "char": "w",
+          "description": "(optional | Default: 10) The default wait time for all validation, deployment and test commands. The default is '10' for ten minutes but you can make this lower or higher for your project.",
+          "multiple": false
+        },
+        "declarativetestclass": {
+          "name": "declarativetestclass",
+          "type": "option",
+          "char": "t",
+          "description": "(optional | Default: undefined) The test class to use when no test classes are provided. Mainly used for declarative changes that don't require specific code coverage.",
+          "multiple": false
+        },
+        "acceptdefaults": {
+          "name": "acceptdefaults",
+          "type": "boolean",
+          "char": "a",
+          "description": "(optional) If provided only those items provided as a flag will be changed all others will be set to the default",
+          "allowNo": false
+        },
+        "overwrite": {
+          "name": "overwrite",
+          "type": "boolean",
+          "char": "o",
+          "description": "(optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't want to be asked about overwriting it.",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "primarybranch": {
+          "kind": "string",
+          "char": "b",
+          "description": "(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "affirmdir": {
+          "kind": "string",
+          "char": "d",
+          "description": "(optional | Default: releaseArtifacts) The directory where Affirm will save the results of your command. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "packagename": {
+          "kind": "string",
+          "char": "p",
+          "description": "(optional | Default: parcel) The default directory name for new packages. This folder will always be placed in the ./affirmdir/packages/ directory.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "waittime": {
+          "kind": "string",
+          "char": "w",
+          "description": "(optional | Default: 10) The default wait time for all validation, deployment and test commands. The default is '10' for ten minutes but you can make this lower or higher for your project.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "declarativetestclass": {
+          "kind": "string",
+          "char": "t",
+          "description": "(optional | Default: undefined) The test class to use when no test classes are provided. Mainly used for declarative changes that don't require specific code coverage.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "acceptdefaults": {
+          "kind": "boolean",
+          "char": "a",
+          "description": "(optional) If provided only those items provided as a flag will be changed all others will be set to the default",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "overwrite": {
+          "kind": "boolean",
+          "char": "o",
+          "description": "(optional) Provide this if you already have a sfdx-affirm.json file in your root project directory and you don't want to be asked about overwriting it.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "requiresProject": true
+    },
+    "sfdx-affirm:suite": {
+      "id": "sfdx-affirm:suite",
+      "description": "Creates a testSuite-meta.xml file with the provided list of tests.",
+      "strict": true,
+      "usage": "<%= command.id %> [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:suite"
+      ],
+      "examples": [
+        "$ sfdx affirm:suite\n    Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n    ",
+        "$ sfdx affirm:suite --tests testClassNameOne,TestClassNameTwo\n    Found existing suite at force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n    ? Would you like to update the list of tests, overwrite it completely, or keep the current list and exit? Update\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n    ",
+        "$ sfdx affirm:suite --addtotests -t testClassNameOne,TestClassNameTwo\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "tests": {
+          "name": "tests",
+          "type": "option",
+          "char": "t",
+          "description": "Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.",
+          "multiple": false
+        },
+        "name": {
+          "name": "name",
+          "type": "option",
+          "char": "n",
+          "description": "Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'",
+          "multiple": false
+        },
+        "outputdir": {
+          "name": "outputdir",
+          "type": "option",
+          "char": "o",
+          "description": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites",
+          "multiple": false
+        },
+        "addtotests": {
+          "name": "addtotests",
+          "type": "boolean",
+          "char": "a",
+          "description": "Optional: Indicates that you would like the provided tests to be added to the existing test suite instead of overwriting it.",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "tests": {
+          "kind": "string",
+          "char": "t",
+          "description": "Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "name": {
+          "kind": "string",
+          "char": "n",
+          "description": "Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "outputdir": {
+          "kind": "string",
+          "char": "o",
+          "description": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "addtotests": {
+          "kind": "boolean",
+          "char": "a",
+          "description": "Optional: Indicates that you would like the provided tests to be added to the existing test suite instead of overwriting it.",
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "requiresProject": true
+    },
+    "sfdx-affirm:tests": {
+      "id": "sfdx-affirm:tests",
+      "description": "Allows user to easily run the relevant tests for their current branch.",
+      "strict": true,
+      "usage": "<%= command.id %> [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:tests"
+      ],
+      "examples": [
+        "$ sfdx affirm:tests\n      (y/n) Are you sure you want to run tests against myOrg@example.com.sandbox?: y\n      Selected Org: myOrg@example.com.sandbox\n      (y/n) Could not find test suite for the current branch. Would you like to provide a list of test classes now?: y\n      Please provide a comma separated list of tests names: MyTestClassName,OtherTestClassName\n      Count of Test Classes: 2\n      Test Classes: MyTestClassName,OtherTestClassName\n      Running Tests... Done\n      Outcome: Passed\n      Tests Ran: 10\n      Passing: 10\n      Failing: 0\n      Skipped: 0\n      PassRate: 100%\n      FailRate: 0%\n      Test Total Time: 27317 ms\n      (y/n) Would you like to print the results of each test?: n\n    ",
+        "$ sfdx affirm:tests -u myOrg@example.com.sandbox\n      Selected Org: myOrg@example.com.sandbox\n      Found Test Suite for Current Branch: testSuites/pjname_XXXX_name_of_branch.testSuite-meta.xml\n      Count of Test Classes: 2\n      Test Classes: MyTestClassName,OtherTestClassName\n      Running Tests... Done\n      Outcome: Passed\n      Tests Ran: 16\n      Passing: 16\n      Failing: 0\n      Skipped: 0\n      PassRate: 100%\n      FailRate: 0%\n      Test Total Time: 72004 ms\n      (y/n) Would you like to print the results of each test?: n\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "targetusername": {
+          "name": "targetusername",
+          "type": "option",
+          "char": "u",
+          "description": "username or alias for the target org; overrides default target org",
+          "multiple": false
+        },
+        "apiversion": {
+          "name": "apiversion",
+          "type": "option",
+          "description": "override the api version used for api requests made by this command",
+          "multiple": false
+        },
+        "list": {
+          "name": "list",
+          "type": "option",
+          "char": "l",
+          "description": "Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.",
+          "multiple": false
+        },
+        "waittime": {
+          "name": "waittime",
+          "type": "option",
+          "char": "w",
+          "description": "The number of minutes to wait for the command to complete. The default is 10.",
+          "multiple": false
+        },
+        "printresults": {
+          "name": "printresults",
+          "type": "boolean",
+          "char": "r",
+          "description": "If provided test results will be printed without being prompted.",
+          "allowNo": false
+        },
+        "alltestsuites": {
+          "name": "alltestsuites",
+          "type": "boolean",
+          "char": "a",
+          "description": "(Optional) if provided then all changed or inserted test suites on the branch will be collected and their tests will be used. Otherwise, only the test suite with the matching branch name will be used.",
+          "allowNo": false
+        },
+        "saveresults": {
+          "name": "saveresults",
+          "type": "boolean",
+          "char": "e",
+          "description": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printresults",
+          "allowNo": false
+        },
+        "silent": {
+          "name": "silent",
+          "type": "boolean",
+          "char": "s",
+          "description": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+          "allowNo": false
+        },
+        "showmore": {
+          "name": "showmore",
+          "type": "boolean",
+          "char": "m",
+          "description": "(Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "list": {
+          "kind": "string",
+          "char": "l",
+          "description": "Comma separated list of tests names that will be used to create the test suite. If none are provided you will be asked to provide a list or exit.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "waittime": {
+          "kind": "integer",
+          "char": "w",
+          "description": "The number of minutes to wait for the command to complete. The default is 10.",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "printresults": {
+          "kind": "boolean",
+          "char": "r",
+          "description": "If provided test results will be printed without being prompted.",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "alltestsuites": {
+          "kind": "boolean",
+          "char": "a",
+          "description": "(Optional) if provided then all changed or inserted test suites on the branch will be collected and their tests will be used. Otherwise, only the test suite with the matching branch name will be used.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "saveresults": {
+          "kind": "boolean",
+          "char": "e",
+          "description": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printresults",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "silent": {
+          "kind": "boolean",
+          "char": "s",
+          "description": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "showmore": {
+          "kind": "boolean",
+          "char": "m",
+          "description": "(Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "requiresProject": true,
+      "requiresUsername": true,
+      "supportsUsername": true
+    },
+    "sfdx-affirm:suite:merge": {
+      "id": "sfdx-affirm:suite:merge",
+      "description": "Creates or Updates a testSuite-meta.xml file using the tests from all inserted or changed test suite files in the current branch",
+      "strict": true,
+      "usage": "<%= command.id %> [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "pluginName": "sfdx-affirm",
+      "pluginAlias": "sfdx-affirm",
+      "pluginType": "core",
+      "aliases": [
+        "affirm:suite:merge"
+      ],
+      "examples": [
+        "$ sfdx affirm:suite:merge\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 3 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_3###_some_branch2.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/name-of-epic-branch.testSuite-meta.xml\n    ",
+        "$ sfdx affirm:suite:merge -n funky_suite_name\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 2 test suite(s) will me merged into the funky_suite_name test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml\n    ",
+        "$ sfdx affirm:suite:merge -o releaseArtifacts/tests\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 2 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml\n    "
+      ],
+      "flags": {
+        "json": {
+          "name": "json",
+          "type": "boolean",
+          "description": "format output as json",
+          "allowNo": false
+        },
+        "loglevel": {
+          "name": "loglevel",
+          "type": "option",
+          "description": "logging level for this command invocation",
+          "required": false,
+          "helpValue": "(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)",
+          "multiple": false,
+          "options": [
+            "trace",
+            "debug",
+            "info",
+            "warn",
+            "error",
+            "fatal",
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "WARN",
+            "ERROR",
+            "FATAL"
+          ],
+          "default": "warn"
+        },
+        "name": {
+          "name": "name",
+          "type": "option",
+          "char": "n",
+          "description": "Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'",
+          "multiple": false
+        },
+        "outputdir": {
+          "name": "outputdir",
+          "type": "option",
+          "char": "o",
+          "description": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites",
+          "multiple": false
+        },
+        "inputdir": {
+          "name": "inputdir",
+          "type": "option",
+          "char": "n",
+          "description": "Optional: the root directory to compare other than the sfdx-project.json default",
+          "multiple": false
+        },
+        "branch": {
+          "name": "branch",
+          "type": "option",
+          "char": "b",
+          "description": "Optional: the branch other than remotes/origin/master to diff against",
+          "multiple": false
+        },
+        "list": {
+          "name": "list",
+          "type": "boolean",
+          "char": "l",
+          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed",
+          "allowNo": false
+        }
+      },
+      "args": {},
+      "flagsConfig": {
+        "name": {
+          "kind": "string",
+          "char": "n",
+          "description": "Optional: Provide if you would like to define the name of your test suite. Default: name of current branch minus 'feature/'",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "outputdir": {
+          "kind": "string",
+          "char": "o",
+          "description": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "inputdir": {
+          "kind": "string",
+          "char": "n",
+          "description": "Optional: the root directory to compare other than the sfdx-project.json default",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "branch": {
+          "kind": "string",
+          "char": "b",
+          "description": "Optional: the branch other than remotes/origin/master to diff against",
+          "input": [],
+          "multiple": false,
+          "type": "option"
+        },
+        "list": {
+          "kind": "boolean",
+          "char": "l",
+          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        }
+      },
+      "requiresProject": true
+    }
+  }
+}
