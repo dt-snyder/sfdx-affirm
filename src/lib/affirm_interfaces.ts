@@ -105,7 +105,7 @@ export interface AffirmSettings {
   primaryBranch: string | undefined,
   buildDirectory: string | undefined,
   packageDirectory: string | undefined,
-  waitTime: string | undefined
+  waitTime: number | undefined
   declarativeTestClass: string | undefined
 }
 

@@ -223,6 +223,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
   const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
   if (allTests) { // use found tests
     testsToReturn = Array.from(allTests).join(',');
+    ux.log(chalk.yellow('Found test suite(s) in parcel.'));
   } else {
     if (isSandbox) { // org is sandbox
       if (!settings.declarativeTestClass && silent === false) { // no default... ask
@@ -250,6 +251,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
         }
       } else if (settings.declarativeTestClass && silent) { // has default... just use it
         testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
+        ux.log(chalk.yellow('Found default declarative test class in AffirmSettings'));
       }
     } else if (!isSandbox) { // is production
       ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
@@ -266,6 +268,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
         }
       } else if (settings.declarativeTestClass && silent) { // has default... just use it
         testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
+        ux.log(chalk.yellow('Found default declarative test class in AffirmSettings'));
       }
       if (!testsToReturn) { // no tests provided for prod.... throw error
         throw new SfError(messages.getMessage('productionRequiresTestClasses'));
@@ -316,7 +319,7 @@ export async function verifyUsername(username?: string, ux?: UX): Promise<string
     usernameToReturn = defaultUsername;
   } else {
     // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
-    const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`))) as object;
+    const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`, ux))) as object;
     let foundUsername = false;
     orgList['result']['nonScratchOrgs'].forEach(org => {
       if (org['alias'] === username || org['username'] === username) {

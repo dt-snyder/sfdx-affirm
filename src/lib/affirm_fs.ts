@@ -6,6 +6,7 @@ import { UX } from '@salesforce/command';
 import { SfError, Messages } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata, AffirmSettings } from './affirm_interfaces';
 import { getAffirmSettings } from './affirm_settings';
+import { AnyJson } from '@salesforce/ts-types';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // TODO: add https://www.npmjs.com/package/extract-zip for zipping and unzipping packages
 Messages.importMessagesDirectory(__dirname);
@@ -34,7 +35,7 @@ export async function getPrintableDiffObject(diff: DiffObj) {
   return printableDiff;
 }
 
-export async function fsSaveJson(fileName: string, json: object, ux?: UX) {
+export async function fsSaveJson(fileName: string, json: AnyJson, ux?: UX) {
   const saveToFile = `./${fileName}.json`;
   await fs.outputJson(saveToFile, json);
   if (ux) ux.log(`File Saved to: ${chalk.underline.blue(saveToFile)}`);

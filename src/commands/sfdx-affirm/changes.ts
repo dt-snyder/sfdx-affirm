@@ -1,6 +1,6 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfProjectJson } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
+import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
 import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
@@ -83,7 +83,7 @@ export default class Changes extends SfdxCommand {
     // save the changes to a json file if the user tell us to
     const saveToFile = this.flags.outfilename;
     if (saveToFile) {
-      await fsSaveJson(saveToFile, printableDiff, this.ux);
+      await fsSaveJson(saveToFile, ensureAnyJson(printableDiff), this.ux);
     }
     return JSON.stringify(result);
   }

@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, SfdxCommand, FlagsConfig } from '@salesforce/command';
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
@@ -6,9 +6,10 @@ import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChang
 import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../lib/affirm_sfcore';
 import { runCommand } from '../../lib/sfdx';
 import { AffirmSettings, DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
-import { printBranchesCompared, getYNString } from '../../lib/affirm_lift';
+import { printBranchesCompared, getYNString, verifyUsername } from '../../lib/affirm_lift';
 import * as inquirer from 'inquirer'
 import { getAffirmSettings } from '../../lib/affirm_settings';
+import { describeMetadata } from '../../lib/affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -44,12 +45,13 @@ export default class Parcel extends SfdxCommand {
 
   // public static args = [{ branch: 'file' }];
 
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'i', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
     includedestructive: flags.boolean({ char: 'd', description: messages.getMessage('includedestructiveFlagDescription') }),
-    destructivetiming: flags.string({ char: 't', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] })
+    destructivetiming: flags.string({ char: 't', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] }),
+    verbose: flags.builtin()
   };
 
   // command requires a project workspace
@@ -66,6 +68,7 @@ export default class Parcel extends SfdxCommand {
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+    const verbose = this.flags.verbose ? this.ux : undefined;
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
@@ -81,9 +84,9 @@ export default class Parcel extends SfdxCommand {
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
     await sfcoreFindOrAddReleasePath(pjtJson, settings.buildDirectory);
+    const username = await verifyUsername(this.flags.targetusername);
     // clone the files to a temp folder for convert... will clean this up later
-    // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
-    const metaDataTypes: DescribeMetadata = (await runCommand('sfdx force:mdapi:describemetadata')).result as unknown as DescribeMetadata;
+    const metaDataTypes: DescribeMetadata = await describeMetadata(username, verbose);
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);
     const logYN = await getYNString();
     // convert the temp folder to a package
@@ -91,8 +94,7 @@ export default class Parcel extends SfdxCommand {
       this.ux.stopSpinner(`Success: ${chalk.greenBright(fsFilesMoved)} files ready for convert`);
       this.ux.startSpinner('Converting');
       const inputDir = `${settings.buildDirectory}/tempParcel/force-app`;
-      // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
-      await runCommand(`sfdx force:source:convert -d ${outputdir} -r ${inputDir}`, this.ux);
+      await runCommand(`sfdx force:source:convert -d ${outputdir} -r ${inputDir}`, verbose);
       this.ux.stopSpinner(`Success: Package Created at ${chalk.underline.blue(outputdir)}`);
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');

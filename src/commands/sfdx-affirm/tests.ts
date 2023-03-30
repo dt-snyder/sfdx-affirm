@@ -1,6 +1,6 @@
 import { flags, SfdxCommand } from '@salesforce/command';
 import { Messages, SfError, SfProjectJson } from "@salesforce/core";
-import { AnyJson } from "@salesforce/ts-types";
+import { AnyJson, ensureAnyJson, getJsonMap } from "@salesforce/ts-types";
 import { fsSaveJson } from "../../lib/affirm_fs";
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from "../../lib/affirm_git";
 import { AffirmSettings, DiffObj, SfdxTestResult } from "../../lib/affirm_interfaces";
@@ -68,7 +68,7 @@ export default class Tests extends SfdxCommand {
     alltestsuites: flags.boolean({ char: "a", description: messages.getMessage("alltestsuitesFlagDescription"), default: false, }),
     saveresults: flags.boolean({ char: "e", description: messages.getMessage("saveresultsFlagDescription"), }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
-    showmore: flags.boolean({ char: 'm', description: messages.getMessage('showmoreFlagDescription'), default: false }),
+    verbose: flags.builtin()
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
@@ -138,17 +138,14 @@ export default class Tests extends SfdxCommand {
     } else {
       this.ux.log("Test Classes: " + chalk.cyan(testsToUse));
     }
+    const verbose = this.flags.verbose ? this.ux : undefined;
     const waittime = this.flags.waittime || settings.waitTime;
     // run force:apex:test:run command
     this.ux.startSpinner("Running Tests");
+    // TODO: removed ${waittime} from testCommand and implement runAsynCommand
     const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`;
-    let testResults;
-    // TODO: make this work with a different flag name
-    if (this.flags.showmore) {
-      testResults = (await runCommand(testCommand), this.ux) as unknown as SfdxTestResult;
-    } else {
-      testResults = (await runCommand(testCommand)) as unknown as SfdxTestResult;
-    }
+    const testCommandResults = getJsonMap((await runCommand(testCommand, verbose)), 'results');
+    const testResults: SfdxTestResult = testCommandResults as unknown as SfdxTestResult;
 
     this.ux.stopSpinner("Done");
     // this.ux.logJson(testResults.tests);
@@ -191,7 +188,7 @@ export default class Tests extends SfdxCommand {
       const dateString = await getAffirmFormattedDate();
       const currentBranchName = await getCurrentBranchName();
       const fileName = `${settings.buildDirectory}/testResults/${username}/${dateString}_${currentBranchName}`;
-      await fsSaveJson(fileName, testResults as object, this.ux);
+      await fsSaveJson(fileName, ensureAnyJson(testResults), this.ux);
     }
     return testResults as unknown as AnyJson;
   }

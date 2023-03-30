@@ -14,5 +14,6 @@
   "errorNoGitRepo": "Your current directory does not have a git repo setup.",
   "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo.",
   "errorResultsFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again.",
-  "errorTestFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again."
+  "errorTestFlags": "Flags --noresults, --saveresults, and/or --printall can not be used together. Pick one and try again.",
+  "errorNoTestProvidedForProd": "In order to validate against prod you must provide at least one test class."
 }

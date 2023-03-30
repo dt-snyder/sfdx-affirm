@@ -45,7 +45,7 @@ export default class Setup extends SfdxCommand {
     primarybranch: flags.string({ char: 'b', description: messages.getMessage('primarybranchFlagDescription') }),
     builddir: flags.string({ char: 'd', description: messages.getMessage('builddirFlagDescription') }),
     packagedir: flags.string({ char: 'p', description: messages.getMessage('packagedirFlagDescription') }),
-    waittime: flags.string({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
+    waittime: flags.number({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
     declarativetestclass: flags.string({ char: 't', description: messages.getMessage('declarativetestclassFlagDescription') }),
     acceptdefaults: flags.boolean({ char: 'a', description: messages.getMessage('acceptdefaultsFlagDescription'), default: false }),
     overwrite: flags.boolean({ char: 'o', description: messages.getMessage('overwriteFlagDescription'), default: false })
@@ -71,7 +71,8 @@ export default class Setup extends SfdxCommand {
     if (packageDirectory) {
       settings.packageDirectory = packageDirectory;
     }
-    const waitTime = await confirmAndUpdateSettings(settings, 'waitTime', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.waittime);
+    const waitTimeString = await confirmAndUpdateSettings(settings, 'waitTime', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.waittime);
+    const waitTime: number = +waitTimeString;
     if (waitTime) {
       settings.waitTime = waitTime;
     }

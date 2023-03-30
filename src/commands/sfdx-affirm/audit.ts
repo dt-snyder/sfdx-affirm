@@ -1,5 +1,5 @@
 import { flags, SfdxCommand } from '@salesforce/command';
-import { AnyJson, asJsonArray, ensureJsonMap, JsonMap } from '@salesforce/ts-types';
+import { AnyJson, asJsonArray, ensureAnyJson, ensureJsonMap, JsonMap } from '@salesforce/ts-types';
 import { Messages, SfError } from '@salesforce/core';
 import { sfdxQuery } from '../../lib/affirm_sfdx';
 import { verifyUsername } from '../../lib/affirm_lift';
@@ -143,10 +143,10 @@ export default class Audit extends SfdxCommand {
         const cleanUserName = username.trim();
         const fileName = (this.flags.savedir) ? `${this.flags.savedir}/${(new Date).toJSON()}` : `${settings.buildDirectory}/auditResults/${cleanUserName}/${dateString}`;
         this.ux.stopSpinner(`Done. Found ${resultList.length} results`);
-        await fsSaveJson(fileName, auditResult, this.ux);
+        await fsSaveJson(fileName, ensureAnyJson(auditResult), this.ux);
       }
     }
-    return JSON.stringify(response);
+    return ensureAnyJson(response);
   }
 }
 

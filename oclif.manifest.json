@@ -948,7 +948,7 @@
       "id": "sfdx-affirm:parcel",
       "description": "Creates a parcel (package) using git diff",
       "strict": true,
-      "usage": "<%= command.id %> [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -1040,6 +1040,12 @@
             "before",
             "after"
           ]
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "emit additional command output to stdout",
+          "allowNo": false
         }
       },
       "args": {},
@@ -1086,6 +1092,13 @@
           "input": [],
           "multiple": false,
           "type": "option"
+        },
+        "verbose": {
+          "type": "boolean",
+          "kind": "boolean",
+          "description": "emit additional command output to stdout",
+          "longDescription": "Emit additional command output to stdout.",
+          "allowNo": false
         }
       },
       "requiresProject": true,
@@ -1290,7 +1303,7 @@
       "id": "sfdx-affirm:quality",
       "description": "Validates a package against the provided org",
       "strict": true,
-      "usage": "<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <number>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -1406,6 +1419,12 @@
           "char": "n",
           "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
           "allowNo": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "emit additional command output to stdout",
+          "allowNo": false
         }
       },
       "args": {},
@@ -1435,7 +1454,7 @@
           "type": "boolean"
         },
         "waittime": {
-          "kind": "integer",
+          "kind": "number",
           "char": "w",
           "description": "(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.",
           "input": [],
@@ -1476,6 +1495,13 @@
           "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
           "allowNo": false,
           "type": "boolean"
+        },
+        "verbose": {
+          "type": "boolean",
+          "kind": "boolean",
+          "description": "emit additional command output to stdout",
+          "longDescription": "Emit additional command output to stdout.",
+          "allowNo": false
         }
       },
       "supportsUsername": true,
@@ -1485,7 +1511,7 @@
       "id": "sfdx-affirm:setup",
       "description": "Allows users to configure project specific settings for Affirm",
       "strict": true,
-      "usage": "<%= command.id %> [-b <string>] [-d <string>] [-p <string>] [-w <string>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-b <string>] [-d <string>] [-p <string>] [-w <number>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -1603,7 +1629,7 @@
           "type": "option"
         },
         "waittime": {
-          "kind": "string",
+          "kind": "number",
           "char": "w",
           "description": "(optional | Default: 10) The default wait time for all validation, deployment and test commands. The default is '10' for ten minutes but you can make this lower or higher for your project.",
           "input": [],
@@ -1752,7 +1778,7 @@
       "id": "sfdx-affirm:tests",
       "description": "Allows user to easily run the relevant tests for their current branch.",
       "strict": true,
-      "usage": "<%= command.id %> [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-m] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -1848,11 +1874,10 @@
           "description": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
           "allowNo": false
         },
-        "showmore": {
-          "name": "showmore",
+        "verbose": {
+          "name": "verbose",
           "type": "boolean",
-          "char": "m",
-          "description": "(Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run",
+          "description": "emit additional command output to stdout",
           "allowNo": false
         }
       },
@@ -1904,13 +1929,12 @@
           "allowNo": false,
           "type": "boolean"
         },
-        "showmore": {
+        "verbose": {
+          "type": "boolean",
           "kind": "boolean",
-          "char": "m",
-          "description": "(Optional) if provided each of the sfdx commands run by this command will be printed to the terminal when run",
-          "default": false,
-          "allowNo": false,
-          "type": "boolean"
+          "description": "emit additional command output to stdout",
+          "longDescription": "Emit additional command output to stdout.",
+          "allowNo": false
         }
       },
       "requiresProject": true,
