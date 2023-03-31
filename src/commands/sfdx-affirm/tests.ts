@@ -6,11 +6,12 @@ import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from "../../lib/affir
 import { AffirmSettings, DiffObj, SfdxTestResult } from "../../lib/affirm_interfaces";
 import { CliUx } from '@oclif/core';
 import {
-  liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getAffirmFormattedDate
+  liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getAffirmFormattedDate, verifyUsername
 } from "../../lib/affirm_lift";
 import { getAffirmSettings } from "../../lib/affirm_settings";
 import { sfcoreGetDefaultPath } from "../../lib/affirm_sfcore";
 import { runCommand } from "../../lib/sfdx";
+import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
 const chalk = require("chalk"); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 
@@ -84,67 +85,56 @@ export default class Tests extends SfdxCommand {
       throw new SfError(messages.getMessage('errorConflictingUseTestFlags'));
     }
     const settings: AffirmSettings = await getAffirmSettings();
-    const inputUsername = this.flags.targetusername;
+
+    const verbose = this.flags.verbose ? this.ux : undefined;
     const logYN = await getYNString();
-    await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    let inputdir;
-    if (this.flags.alltestsuites) {
-      const sfPjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
-      inputdir = await sfcoreGetDefaultPath(sfPjtJson);
-    }
+
     const silent = this.flags.silent;
-    let username;
-    const pjtJson = await this.project.resolveProjectConfig();
-    if (!inputUsername && !silent) {
-      const confirmUserName =
-        logYN +
-        " Are you sure you want to run tests against " +
-        chalk.cyanBright(pjtJson.defaultusername) +
-        "?";
-      const proceedWithDefault = await this.ux.confirm(confirmUserName);
-      if (!proceedWithDefault) return { packageValidated: false, message: "user said no to default username" };
-      username = pjtJson.defaultusername;
-    } else if (!inputUsername && silent) {
-      username = pjtJson.defaultusername;
-    } else {
-      username = inputUsername;
-    }
-    this.ux.log("Selected Org: " + chalk.greenBright(username));
+    const username = await verifyUsername(this.flags.targetusername, (silent === true ? undefined : this.ux));
+    const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
+    const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
+    this.ux.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
     // if the user provides tests then skip getting them from the suite
     const list = this.flags.list;
     let testsToUse;
     if (!list) {
       if (this.flags.alltestsuites) {
-        const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, inputdir);
+        // make sure we are in a repo and that it has a remote set
+        await getRemoteInfo();
+        // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
+        const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
+        const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+        const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, defaultPath);
         const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult);
         const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
         testsToUse = Array.from(allTests).join(",");
       } else {
-        testsToUse = await getTestsFromSuiteOrUser(this.ux);
+        testsToUse = await getTestsFromSuiteOrUser(this.ux, silent);
         if (!testsToUse) {
-          this.ux.log("End Command");
+          this.ux.log("End Command. No Tests Provided");
           return { result: "User ended Command" };
         }
       }
     } else {
       testsToUse = await liftCleanProvidedTests(list);
     }
-    const numberOfTests = testsToUse.split(",").length;
+    const numberOfTests = (testsToUse) ? testsToUse.split(",").length : 0;
     this.ux.log("Count of Test Classes: " + chalk.green(numberOfTests));
     if (numberOfTests > 10 && !silent) {
       const youSure = await this.ux.confirm(`${logYN} Are you sure that you want to run the test methods in all ${chalk.yellow(numberOfTests)} test classes?`);
       if (!youSure) return { result: "User ended Command" };
+    } else if (numberOfTests === 0) {
+      this.ux.log("End Command. No Tests Provided or Found");
+      return { result: "NO TESTS PROVIDED OR FOUND" };
     } else {
       this.ux.log("Test Classes: " + chalk.cyan(testsToUse));
     }
-    const verbose = this.flags.verbose ? this.ux : undefined;
-    const waittime = this.flags.waittime || settings.waitTime;
+    const waitTime = this.flags.waittime === undefined ? settings.waitTime : this.flags.waittime;
     // run force:apex:test:run command
     this.ux.startSpinner("Running Tests");
-    // TODO: removed ${waittime} from testCommand and implement runAsynCommand
-    const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -n ${testsToUse} -u ${username} -w ${waittime}`;
-    const testCommandResults = getJsonMap((await runCommand(testCommand, verbose)), 'results');
+    const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -c -n ${testsToUse} -u ${username} -w ${waitTime}`;
+    const testCommandResults = getJsonMap((await runCommand(testCommand, verbose)), 'result');
     const testResults: SfdxTestResult = testCommandResults as unknown as SfdxTestResult;
 
     this.ux.stopSpinner("Done");

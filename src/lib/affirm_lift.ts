@@ -184,8 +184,8 @@ export async function getTestsFromParcel(ux: UX, silent?: boolean) {
   return testsToReturn;
 }
 
-export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean) {
-  let testsToReturn;
+export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean): Promise<string> {
+  let testsToReturn: string;
   // get current branch name
   const currentBranch = await getCurrentBranchName();
   const defaultFileName = await liftShortBranchName(currentBranch, 25);
