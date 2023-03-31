@@ -1,0 +1,19 @@
+{
+  "commandDescription": "Deploys a Package to the specific place",
+  "packagedirFlagDescription": "(Optional) The root of the directory tree that contains the files to validate. The root must contain a valid package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from AffirmSettings.",
+  "testclassesFlagDescription": "(Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites found in the 'packagedir' will be use. If none are found and target org is production the default 'declarativeTestClass' is NOT used.",
+  "silentFlagDescription": "(Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.",
+  "waittimeFlagDescription": "(Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.",
+  "noresultsFlagDescription": "(Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print results. Can not be used with --printall or --saveresults.",
+  "saveresultsFlagDescription": "(Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall or --noresults.",
+  "printallFlagDescription": "(Optional) if provided the results will be printed to the console. Can not be used with --saveresults or --noresults.",
+  "openstatusFlagDescription": "(Optional) if provided the deployment status page will be opened in the default or specified org.",
+  "notestsrunFlagDescription": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
+  "errorNoTestAndTestList": "You can not provide a list of tests (--testclasses) and no test run flag (--notestsrun). Please try again.",
+  "errorMustRunTestsInProd": "You can not use the --notestsrun flag when deploying to a production instance",
+  "errorNoTestsFoundProdBuild": "Could not find any tests to use and none were provided. You must provide tests for a production deployment",
+  "errorDefaultPathPackageMissing": "could not find a package at the default path. Make sure you run affirm:parcel first.",
+  "errorPackageMissing": "could not find a package at the specified path. Make sure the value provided --packagedirectory is spelled correctly or run affirm:parcel first.",
+  "errorNoGitRepo": "Your current directory does not have a git repo setup.",
+  "errorNoGitRemote": "Your current directory does not have a remote git repo set. Specify a local branch or config a remote repo."
+}

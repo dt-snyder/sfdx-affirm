@@ -5,7 +5,8 @@
   "outputdirFlagDescription": "Optional: Provide if you would like to save the testSuite-meta.xml file to a location other than force-app/main/default/testSuites",
   "inputdirFlagDescription": "Optional: the root directory to compare other than the sfdx-project.json default",
   "branchFlagDescription": "Optional: the branch other than remotes/origin/master to diff against",
-  "listFlagDescription": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed",
+  "listFlagDescription": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed one at a time to the terminal",
+  "stringFlagDescription": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed as a single string using a comma to separate.",
   "errorNameIsToLong": "The provided file name is either too long or the branch name has a large string not separated by '-'. Please try again and provide a name shorter than 35 characters.",
   "errorNoToFileName": "The provided Comma separated list of tests names includes '.cls'. This is not allowed.",
   "errorUnknown": "There was an unknown error. Try again or submit a bug report."

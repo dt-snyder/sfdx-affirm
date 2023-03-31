@@ -1,0 +1,17 @@
+{
+  "commandFlagDescription": "Open setup page(s) in the specified org. Running the command without flags will Open your current orgs Setup Home page in Lightning.",
+  "emailFlagDescription": "Optional Path | Opens directly to Email Deliverability Settings",
+  "networkFlagDescription": "Optional Path | Opens directly to Digital Experiences",
+  "deploymentFlagDescription": "Optional Path | Supports Id | Opens directly to Deployment status.",
+  "profileFlagDescription": "Optional Path | Supports Id | Opens directly to Profile List Views",
+  "idFlagDescription": "Optional | if provided with a Path Flag that supports Id the specific record will be opened rather than the path home page.",
+  "classicDescription": "Optional | if provided the page will open in Classic otherwise it opens in Lightning by default.",
+  "displayurlFlagDescription": "Optional | If provided the url will be printed in the terminal.",
+  "urlonlyFlagDescription": "Optional | If provided the page will not be opened in a browser it will just be printed in the terminal.",
+  "toManyFlagsEmailErrorFlag": "The --email can not be used with the --network, --deployment, or --profile flags. Please try again.",
+  "toManyFlagsProfileErrorFlag": "The --profile can not be used with the --email, --deployment, or --network flags. Please try again.",
+  "toManyFlagsDeployErrorFlag": "The --deployment can not be used with the --email, --profile, or --network flags. Please try again.",
+  "toManyFlagsNetworkErrorFlag": "The --network can not be used with the --email, --deployment, or --profile flags. Please try again.",
+  "idFlagUnsupportedErrorFlag": "The provided path flag does not support ids"
+}
+

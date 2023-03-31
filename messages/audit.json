@@ -1,0 +1,16 @@
+{
+  "commandDescription": "Queries and downloads audit logs from the target org",
+  "actionFlagDescription": "Optional: Adds `Action LIKE '%PROVIDED_VALUE%'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+  "sectionFlagDescription": "Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Section` field.",
+  "displayFlagDescription": "Optional: Filters all returned records by looking for the provided string in the `SetupAuditTrail.Display` field.",
+  "createdbyuserFlagDescription": "Optional: Adds `CreatedBy.Username = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+  "createdbyprofileFlagDescription": "Optional: Adds `CreatedBy.Profile.Name = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag.",
+  "dateFlagDescription": "Optional: Adds `DAY_ONLY(CreatedDate) = 'PROVIDED_VALUE'` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'lastndays' flag.",
+  "lastndaysFlagDescription": "Optional: Adds `CreatedDate <= LAST_N_DAYS:PROVIDED_VALUE` to the queries WHERE statement. Can not be used with the 'where' flag. Can not be used with the 'date' flag.",
+  "whereFlagDescription": "Optional: provide your own custom where clause. Can not be used with any of the other filter flags.",
+  "savedirFlagDescription": "Optional: Provide if you would like to save the file to a directory other than the projects 'buildDirectory'. Can not be used with the 'printonly' flag.",
+  "printonlyFlagDescription": "Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir' flag.",
+  "errorDateAndDays": "You provided both a specific date and a lastndays value. Only one of these can be used at a time.",
+  "errorPrintAndSave": "You requested that the results be printed only and provided a save directory. Only one of these flags can be specified at a time.",
+  "errorWhereAndFilters": "You provided a custom where statement and specific filters. Either use your own where clause or let the command build it. It can't do both."
+}

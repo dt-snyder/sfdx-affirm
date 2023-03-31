@@ -1,11 +1,12 @@
-import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
+import { Messages, SfProjectJson } from '@salesforce/core';
+import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
 import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
-import { DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
+import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
+import { getAffirmSettings } from '../../lib/affirm_settings';
 
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
@@ -44,7 +45,7 @@ export default class Changes extends SfdxCommand {
   ];
 
   // public static args = [{ branch: 'file', silent: 'boolean', outfilename: 'file' }];
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     // flag with a value (-n, --name=VALUE)
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
@@ -59,16 +60,16 @@ export default class Changes extends SfdxCommand {
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const project = await SfdxProject.resolve();
-    const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // compare the current branch to the provided or default branch
-    const branch = this.flags.branch || 'remotes/origin/master';
+    const branch = this.flags.branch || settings.primaryBranch;
     const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     const result: DiffObj = await gitDiffSum(branch, inputdir);
@@ -82,7 +83,7 @@ export default class Changes extends SfdxCommand {
     // save the changes to a json file if the user tell us to
     const saveToFile = this.flags.outfilename;
     if (saveToFile) {
-      await fsSaveJson(saveToFile, printableDiff, this.ux);
+      await fsSaveJson(saveToFile, ensureAnyJson(printableDiff), this.ux);
     }
     return JSON.stringify(result);
   }

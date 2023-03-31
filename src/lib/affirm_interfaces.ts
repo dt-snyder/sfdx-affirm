@@ -1,5 +1,5 @@
 // Use this file to store all custom interfaces
-import { AnyJson } from '@salesforce/ts-types';
+import { AnyJson, JsonMap } from '@salesforce/ts-types';
 export interface DiffObj {
   changed: Set<String>;
   insertion: Set<String>;
@@ -100,3 +100,59 @@ export interface SfdxTestApexClass {
   Name: string,
   NamespacePrefix: string | undefined | null
 }
+
+export interface AffirmSettings {
+  primaryBranch: string | undefined,
+  buildDirectory: string | undefined,
+  packageDirectory: string | undefined,
+  waitTime: number | undefined
+  declarativeTestClass: string | undefined
+}
+
+export interface SfdxOrgOpenResult {
+  orgId: string,
+  url: string,
+  username: string
+}
+
+export interface AffirmAuditConfig {
+  dateOfRun: string,
+  username: string,
+  queryUsed: string,
+  totalResults: number,
+  filteredResults: number,
+  actionFlag: string | undefined,
+  sectionFlag: string | undefined,
+  displayFlag: string | undefined,
+  createdbyuserFlag: string | undefined,
+  createdbyprofileFlag: string | undefined,
+  dateFlag: string | undefined,
+  lastndaysFlag: string | undefined,
+  savedirFlag: string | undefined,
+  printonlyFlag: string | undefined,
+  whereFlag: string | undefined
+}
+
+export interface AffirmAuditResult {
+  currentRunConfiguration: AffirmAuditConfig,
+  results: Array<JsonMap>
+}
+
+export interface AffirmOpenLocation {
+  displayName: string,
+  classic: string,
+  lightning: string,
+  supportsId: boolean,
+  classicIdPath?: string,
+  lightningIdPath?: string
+}
+
+export interface AffirmOpenLocations {
+  home: AffirmOpenLocation,
+  network: AffirmOpenLocation,
+  deployment: AffirmOpenLocation,
+  profile: AffirmOpenLocation,
+  email: AffirmOpenLocation,
+}
+
+

@@ -1,0 +1,3 @@
+{
+  "commandDescription": "Queries the provided org and tells you if it's a production org or sandbox"
+}

@@ -3,6 +3,15 @@
 /.nyc_output
 /dist
 /lib
-/package-lock.json
 /tmp
 node_modules
+/package-lock.json
+
+# for yarn >v2
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

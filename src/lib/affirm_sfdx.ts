@@ -1,19 +1,31 @@
 // Use this file to store all SFDX commands that are run using util.promisify(child.exec)
-// import * as child from 'child_process';
-// import * as util from 'util';
-// import { SfdxError } from '@salesforce/core';
-// import { DescribeMetadata } from './affirm_interfaces';
-// import { sleep } from './affirm_lift';
-// import { AnyJson, ensureString, ensureAnyJson } from '@salesforce/ts-types';
-// import { UX } from '@salesforce/command';
-// import { runCommand } from './sfdx';
-// import { AnyJson, JsonMap } from '@salesforce/ts-types';
-// import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, WhatToPrint } from './affirm_interfaces';
-// const exec = util.promisify(child.exec);
-// TODO: move reporting of wait time based on id here for both test and deploy. Either have been built yet.
+import { runCommand } from './sfdx';
+import { UX } from '@salesforce/command';
+import { AnyJson, ensureAnyJson, ensureJsonMap, get } from '@salesforce/ts-types';
+import { DescribeMetadata } from './affirm_interfaces';
 
-// TODO: remove timeToWait, get Id, then run force:mdapi:deploy:report, to print and update a progress bar
+export async function sfdxOpenToPath(username: string, path: string, urlonly?: boolean, ux?: UX): Promise<AnyJson> {
+  let urlOnly = urlonly ? ' -r ' : '';
+  const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:org:open -p ${path} -u ${username} ${urlOnly}`, ux)));
+  return response;
+}
+
+export async function sfdxGetIsSandbox(username: string, ux?: UX): Promise<boolean> {
+  const response: AnyJson = (await runCommand(`sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u ${username} --json`, ux));
+  const booleanToReturn: boolean = get(response, 'result.records[0].IsSandbox') as boolean;
+  return booleanToReturn;
+}
+
+export async function sfdxQuery(username: string, query: string, ux?: UX): Promise<AnyJson> {
+  const response: AnyJson = ensureJsonMap(ensureAnyJson((await runCommand(`sfdx force:data:soql:query -q "${query}" -u ${username} --json`, ux))));
+  return response;
+}
+
+export async function describeMetadata(username: string, ux?: UX): Promise<DescribeMetadata> {
+  const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:mdapi:describemetadata -u ${username} --json`, ux)));
+  const toReturn: DescribeMetadata = get(response, 'result') as DescribeMetadata;
+  return toReturn;
+}
 
 
-// TODO: remove timeToWait, get Id, then run force:apex:test:report, to print and update a progress bar
 

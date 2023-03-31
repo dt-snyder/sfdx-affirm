@@ -8,5 +8,9 @@
   "errorMdapiValidateFailed": "The validation failed.",
   "errorNoToFileName": "The provided Comma separated list of tests names includes '.cls'. This is not allowed.",
   "alphanumericSuiteNameIssue": "The name of your suite is to powerful. Try again and provide a name that only contains alphanumeric characters.",
-  "startswithLetterSuiteNameIssue": "The name of your suite is to powerful. Try again and provide a name that begins with a letter."
+  "startswithLetterSuiteNameIssue": "The name of your suite is to powerful. Try again and provide a name that begins with a letter.",
+  "noTestProvidedAfterRequest": "You did not provide any tests after indicating that you wanted too.",
+  "productionRequiresTestClasses": "You must provide at least one test class when validating or deploying to a production org.",
+  "noToDefaultUserName": "You must provide a valid username/org for this command.",
+  "couldNotFindProvidedUsername": "Could not find the provided username in SFDX."
 }

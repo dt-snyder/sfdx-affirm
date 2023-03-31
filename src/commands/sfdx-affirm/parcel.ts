@@ -1,15 +1,16 @@
-import { flags, SfdxCommand } from '@salesforce/command';
-import { Messages, SfdxProject, SfdxProjectJson } from '@salesforce/core';
-import { AnyJson, ensureString } from '@salesforce/ts-types';
+import { flags, SfdxCommand, FlagsConfig } from '@salesforce/command';
+import { Messages, SfProjectJson } from '@salesforce/core';
+import { AnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../lib/affirm_sfcore';
 import { runCommand } from '../../lib/sfdx';
-import { DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
-import { printBranchesCompared, getYNString } from '../../lib/affirm_lift';
+import { AffirmSettings, DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
+import { printBranchesCompared, getYNString, verifyUsername } from '../../lib/affirm_lift';
 import * as inquirer from 'inquirer'
+import { getAffirmSettings } from '../../lib/affirm_settings';
+import { describeMetadata } from '../../lib/affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
-
 // Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
 // Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
@@ -28,7 +29,7 @@ export default class Parcel extends SfdxCommand {
       Converting... Success
       (y/n) There are 7 destructive changes. Create destructive changes xml file? y
       ? Select when the destructive changes should be deployed: before
-      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `,
     `$ sfdx affirm:parcel -d -t before
@@ -37,20 +38,20 @@ export default class Parcel extends SfdxCommand {
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
-      Creating Destructive Package... Success: Created at .releaseArtifacts/parcel/destructiveChangesPre.xml
+      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml
       Cleaning Up... Success
     `
   ];
 
   // public static args = [{ branch: 'file' }];
 
-  protected static flagsConfig = {
-    // flag with a value (-n, --name=VALUE)
+  protected static flagsConfig: FlagsConfig = {
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'i', description: messages.getMessage('inputdirFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
     includedestructive: flags.boolean({ char: 'd', description: messages.getMessage('includedestructiveFlagDescription') }),
-    destructivetiming: flags.string({ char: 't', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] })
+    destructivetiming: flags.string({ char: 't', description: messages.getMessage('destructivetimingFlagDescription'), options: ['before', 'after'] }),
+    verbose: flags.builtin()
   };
 
   // command requires a project workspace
@@ -60,38 +61,41 @@ export default class Parcel extends SfdxCommand {
   protected static supportsUsername = true;
 
   public async run(): Promise<AnyJson> {
+    const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(this.ux);
-    const branch = this.flags.branch || 'remotes/origin/master';
+    const branch = this.flags.branch || settings.primaryBranch;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const project = await SfdxProject.resolve();
-    const pjtJson: SfdxProjectJson = await project.retrieveSfdxProjectJson();
+    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+    const verbose = this.flags.verbose ? this.ux : undefined;
     const inputdir = this.flags.inputdir || defaultPath;
     await sfcoreIsPathProject(pjtJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
-    const outputdir = this.flags.outputdir ? '.releaseArtifacts/' + this.flags.outputdir : '.releaseArtifacts/parcel';
+    const outputdir = this.flags.outputdir ? `${settings.buildDirectory}/${this.flags.outputdir}` : `${settings.buildDirectory}/${settings.packageDirectory}`;
     // tell user what we are going to run git diff on and do it
     const currentBranch = await getCurrentBranchName();
     await printBranchesCompared(this.ux, branch, currentBranch);
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
-    this.ux.log('Changes: ' + chalk.yellow(diffResult.changed.size) + ', Insertions: ' + chalk.green(diffResult.insertion.size) + ', Destructive: ' + chalk.red(diffResult.destructive.size));
+    this.ux.log(`Changes: ${chalk.yellow(diffResult.changed.size)}, Insertions: ${chalk.green(diffResult.insertion.size)}, Destructive: ${chalk.red(diffResult.destructive.size)}`);
     this.ux.startSpinner('Cloning Files');
     // ensure that the users provided dir name doesn't contain an existing files. We don't want any left over metadata from previous converts
     await fsCleanProvidedOutputDir(outputdir);
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
-    await sfcoreFindOrAddReleasePath(pjtJson);
+    await sfcoreFindOrAddReleasePath(pjtJson, settings.buildDirectory);
+    const username = await verifyUsername(this.flags.targetusername);
     // clone the files to a temp folder for convert... will clean this up later
-    const metaDataTypes: DescribeMetadata = await runCommand('sfdx force:mdapi:describemetadata') as unknown as DescribeMetadata;
+    const metaDataTypes: DescribeMetadata = await describeMetadata(username, verbose);
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);
     const logYN = await getYNString();
     // convert the temp folder to a package
     if (fsFilesMoved > 0) {
-      this.ux.stopSpinner('Success: ' + chalk.greenBright(fsFilesMoved) + ' files ready for convert');
+      this.ux.stopSpinner(`Success: ${chalk.greenBright(fsFilesMoved)} files ready for convert`);
       this.ux.startSpinner('Converting');
-      ensureString((await runCommand(`sfdx force:source:convert -d ${outputdir} -r .releaseArtifacts/tempParcel/force-app`)).location, 'Failed to convert to package');
-      this.ux.stopSpinner('Success: Package Created at ' + chalk.underline.blue(outputdir));
+      const inputDir = `${settings.buildDirectory}/tempParcel/force-app`;
+      await runCommand(`sfdx force:source:convert -d ${outputdir} -r ${inputDir}`, verbose);
+      this.ux.stopSpinner(`Success: Package Created at ${chalk.underline.blue(outputdir)}`);
     } else {
       this.ux.stopSpinner('Success: zero files needed to be cloned');
     }
@@ -100,7 +104,7 @@ export default class Parcel extends SfdxCommand {
     let includeDestructivePrompt;
     if (diffResult.destructive.size > 0) {
       if (!includedestructive) {
-        const destructiveChangeMessage = logYN + ' There are ' + chalk.red(diffResult.destructive.size) + ' destructive changes. Create destructive changes xml file?';
+        const destructiveChangeMessage = `${logYN} There are ${chalk.red(diffResult.destructive.size)} destructive changes. Create destructive changes xml file?`;
         includeDestructivePrompt = await this.ux.confirm(destructiveChangeMessage);
       }
       if (includedestructive || includeDestructivePrompt) {
@@ -120,12 +124,10 @@ export default class Parcel extends SfdxCommand {
         this.ux.stopSpinner('Success: Created at ' + chalk.underline.blue(outputFileName));
       }
     }
-    // TODO: add support for zipping the package
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
     this.ux.startSpinner('Cleaning Up');
     await fsCleanupTempDirectory();
-    await sfcoreRemoveReleasePath(pjtJson);
-    // TODO: delete the package folder if it's zipped cause we don't need two folders
+    await sfcoreRemoveReleasePath(pjtJson, settings.buildDirectory);
     this.ux.stopSpinner('Success');
     return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, includeDestructive: includedestructive || includeDestructivePrompt };
   }
