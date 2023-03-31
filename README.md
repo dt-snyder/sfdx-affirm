@@ -13,7 +13,6 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx a:o [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-ao--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmchanges--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmfaker--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -26,7 +25,6 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmtests--l-string--w-integer--r--a--e--s--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmchanges--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmfaker--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -234,68 +232,6 @@ DESCRIPTION
 
 ALIASES
   $ sfdx affirm:changes
-
-EXAMPLES
-  $ sfdx affirm:changes
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              CHANGED: MyClass.cls,MySecondClass.cls
-              INSERTION: MyTestClass.cls
-              DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
-        
-
-  $ sfdx affirm:changes --showdestructive
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              DESTRUCTIVE: MyOldClass.cls
-        
-
-  $ sfdx affirm:changes --showinsertion
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              INSERTION: MyTestClass.cls
-        
-
-  $ sfdx affirm:changes --showchanged
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              CHANGED: MyClass.cls
-```
-
-## `sfdx affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-returns a diff against the specified branch
-
-```
-USAGE
-  $ sfdx affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -b, --branch=<value>                                                              the branch other than
-                                                                                    remotes/origin/master to diff
-                                                                                    against
-  -c, --showchanged                                                                 If provided alone shows changes
-                                                                                    only.
-  -d, --showdestructive                                                             If provided alone shows destructive
-                                                                                    changes only.
-  -i, --showinsertion                                                               If provided alone shows insertion
-                                                                                    changes only.
-  -n, --inputdir=<value>                                                            the root directory to compare other
-                                                                                    than the sfdx-project.json default
-  -o, --outfilename=<value>                                                         if provided results will be save to
-                                                                                    a file using the provided name as
-                                                                                    json
-  -s, --silent                                                                      runs without printing to console
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  returns a diff against the specified branch
-
-ALIASES
-  $ sfdx affirm:faker
 
 EXAMPLES
   $ sfdx affirm:changes
@@ -1165,70 +1101,6 @@ EXAMPLES
 ```
 
 _See code: [src/commands/sfdx-affirm/changes.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/changes.ts)_
-
-## `sfdx sfdx-affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
-
-returns a diff against the specified branch
-
-```
-USAGE
-  $ sfdx sfdx-affirm:faker [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel
-    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
-
-FLAGS
-  -b, --branch=<value>                                                              the branch other than
-                                                                                    remotes/origin/master to diff
-                                                                                    against
-  -c, --showchanged                                                                 If provided alone shows changes
-                                                                                    only.
-  -d, --showdestructive                                                             If provided alone shows destructive
-                                                                                    changes only.
-  -i, --showinsertion                                                               If provided alone shows insertion
-                                                                                    changes only.
-  -n, --inputdir=<value>                                                            the root directory to compare other
-                                                                                    than the sfdx-project.json default
-  -o, --outfilename=<value>                                                         if provided results will be save to
-                                                                                    a file using the provided name as
-                                                                                    json
-  -s, --silent                                                                      runs without printing to console
-  --json                                                                            format output as json
-  --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)  [default: warn] logging level for
-                                                                                    this command invocation
-
-DESCRIPTION
-  returns a diff against the specified branch
-
-ALIASES
-  $ sfdx affirm:faker
-
-EXAMPLES
-  $ sfdx affirm:changes
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              CHANGED: MyClass.cls,MySecondClass.cls
-              INSERTION: MyTestClass.cls
-              DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
-        
-
-  $ sfdx affirm:changes --showdestructive
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              DESTRUCTIVE: MyOldClass.cls
-        
-
-  $ sfdx affirm:changes --showinsertion
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              INSERTION: MyTestClass.cls
-        
-
-  $ sfdx affirm:changes --showchanged
-              Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-              Git Diff For: remotes/origin/master...pilot/affirm
-              CHANGED: MyClass.cls
-```
-
-_See code: [src/commands/sfdx-affirm/faker.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/faker.ts)_
 
 ## `sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
