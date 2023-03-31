@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
@@ -45,7 +45,7 @@ export default class Changes extends SfdxCommand {
   ];
 
   // public static args = [{ branch: 'file', silent: 'boolean', outfilename: 'file' }];
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     // flag with a value (-n, --name=VALUE)
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),

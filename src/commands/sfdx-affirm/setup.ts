@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { AnyJson } from '@salesforce/ts-types';
 import { AffirmSettings } from '../../lib/affirm_interfaces';
 import * as fs from 'fs-extra';
@@ -41,7 +41,7 @@ export default class Setup extends SfdxCommand {
       Settings Saved to: ./sfdx-affirm.json
     `,
   ];
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     primarybranch: flags.string({ char: 'b', description: messages.getMessage('primarybranchFlagDescription') }),
     builddir: flags.string({ char: 'd', description: messages.getMessage('builddirFlagDescription') }),
     packagedir: flags.string({ char: 'p', description: messages.getMessage('packagedirFlagDescription') }),

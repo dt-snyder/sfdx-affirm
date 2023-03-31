@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { Messages, SfError, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, gitDiffSum } from '../../lib/affirm_git';
@@ -39,7 +39,7 @@ export default class Suite extends SfdxCommand {
     `,
   ];
 
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     tests: flags.string({ char: 't', description: messages.getMessage('testsFlagDescription') }),
     name: flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),

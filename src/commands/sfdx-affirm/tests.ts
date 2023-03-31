@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { Messages, SfError, SfProjectJson } from "@salesforce/core";
 import { AnyJson, ensureAnyJson, getJsonMap } from "@salesforce/ts-types";
 import { fsSaveJson } from "../../lib/affirm_fs";
@@ -61,7 +61,7 @@ export default class Tests extends SfdxCommand {
     `,
   ];
   // TODO: v3.1: add repeating status instead of using wait directly in child_command
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     list: flags.string({ char: "l", description: messages.getMessage("listFlagDescription"), }),
     waittime: flags.integer({ char: "w", description: messages.getMessage("waittimeFlagDescription"), }),
     printresults: flags.boolean({ char: "r", description: messages.getMessage("printresultsFlagDescription"), }),

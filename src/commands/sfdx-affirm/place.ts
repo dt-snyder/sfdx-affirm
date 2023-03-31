@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { Messages, SfError } from '@salesforce/core';
 import * as fs from 'fs-extra';
 import {
@@ -33,7 +33,7 @@ export default class Place extends SfdxCommand {
   ];
 
   // TODO: document flagsConfig
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
     silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),

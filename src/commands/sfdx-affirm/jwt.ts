@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { Messages, SfError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 // Use this file to store all fs-extra helper methods
@@ -29,7 +29,7 @@ export default class Jwt extends SfdxCommand {
   ];
 
 
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     privatekey: flags.string({ char: 'p', description: messages.getMessage('privatekeyFlagDescription'), required: true }),
     iss: flags.string({ char: 'i', description: messages.getMessage('issFlagDescription'), required: true }),
     sub: flags.string({ char: 's', description: messages.getMessage('subDescription'), required: true }),

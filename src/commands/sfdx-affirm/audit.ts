@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { AnyJson, asJsonArray, ensureAnyJson, ensureJsonMap, JsonMap } from '@salesforce/ts-types';
 import { Messages, SfError } from '@salesforce/core';
 import { sfdxQuery } from '../../lib/affirm_sfdx';
@@ -32,7 +32,7 @@ export default class Audit extends SfdxCommand {
       File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
     `,
   ];
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     action: flags.string({ char: 'a', description: messages.getMessage('actionFlagDescription'), required: false }),
     section: flags.string({ char: 's', description: messages.getMessage('sectionFlagDescription'), required: false }), // can't query filter
     display: flags.string({ char: 'i', description: messages.getMessage('displayFlagDescription'), required: false }), // can't query filter

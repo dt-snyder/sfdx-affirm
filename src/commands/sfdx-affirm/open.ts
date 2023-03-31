@@ -1,4 +1,4 @@
-import { SfdxCommand, flags } from '@salesforce/command';
+import { FlagsConfig, SfdxCommand, flags } from '@salesforce/command';
 import { Messages, SfError } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { verifyUsername } from '../../lib/affirm_lift';
@@ -48,7 +48,7 @@ export default class Open extends SfdxCommand {
   ];
 
   // public static args = [{ branch: 'file', silent: 'boolean', outfilename: 'file' }];
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     // flag with a value (-n, --name=VALUE)
     email: flags.boolean({ char: 'e', description: messages.getMessage('emailFlagDescription'), default: false }),
     network: flags.boolean({ char: 'n', description: messages.getMessage('networkFlagDescription'), default: false }),

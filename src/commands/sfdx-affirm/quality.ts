@@ -52,7 +52,6 @@ export default class Quality extends SfdxCommand {
     `
   ];
 
-  // TODO: v3: add repeating status instead of using wait directly in child_command
   protected static flagsConfig: FlagsConfig = {
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
