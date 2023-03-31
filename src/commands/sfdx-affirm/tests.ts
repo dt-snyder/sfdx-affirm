@@ -61,7 +61,7 @@ export default class Tests extends SfdxCommand {
       (y/n) Would you like to print the results of each test?: n
     `,
   ];
-  // TODO: v3.1: add repeating status instead of using wait directly in child_command
+
   protected static flagsConfig: FlagsConfig = {
     list: flags.string({ char: "l", description: messages.getMessage("listFlagDescription"), }),
     waittime: flags.integer({ char: "w", description: messages.getMessage("waittimeFlagDescription"), }),

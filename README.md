@@ -506,9 +506,9 @@ USAGE
 
 FLAGS
   -d, --packagedir=<value>
-      The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file
-      describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to
-      confirm the path provided before continuing.
+      (Optional) The root of the directory tree that contains the files to validate. The root must contain a valid
+      package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from
+      AffirmSettings.
 
   -e, --saveresults
       (Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall
@@ -519,28 +519,29 @@ FLAGS
       or the --testclasses flag is provided.
 
   -o, --openstatus
-      If provided, the deployment status page will be opened in the default or specified org.
+      (Optional) if provided the deployment status page will be opened in the default or specified org.
 
   -p, --printall
       (Optional) if provided the results will be printed to the console. Can not be used with --saveresults or
       --noresults.
 
   -r, --noresults
-      If provided, you will not be asked if you would like to print the component details or test details after validation
-      completes.
+      (Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print
+      results. Can not be used with --printall or --saveresults.
 
   -s, --silent
-      If provided, you will not be prompted at all for input. If correct input isn't provided command fails.
+      (Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.
 
   -t, --testclasses=<value>
-      Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate
-      without tests before continuing without tests.
+      (Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites
+      found in the 'packagedir' will be use. If none are found and target org is production the default
+      'declarativeTestClass' is NOT used.
 
   -u, --targetusername=<value>
       username or alias for the target org; overrides default target org
 
   -w, --waittime=<value>
-      The number of minutes to wait for the command to complete. The default is 10.
+      (Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.
 
   --apiversion=<value>
       override the api version used for api requests made by this command
@@ -562,6 +563,40 @@ ALIASES
 
 EXAMPLES
   $ sfdx affirm:place
+        Selected Production Instance: personalDev
+        (y/n) Are you sure you want to deploy the package located in the "releaseArtifacts/parcel" folder?: y
+        Package Directory: "releaseArtifacts/parcel"
+        Found test suite(s) in releaseArtifacts/parcel
+        Deployment Test Classes:
+        MyExampleClassTest
+        Validation started in personalDev with Deployment Id: 0Af6S00000qVCieSAG
+        Deploying Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_18_05_43_0Af6S00000qVCieSAG
+        Total Components: 10
+        Component Deployed: 10
+        Component With Errors: 0
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        ? Would you like to print or save the any of the validation results? save: all
+        File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_18_05_43_0Af6S00000qVCieSAG.json
+
+  $ sfdx affirm:place -s -o -e
+        Selected Production Instance: personalDev
+        Package Directory: "releaseArtifacts/parcel"
+        Found test suite(s) in releaseArtifacts/parcel
+        Deployment Test Classes:
+        MyExampleClassTest
+        Opening Deployment Status page in personalDev for deployment: 0Af6S00000qVCjcSAG
+        Deploying Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_18_14_08_0Af6S00000qVCjcSAG
+        Total Components: 10
+        Component Deployed: 10
+        Component With Errors: 0
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        File Saved to: ./releaseArtifacts/deploymentResults/personalDev/2023-03-31_18_14_08_0Af6S00000qVCjcSAG.json
 ```
 
 ## `sfdx affirm:quality [-d <string>] [-t <string>] [-s] [-w <number>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
@@ -633,30 +668,42 @@ ALIASES
 
 EXAMPLES
   $ sfdx affirm:quality
-        (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
-        Selected Org: myOrg@example.com.sandbox
+        (y/n) Are you sure you want to use the "personalDev" org ?: y
+        Selected Production Org: personalDev
         (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
         Package Directory: "releaseArtifacts/parcel"
-        (y/n) Are you sure you want to validate without running any tests?: y
-        Validating without test classes!
-        Validating Package... Succeeded
-        Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
-        Total Components: 761
-        Component Deployed: 761
+        Found test suite(s) in releaseArtifacts/parcel
+        Validating Using Provided Test Classes:
+        MyExampleClassTest
+        Validation started in personalDev with Deployment Id: 0Af6S00000qVCjwSAG
+        Validating Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_19_36_13_0Af6S00000qVCjwSAG
+        Total Components: 10
+        Component Deployed: 10
         Component With Errors: 0
-        ? Would you like to print or save the any of the validation results? No
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        ? Would you like to print or save the any of the validation results? save: all
+        File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_19_36_13_0Af6S00000qVCjwSAG.json
   
 
-  $ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
-        Selected Org: myOrg@example.com.sandbox
-        (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+  $ sfdx affirm:quality -s -o -e
+        Selected Production Org: personalDev
         Package Directory: "releaseArtifacts/parcel"
-        Validating Using Provided Classes: MyTestClass,OtherTestClass
-        Validating Package... Succeeded
-        Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
-        Total Components: 761
-        Component Deployed: 761
+        Found test suite(s) in releaseArtifacts/parcel
+        Validating Using Provided Test Classes:
+        MyExampleClassTest
+        Opening Deployment Status page in personalDev for validation: 0Af6S00000qVCkGSAW
+        Validating Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_19_38_01_0Af6S00000qVCkGSAW
+        Total Components: 10
+        Component Deployed: 10
         Component With Errors: 0
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_19_38_01_0Af6S00000qVCkGSAW.json
 ```
 
 ## `sfdx affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <number>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
@@ -1356,9 +1403,9 @@ USAGE
 
 FLAGS
   -d, --packagedir=<value>
-      The root of the directory tree that contains the files to deploy. The root must contain a valid package.xml file
-      describing the entities in the directory structure. default: releaseArtifacts/parcel. You will always be asked to
-      confirm the path provided before continuing.
+      (Optional) The root of the directory tree that contains the files to validate. The root must contain a valid
+      package.xml file describing the entities in the directory structure. Uses default 'buildDirectory' from
+      AffirmSettings.
 
   -e, --saveresults
       (Optional) if provided the result json will be saved to the default build directory. Can not be used with --printall
@@ -1369,28 +1416,29 @@ FLAGS
       or the --testclasses flag is provided.
 
   -o, --openstatus
-      If provided, the deployment status page will be opened in the default or specified org.
+      (Optional) if provided the deployment status page will be opened in the default or specified org.
 
   -p, --printall
       (Optional) if provided the results will be printed to the console. Can not be used with --saveresults or
       --noresults.
 
   -r, --noresults
-      If provided, you will not be asked if you would like to print the component details or test details after validation
-      completes.
+      (Optional) if provided minimal results will be printed and you will not be asked if you would like to save or print
+      results. Can not be used with --printall or --saveresults.
 
   -s, --silent
-      If provided, you will not be prompted at all for input. If correct input isn't provided command fails.
+      (Optional) If provided you will not be prompted at all for input. If correct input isn't provided command fails.
 
   -t, --testclasses=<value>
-      Comma separated list of tests to run. If none are provided you will be asked to confirm your choice to validate
-      without tests before continuing without tests.
+      (Optional) Comma separated list of tests to run. If none are provided all test classes listed in any test suites
+      found in the 'packagedir' will be use. If none are found and target org is production the default
+      'declarativeTestClass' is NOT used.
 
   -u, --targetusername=<value>
       username or alias for the target org; overrides default target org
 
   -w, --waittime=<value>
-      The number of minutes to wait for the command to complete. The default is 10.
+      (Optional) The number of minutes to wait for the command to complete. Uses default 'waitTime' from AffirmSettings.
 
   --apiversion=<value>
       override the api version used for api requests made by this command
@@ -1412,6 +1460,40 @@ ALIASES
 
 EXAMPLES
   $ sfdx affirm:place
+        Selected Production Instance: personalDev
+        (y/n) Are you sure you want to deploy the package located in the "releaseArtifacts/parcel" folder?: y
+        Package Directory: "releaseArtifacts/parcel"
+        Found test suite(s) in releaseArtifacts/parcel
+        Deployment Test Classes:
+        MyExampleClassTest
+        Validation started in personalDev with Deployment Id: 0Af6S00000qVCieSAG
+        Deploying Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_18_05_43_0Af6S00000qVCieSAG
+        Total Components: 10
+        Component Deployed: 10
+        Component With Errors: 0
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        ? Would you like to print or save the any of the validation results? save: all
+        File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_18_05_43_0Af6S00000qVCieSAG.json
+
+  $ sfdx affirm:place -s -o -e
+        Selected Production Instance: personalDev
+        Package Directory: "releaseArtifacts/parcel"
+        Found test suite(s) in releaseArtifacts/parcel
+        Deployment Test Classes:
+        MyExampleClassTest
+        Opening Deployment Status page in personalDev for deployment: 0Af6S00000qVCjcSAG
+        Deploying Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_18_14_08_0Af6S00000qVCjcSAG
+        Total Components: 10
+        Component Deployed: 10
+        Component With Errors: 0
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        File Saved to: ./releaseArtifacts/deploymentResults/personalDev/2023-03-31_18_14_08_0Af6S00000qVCjcSAG.json
 ```
 
 _See code: [src/commands/sfdx-affirm/place.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/place.ts)_
@@ -1485,30 +1567,42 @@ ALIASES
 
 EXAMPLES
   $ sfdx affirm:quality
-        (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
-        Selected Org: myOrg@example.com.sandbox
+        (y/n) Are you sure you want to use the "personalDev" org ?: y
+        Selected Production Org: personalDev
         (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
         Package Directory: "releaseArtifacts/parcel"
-        (y/n) Are you sure you want to validate without running any tests?: y
-        Validating without test classes!
-        Validating Package... Succeeded
-        Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
-        Total Components: 761
-        Component Deployed: 761
+        Found test suite(s) in releaseArtifacts/parcel
+        Validating Using Provided Test Classes:
+        MyExampleClassTest
+        Validation started in personalDev with Deployment Id: 0Af6S00000qVCjwSAG
+        Validating Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_19_36_13_0Af6S00000qVCjwSAG
+        Total Components: 10
+        Component Deployed: 10
         Component With Errors: 0
-        ? Would you like to print or save the any of the validation results? No
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        ? Would you like to print or save the any of the validation results? save: all
+        File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_19_36_13_0Af6S00000qVCjwSAG.json
   
 
-  $ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
-        Selected Org: myOrg@example.com.sandbox
-        (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+  $ sfdx affirm:quality -s -o -e
+        Selected Production Org: personalDev
         Package Directory: "releaseArtifacts/parcel"
-        Validating Using Provided Classes: MyTestClass,OtherTestClass
-        Validating Package... Succeeded
-        Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
-        Total Components: 761
-        Component Deployed: 761
+        Found test suite(s) in releaseArtifacts/parcel
+        Validating Using Provided Test Classes:
+        MyExampleClassTest
+        Opening Deployment Status page in personalDev for validation: 0Af6S00000qVCkGSAW
+        Validating Package... Completed
+        Deployment Status Date_Time_Id: 2023-03-31_19_38_01_0Af6S00000qVCkGSAW
+        Total Components: 10
+        Component Deployed: 10
         Component With Errors: 0
+        Total Tests Run: 1
+        Successful Tests: 1
+        Test Errors: 0
+        File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_19_38_01_0Af6S00000qVCkGSAW.json
 ```
 
 _See code: [src/commands/sfdx-affirm/quality.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/quality.ts)_

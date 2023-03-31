@@ -24,12 +24,43 @@ export default class Place extends SfdxCommand {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:place'];
-  // TODO: document examples
   public static examples = [
-    `$ sfdx affirm:place`
+    `$ sfdx affirm:place
+      Selected Production Instance: personalDev
+      (y/n) Are you sure you want to deploy the package located in the "releaseArtifacts/parcel" folder?: y
+      Package Directory: "releaseArtifacts/parcel"
+      Found test suite(s) in releaseArtifacts/parcel
+      Deployment Test Classes:
+      MyExampleClassTest
+      Validation started in personalDev with Deployment Id: 0Af6S00000qVCieSAG
+      Deploying Package... Completed
+      Deployment Status Date_Time_Id: 2023-03-31_18_05_43_0Af6S00000qVCieSAG
+      Total Components: 10
+      Component Deployed: 10
+      Component With Errors: 0
+      Total Tests Run: 1
+      Successful Tests: 1
+      Test Errors: 0
+      ? Would you like to print or save the any of the validation results? save: all
+      File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_18_05_43_0Af6S00000qVCieSAG.json`,
+    `$ sfdx affirm:place -s -o -e
+      Selected Production Instance: personalDev
+      Package Directory: "releaseArtifacts/parcel"
+      Found test suite(s) in releaseArtifacts/parcel
+      Deployment Test Classes:
+      MyExampleClassTest
+      Opening Deployment Status page in personalDev for deployment: 0Af6S00000qVCjcSAG
+      Deploying Package... Completed
+      Deployment Status Date_Time_Id: 2023-03-31_18_14_08_0Af6S00000qVCjcSAG
+      Total Components: 10
+      Component Deployed: 10
+      Component With Errors: 0
+      Total Tests Run: 1
+      Successful Tests: 1
+      Test Errors: 0
+      File Saved to: ./releaseArtifacts/deploymentResults/personalDev/2023-03-31_18_14_08_0Af6S00000qVCjcSAG.json`
   ];
 
-  // TODO: document flagsConfig
   protected static flagsConfig: FlagsConfig = {
     packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
     testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),

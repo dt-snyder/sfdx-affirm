@@ -10,7 +10,7 @@ Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
 const filesToIgnore = ['**/jsconfig.json', '**/.eslintrc.json'];
 
-function ignoreFile(file: string) {
+function ignoreFile(file: string): boolean {
   if (filesToIgnore.includes(file)) return true;
   const fileNameOnly = '**' + file.substring(file.lastIndexOf('/'));
   if (filesToIgnore.includes(fileNameOnly)) return true;
@@ -24,7 +24,7 @@ export async function checkForRepoAndRemote() {
   }
 }
 
-export async function getCurrentBranchName(ux?: UX) {
+export async function getCurrentBranchName(ux?: UX): Promise<string> {
   await checkForRepoAndRemote();
   const repoStatus: StatusResult = await git.status();
   const currentBranch = repoStatus.current;
@@ -32,7 +32,7 @@ export async function getCurrentBranchName(ux?: UX) {
   return currentBranch;
 }
 
-export async function getRemoteInfo(ux?: UX) {
+export async function getRemoteInfo(ux?: UX): Promise<string> {
   await checkForRepoAndRemote();
   const remotes = await git.getRemotes(true);
 
@@ -42,7 +42,7 @@ export async function getRemoteInfo(ux?: UX) {
   return currentRemote;
 }
 
-export async function gitDiffSum(branch: string, inputdir: string) {
+export async function gitDiffSum(branch: string, inputdir: string): Promise<DiffObj> {
   // get the diff sum of $branch...$currentBranch minus deleted files
   await git.env('GIT_SSH_COMMAND', GIT_SSH_COMMAND).status();
   const diffSum: DiffResult = await git.env({ ...process.env, GIT_SSH_COMMAND }).diffSummary([branch, '--diff-filter=d']);

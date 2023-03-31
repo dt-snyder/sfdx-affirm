@@ -26,29 +26,41 @@ export default class Quality extends SfdxCommand {
   public static aliases = ['affirm:quality'];
   public static examples = [
     `$ sfdx affirm:quality
-      (y/n) Are you sure you want to validate against myOrg@example.com.sandbox?: y
-      Selected Org: myOrg@example.com.sandbox
+      (y/n) Are you sure you want to use the "personalDev" org ?: y
+      Selected Production Org: personalDev
       (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
       Package Directory: "releaseArtifacts/parcel"
-      (y/n) Are you sure you want to validate without running any tests?: y
-      Validating without test classes!
-      Validating Package... Succeeded
-      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
-      Total Components: 761
-      Component Deployed: 761
+      Found test suite(s) in releaseArtifacts/parcel
+      Validating Using Provided Test Classes:
+      MyExampleClassTest
+      Validation started in personalDev with Deployment Id: 0Af6S00000qVCjwSAG
+      Validating Package... Completed
+      Deployment Status Date_Time_Id: 2023-03-31_19_36_13_0Af6S00000qVCjwSAG
+      Total Components: 10
+      Component Deployed: 10
       Component With Errors: 0
-      ? Would you like to print or save the any of the validation results? No
+      Total Tests Run: 1
+      Successful Tests: 1
+      Test Errors: 0
+      ? Would you like to print or save the any of the validation results? save: all
+      File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_19_36_13_0Af6S00000qVCjwSAG.json
   `,
-    `$ sfdx affirm:quality -u myOrg@example.com.sandbox -t MyTestClass,OtherTestClass -r
-      Selected Org: myOrg@example.com.sandbox
-      (y/n) Are you sure you want to validate the package located in the "releaseArtifacts/parcel" folder?: y
+    `$ sfdx affirm:quality -s -o -e
+      Selected Production Org: personalDev
       Package Directory: "releaseArtifacts/parcel"
-      Validating Using Provided Classes: MyTestClass,OtherTestClass
-      Validating Package... Succeeded
-      Deployment Status Date_Time_Id: 2020-08-09_14-21-23_0Af05000000iub1CAA
-      Total Components: 761
-      Component Deployed: 761
+      Found test suite(s) in releaseArtifacts/parcel
+      Validating Using Provided Test Classes:
+      MyExampleClassTest
+      Opening Deployment Status page in personalDev for validation: 0Af6S00000qVCkGSAW
+      Validating Package... Completed
+      Deployment Status Date_Time_Id: 2023-03-31_19_38_01_0Af6S00000qVCkGSAW
+      Total Components: 10
+      Component Deployed: 10
       Component With Errors: 0
+      Total Tests Run: 1
+      Successful Tests: 1
+      Test Errors: 0
+      File Saved to: ./releaseArtifacts/validationResults/personalDev/2023-03-31_19_38_01_0Af6S00000qVCkGSAW.json
     `
   ];
 

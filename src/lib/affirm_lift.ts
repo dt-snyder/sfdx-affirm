@@ -14,7 +14,7 @@ Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
 const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
-export async function liftShortBranchName(currentBranch: string, topCharCount: number, keepBranchType?: boolean) {
+export async function liftShortBranchName(currentBranch: string, topCharCount: number, keepBranchType?: boolean): Promise<string> {
   let branchName: string;
   if (keepBranchType === true) {
     branchName = currentBranch.replace('/', '_');
@@ -23,13 +23,13 @@ export async function liftShortBranchName(currentBranch: string, topCharCount: n
   }
   const cleanBranchName = await cleanSuiteName(branchName);
   const nameArray = cleanBranchName.split('_');
-  let shortFileName;
+  let shortFileName: string;
   let charCount = 0;
   nameArray.forEach(element => {
     charCount = charCount + element.length;
     if (charCount >= topCharCount) return;
     if (shortFileName) {
-      shortFileName = shortFileName + '_' + element;
+      shortFileName = `${shortFileName}_${element}`;
     } else {
       shortFileName = element;
     }
@@ -37,7 +37,7 @@ export async function liftShortBranchName(currentBranch: string, topCharCount: n
   return shortFileName;
 }
 
-export async function cleanSuiteName(currentBranch: string) {
+export async function cleanSuiteName(currentBranch: string): Promise<string> {
   for (const char of charToRemove) {
     if (currentBranch.indexOf(char) >= 0) {
       while (currentBranch.indexOf(char) >= 0) {
@@ -51,7 +51,7 @@ export async function cleanSuiteName(currentBranch: string) {
   return currentBranch;
 }
 
-export async function checkName(name: string, ux?: UX) {
+export async function checkName(name: string, ux?: UX): Promise<void> {
   const letterNumberUnderScore = new RegExp(/^[a-zA-Z0-9_]*$/);
   const startsWithLetter = new RegExp(/^[a-zA-Z]/);
   if (!letterNumberUnderScore.test(name)) {
@@ -62,7 +62,7 @@ export async function checkName(name: string, ux?: UX) {
     throw new SfError(messages.getMessage('startswithLetterSuiteNameIssue'));
   }
 }
-export async function liftCleanProvidedTests(tests: string) {
+export async function liftCleanProvidedTests(tests: string): Promise<string> {
   if (tests.includes('.cls')) {
     throw new SfError(messages.getMessage('errorNoToFileName'));
   }
@@ -70,7 +70,7 @@ export async function liftCleanProvidedTests(tests: string) {
   return tests.trim().replace(/\s+/g, '');
 }
 
-export async function liftPrintTable(tableName: string, data: any[], options: TableColumns, ux: UX) {
+export async function liftPrintTable(tableName: string, data: any[], options: TableColumns, ux: UX): Promise<void> {
   const start = '_______________________Start ' + tableName + '_______________________';
   const end = '_______________________End ' + tableName + '_______________________';
   ux.log(chalk.green(start));
@@ -78,7 +78,7 @@ export async function liftPrintTable(tableName: string, data: any[], options: Ta
   ux.log(chalk.red(end));
 }
 
-export async function liftPrintComponentTable(tableName: string, data: DeployMessage | DeployMessage[], ux: UX) {
+export async function liftPrintComponentTable(tableName: string, data: DeployMessage | DeployMessage[], ux: UX): Promise<void> {
   const start = `_______________________Start ${tableName}_______________________`;
   const end = `_________________________End ${tableName}_______________________`;
   let dataArray: any[] = [];
@@ -92,7 +92,7 @@ export async function liftPrintComponentTable(tableName: string, data: DeployMes
   ux.log(chalk.red(end));
 }
 
-export async function liftPrintTestResultTable(data: RunTestResult | RunTestResult[], ux: UX) {
+export async function liftPrintTestResultTable(data: RunTestResult | RunTestResult[], ux: UX): Promise<void> {
 
   const keysToPrint: string[] = ['codeCoverage', 'failures', 'successes'];
   for (const key in data) {
@@ -128,7 +128,7 @@ export async function liftPrintTestResultTable(data: RunTestResult | RunTestResu
   }
 }
 
-export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: WhatToPrint) {
+export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: WhatToPrint): Promise<void> {
   Object.keys(diff).forEach(key => {
     const colorKey = (key === 'changed') ? chalk.yellow(key) : (key === 'insertion') ? chalk.green(key) : chalk.red(key);
     if (diff[key].length === 0 && (whatToPrint[key] || whatToPrint.showAll)) {
@@ -142,7 +142,7 @@ export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: W
   });
 }
 
-export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boolean, onlyDestructive: Boolean) {
+export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boolean, onlyDestructive: Boolean): Promise<WhatToPrint> {
   const whatToPrint: WhatToPrint = {
     changed: onlyChanged,
     insertion: onlyInsertion,
@@ -152,18 +152,18 @@ export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boo
   return whatToPrint;
 }
 
-export async function printBranchesCompared(ux: UX, providedBranch: string, currentBranch: string) {
+export async function printBranchesCompared(ux: UX, providedBranch: string, currentBranch: string): Promise<void> {
   const beingCompared = chalk.magenta(providedBranch) + '...' + chalk.cyan(currentBranch);
   ux.log('Git Diff For: ' + beingCompared);
 }
 
-export async function getYNString() {
+export async function getYNString(): Promise<string> {
   return logYN;
 }
 
 
-export async function getTestsFromParcel(ux: UX, silent?: boolean) {
-  let testsToReturn;
+export async function getTestsFromParcel(ux: UX, silent?: boolean): Promise<string> {
+  let testsToReturn: string;
   const defaultPath = 'releaseArtifacts/parcel';
   const defaultOutputDir = defaultPath + '/testSuites/';
   const testSuiteFolderExists = await fsCheckPathExists(defaultOutputDir);
@@ -216,8 +216,8 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean): Promise
   return testsToReturn;
 }
 
-export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean, forDeployment?: boolean) {
-  let testsToReturn;
+export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean, forDeployment?: boolean): Promise<string> {
+  let testsToReturn: string;
   // find tests from package
   const suitesToMerge: Set<string> = await fsGetSuitesInParcel(packagedir);
   const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
@@ -281,7 +281,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
   return testsToReturn;
 }
 
-export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuite?: string) {
+export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuite?: string): Promise<Set<string>> {
   let tests: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;

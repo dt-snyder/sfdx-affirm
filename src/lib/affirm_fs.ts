@@ -26,7 +26,7 @@ const customObjectChildren = {
   fieldSets: "FieldSet"
 };
 
-export async function getPrintableDiffObject(diff: DiffObj) {
+export async function getPrintableDiffObject(diff: DiffObj): Promise<PrintableDiffObj> {
   const printableDiff: PrintableDiffObj = {
     changed: Array.from(diff.changed),
     insertion: Array.from(diff.insertion),
@@ -35,14 +35,14 @@ export async function getPrintableDiffObject(diff: DiffObj) {
   return printableDiff;
 }
 
-export async function fsSaveJson(fileName: string, json: AnyJson, ux?: UX) {
-  const saveToFile = `./${fileName}.json`;
+export async function fsSaveJson(fileName: string, json: AnyJson, ux?: UX): Promise<string> {
+  const saveToFile: string = `./${fileName}.json`;
   await fs.outputJson(saveToFile, json);
   if (ux) ux.log(`File Saved to: ${chalk.underline.blue(saveToFile)}`);
   return saveToFile;
 }
 
-export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: UX) {
+export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: UX): Promise<number> {
   const settings: AffirmSettings = await getAffirmSettings();
   let fileSet: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
@@ -137,7 +137,7 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
 
 // TODO: don't assume specific lengths for checking metadata type and subfolder. Pipelines adds path values
 // TODO: break this out into smaller methods and add more error handling
-export async function fsCreateDestructiveChangeFile(files: Set<String>, metaDataTypes: DescribeMetadata, savePath: string, deployAfter: boolean) {
+export async function fsCreateDestructiveChangeFile(files: Set<String>, metaDataTypes: DescribeMetadata, savePath: string, deployAfter: boolean): Promise<string> {
   const shouldBeAfter: boolean = deployAfter || false;
   let destructiveChanges = {};
   for (const file of files.values()) {
@@ -237,7 +237,7 @@ export async function fsCleanProvidedOutputDir(outputDir: string) {
   }
 }
 
-export async function fsCreateNewTestSuite(tests: string, outputDir: string, fileName: string) {
+export async function fsCreateNewTestSuite(tests: string, outputDir: string, fileName: string): Promise<string> {
   const testArray = tests.split(',');
   const newTests: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
   const xmlFile: TestSuiteXMLMain = { ApexTestSuite: newTests };
@@ -248,7 +248,7 @@ export async function fsCreateNewTestSuite(tests: string, outputDir: string, fil
   return outputFileName;
 }
 
-export async function fsUpdateExistingTestSuite(newTests: string, outputDir: string, fileName: string) {
+export async function fsUpdateExistingTestSuite(newTests: string, outputDir: string, fileName: string): Promise<string> {
   await fs.ensureDir(outputDir);
   const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
   let allTests = await fsGetTestSetFromSuiteXml(outputFileName);
@@ -272,13 +272,12 @@ export async function fsCheckForExistingSuite(outputDir: string, fileName: strin
   return outputFileName;
 }
 
-export async function fsCheckPathExists(outputDir: string) {
+export async function fsCheckPathExists(outputDir: string): Promise<boolean> {
   const folderStillExists = await fs.pathExists(outputDir);
-  if (!folderStillExists) return null;
   return folderStillExists;
 }
 
-export async function fsGetTestsStringFromTestSuiteFolder(pathToFolder: string) {
+export async function fsGetTestsStringFromTestSuiteFolder(pathToFolder: string): Promise<string> {
   let tests: Set<string> = new Set();
   fs.readdirSync(pathToFolder).forEach(file => {
     let testFilePath = pathToFolder + file;
@@ -324,11 +323,11 @@ export async function fsGetTestSetFromSuiteXml(pathToSuite: string): Promise<Set
   return tests;
 }
 
-export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileName: string) {
+export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileName: string): Promise<string> {
   const currentPath = pathToResourceXML;
   const resourceXml = await fs.readFile(currentPath, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, resourceXml, { format: 'object' });
-  let resourcePath;
+  let resourcePath: string;
   let fileExtention;
   if (obj.StaticResource.contentType !== 'application/zip') {
     if (obj.StaticResource.contentType === 'image/png') {
@@ -368,7 +367,4 @@ export async function fsGetSuitesInParcel(packageDir: string): Promise<Set<strin
   }
   return setOfFiles;
 }
-// TODO: create method that zips the provided folderPath and deletes the folderPath when done.
-// export async function zipPackageAndDeleteFolder(folderPath: string) {
-//   //
-// }
+
