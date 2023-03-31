@@ -334,7 +334,8 @@ export async function verifyUsername(username?: string, ux?: UX): Promise<string
   return usernameToReturn;
 }
 
-export function sleep(ms: number) {
+export function sleep(ms: number, ux?: UX) {
+  if (ux) { ux.log(chalk.dim.yellow(`Sleep for ${ms} ms`)); }
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 

@@ -137,13 +137,10 @@ export default class Quality extends SfdxCommand {
       this.ux.log(`Validation started in ${chalk.greenBright(username)} with Deployment Id: ${validtionId}`);
     }
     if (waitTime > 0 && validtionId) {
-      this.ux.startSpinner('Validating Package');
       const reportCommand = `sfdx force:mdapi:deploy:report -i ${validtionId} -u ${username}`;
-      const validationCommandResult: JsonMap = getJsonMap((await runAsynCommand(reportCommand, waitTime, 15000, verbose)), 'result');
+      const validationCommandResult: JsonMap = getJsonMap((await runAsynCommand(reportCommand, waitTime, this.ux, 'Validating Package', 15000, this.flags.verbose)), 'result');
       commandResult = validationCommandResult as unknown as MetadataApiDeployStatus;
       currentRunName = `${commandResult.createdDate.substring(0, commandResult.createdDate.indexOf('.')).replace('T', '_').split(':').join('_')}_${validtionId}`;
-      const validationStatus = !commandResult.success ? chalk.redBright(commandResult.status) : chalk.cyanBright(commandResult.status);
-      this.ux.stopSpinner(validationStatus);
       this.ux.log(`Deployment Status Date_Time_Id: ${chalk.cyanBright(currentRunName)}`);
       this.ux.log(`Total Components: ${chalk.cyan(commandResult.numberComponentsTotal)}`);
       this.ux.log(`Component Deployed: ${chalk.green(commandResult.numberComponentsDeployed)}`);
