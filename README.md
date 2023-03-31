@@ -1036,7 +1036,7 @@ EXAMPLES
         File Saved to: ./releaseArtifacts/auditResults/aliasName/2021_08_27T17_22_12_164Z.json
 ```
 
-_See code: [src/commands/sfdx-affirm/audit.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/audit.ts)_
+_See code: [src/commands/sfdx-affirm/audit.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/audit.ts)_
 
 ## `sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1100,7 +1100,7 @@ EXAMPLES
               CHANGED: MyClass.cls
 ```
 
-_See code: [src/commands/sfdx-affirm/changes.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/changes.ts)_
+_See code: [src/commands/sfdx-affirm/changes.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/changes.ts)_
 
 ## `sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1139,7 +1139,7 @@ EXAMPLES
         Org prodAlias is a Production instance
 ```
 
-_See code: [src/commands/sfdx-affirm/form.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/form.ts)_
+_See code: [src/commands/sfdx-affirm/form.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/form.ts)_
 
 ## `sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1193,7 +1193,7 @@ EXAMPLES
         eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT
 ```
 
-_See code: [src/commands/sfdx-affirm/jwt.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/jwt.ts)_
+_See code: [src/commands/sfdx-affirm/jwt.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/jwt.ts)_
 
 ## `sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1275,7 +1275,7 @@ EXAMPLES
           Done
 ```
 
-_See code: [src/commands/sfdx-affirm/open.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/open.ts)_
+_See code: [src/commands/sfdx-affirm/open.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/open.ts)_
 
 ## `sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1342,7 +1342,7 @@ EXAMPLES
         Cleaning Up... Success
 ```
 
-_See code: [src/commands/sfdx-affirm/parcel.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/parcel.ts)_
+_See code: [src/commands/sfdx-affirm/parcel.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/parcel.ts)_
 
 ## `sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1414,7 +1414,7 @@ EXAMPLES
   $ sfdx affirm:place
 ```
 
-_See code: [src/commands/sfdx-affirm/place.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/place.ts)_
+_See code: [src/commands/sfdx-affirm/place.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/place.ts)_
 
 ## `sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <number>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1511,7 +1511,7 @@ EXAMPLES
         Component With Errors: 0
 ```
 
-_See code: [src/commands/sfdx-affirm/quality.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/quality.ts)_
+_See code: [src/commands/sfdx-affirm/quality.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/quality.ts)_
 
 ## `sfdx sfdx-affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <number>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1587,7 +1587,7 @@ EXAMPLES
         Settings Saved to: ./sfdx-affirm.json
 ```
 
-_See code: [src/commands/sfdx-affirm/setup.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/setup.ts)_
+_See code: [src/commands/sfdx-affirm/setup.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/setup.ts)_
 
 ## `sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1644,7 +1644,7 @@ EXAMPLES
       New Test Suite Written to: force-app/main/default/testSuites/myCustomTestSuite.testSuite-meta.xml
 ```
 
-_See code: [src/commands/sfdx-affirm/suite.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/suite.ts)_
+_See code: [src/commands/sfdx-affirm/suite.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/suite.ts)_
 
 ## `sfdx sfdx-affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [-s] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1723,7 +1723,7 @@ EXAMPLES
       New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml
 ```
 
-_See code: [src/commands/sfdx-affirm/suite/merge.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/suite/merge.ts)_
+_See code: [src/commands/sfdx-affirm/suite/merge.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/suite/merge.ts)_
 
 ## `sfdx sfdx-affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
@@ -1814,7 +1814,7 @@ EXAMPLES
         (y/n) Would you like to print the results of each test?: n
 ```
 
-_See code: [src/commands/sfdx-affirm/tests.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/tests.ts)_
+_See code: [src/commands/sfdx-affirm/tests.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v3.0.0/src/commands/sfdx-affirm/tests.ts)_
 <!-- commandsstop -->
 ## Helpful Links
 
