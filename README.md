@@ -18,7 +18,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:quality [-d <string>] [-t <string>] [-s] [-w <number>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmquality--d-string--t-string--s--w-number--r--e--p--o--n--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <number>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsetup--b-string--d-string--p-string--w-number--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -31,7 +31,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:open [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmopen--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:parcel [-b <string>] [-i <string>] [-o <string>] [-d] [-t <string>] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmparcel--b-string--i-string--o-string--d--t-string--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmplace--d-string--t-string--s--w-integer--r--o--e--p--n--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:quality [-d <string>] [-t <string>] [-s] [-w <number>] [-r] [-e] [-p] [-o] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmquality--d-string--t-string--s--w-number--r--e--p--o--n--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:setup [-b <string>] [-d <string>] [-p <string>] [-w <number>] [-t <string>] [-a] [-o] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsetup--b-string--d-string--p-string--w-number--t-string--a--o---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -558,14 +558,15 @@ EXAMPLES
         Cleaning Up... Success
 ```
 
-## `sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Deploys a Package to the specific place
 
 ```
 USAGE
   $ sfdx affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>]
-    [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+    [--apiversion <string>] [--verbose] [--json] [--loglevel
+    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
   -d, --packagedir=<value>
@@ -613,6 +614,9 @@ FLAGS
 
   --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
       [default: warn] logging level for this command invocation
+
+  --verbose
+      emit additional command output to stdout
 
 DESCRIPTION
   Deploys a Package to the specific place
@@ -1462,14 +1466,15 @@ EXAMPLES
 
 _See code: [src/commands/sfdx-affirm/parcel.ts](https://github.com/dt-snyder/sfdx-affirm/blob/v2.5.0/src/commands/sfdx-affirm/parcel.ts)_
 
-## `sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Deploys a Package to the specific place
 
 ```
 USAGE
   $ sfdx sfdx-affirm:place [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>]
-    [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
+    [--apiversion <string>] [--verbose] [--json] [--loglevel
+    trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
   -d, --packagedir=<value>
@@ -1517,6 +1522,9 @@ FLAGS
 
   --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
       [default: warn] logging level for this command invocation
+
+  --verbose
+      emit additional command output to stdout
 
 DESCRIPTION
   Deploys a Package to the specific place

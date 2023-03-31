@@ -1109,7 +1109,7 @@
       "id": "sfdx-affirm:place",
       "description": "Deploys a Package to the specific place",
       "strict": true,
-      "usage": "<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-d <string>] [-t <string>] [-s] [-w <integer>] [-r] [-o] [-e] [-p] [-n] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -1224,6 +1224,12 @@
           "char": "n",
           "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
           "allowNo": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "emit additional command output to stdout",
+          "allowNo": false
         }
       },
       "args": {},
@@ -1294,6 +1300,13 @@
           "description": "(Optional) if provided and the target org is a sandbox no tests will run. Does not work if target org is production or the --testclasses flag is provided.",
           "allowNo": false,
           "type": "boolean"
+        },
+        "verbose": {
+          "type": "boolean",
+          "kind": "boolean",
+          "description": "emit additional command output to stdout",
+          "longDescription": "Emit additional command output to stdout.",
+          "allowNo": false
         }
       },
       "supportsUsername": true,

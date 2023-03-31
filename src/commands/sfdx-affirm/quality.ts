@@ -131,7 +131,7 @@ export default class Quality extends SfdxCommand {
     let currentRunName = `${date.substring(0, date.indexOf('.')).replace('T', '_').split(':').join('_')}_${validtionId}`;
     if (this.flags.openstatus) {
       this.ux.log(`Opening Deployment Status page in ${chalk.greenBright(username)} for validation: ${validtionId}`);
-      await sfdxOpenToPath(username, `${openLocations.deployment.lightning}${validtionId}`, false, verbose);
+      await sfdxOpenToPath(username, `${openLocations.deployment.lightningIdPath}${validtionId}`, false, verbose);
     } else {
       this.ux.log(`Validation started in ${chalk.greenBright(username)} with Deployment Id: ${validtionId}`);
     }

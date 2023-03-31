@@ -216,14 +216,14 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean): Promise
   return testsToReturn;
 }
 
-export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean) {
+export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean, forDeployment?: boolean) {
   let testsToReturn;
   // find tests from package
   const suitesToMerge: Set<string> = await fsGetSuitesInParcel(packagedir);
   const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
   if (allTests) { // use found tests
     testsToReturn = Array.from(allTests).join(',');
-    ux.log(chalk.yellow('Found test suite(s) in parcel.'));
+    ux.log(chalk.yellow(`Found test suite(s) in ${packagedir}`));
   } else {
     if (isSandbox) { // org is sandbox
       if (!settings.declarativeTestClass && silent === false) { // no default... ask
@@ -254,7 +254,7 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
         ux.log(chalk.yellow('Found default declarative test class in AffirmSettings'));
       }
     } else if (!isSandbox) { // is production
-      ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
+      if (silent === false) ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
       if (!settings.declarativeTestClass && silent === false) { // no default... ask
         const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
         testsToReturn = await liftCleanProvidedTests(providedTestClasses);
@@ -266,9 +266,12 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
           const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
           testsToReturn = await liftCleanProvidedTests(providedTestClasses);
         }
-      } else if (settings.declarativeTestClass && silent) { // has default... just use it
+      } else if (settings.declarativeTestClass && silent && !forDeployment) { // has default and is validation... just use it
         testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
-        ux.log(chalk.yellow('Found default declarative test class in AffirmSettings'));
+        ux.log(chalk.yellow('Found default declarative test class(s) in AffirmSettings'));
+      } else if (settings.declarativeTestClass && silent && forDeployment) { // has default and is deployment... throw error
+        ux.log(chalk.brightRed('The Default Declaritve Test found in AffirmSettings will NOT be used for this silent deployment.'));
+        ux.log(chalk.brightRed('Add test suites to your package or use the --testclasses flag and try again.'));
       }
       if (!testsToReturn) { // no tests provided for prod.... throw error
         throw new SfError(messages.getMessage('productionRequiresTestClasses'));
