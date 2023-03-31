@@ -1957,7 +1957,7 @@
       "id": "sfdx-affirm:suite:merge",
       "description": "Creates or Updates a testSuite-meta.xml file using the tests from all inserted or changed test suite files in the current branch",
       "strict": true,
-      "usage": "<%= command.id %> [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [-s] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -2031,7 +2031,14 @@
           "name": "list",
           "type": "boolean",
           "char": "l",
-          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed",
+          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed one at a time to the terminal",
+          "allowNo": false
+        },
+        "string": {
+          "name": "string",
+          "type": "boolean",
+          "char": "s",
+          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed as a single string using a comma to separate.",
           "allowNo": false
         }
       },
@@ -2072,7 +2079,15 @@
         "list": {
           "kind": "boolean",
           "char": "l",
-          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed",
+          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed one at a time to the terminal",
+          "default": false,
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "string": {
+          "kind": "boolean",
+          "char": "s",
+          "description": "Optional: if provided the tests will not be merged into a single suite, rather they will be collected and printed as a single string using a comma to separate.",
           "default": false,
           "allowNo": false,
           "type": "boolean"

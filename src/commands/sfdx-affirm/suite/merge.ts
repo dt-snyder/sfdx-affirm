@@ -1,4 +1,4 @@
-import { flags, SfdxCommand } from '@salesforce/command';
+import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
 import { Messages, SfError, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib/affirm_git';
@@ -51,26 +51,29 @@ export default class Merge extends SfdxCommand {
     `,
   ];
 
-  protected static flagsConfig = {
+  protected static flagsConfig: FlagsConfig = {
     name: flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
     outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
     inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
     branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
-    list: flags.boolean({ char: 'l', description: messages.getMessage('listFlagDescription'), default: false })
+    list: flags.boolean({ char: 'l', description: messages.getMessage('listFlagDescription'), default: false }),
+    string: flags.boolean({ char: 's', description: messages.getMessage('stringFlagDescription'), default: false })
   };
 
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
   protected static requiresProject = true;
 
   public async run(): Promise<AnyJson> {
+
     const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
-    await getRemoteInfo(this.ux);
+    await getRemoteInfo();
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
     const inputdir = this.flags.inputdir || defaultPath;
-    const listOnly = this.flags.list;
+    const onlyPrint = this.flags.list || this.flags.string;
+
     await sfcoreIsPathProject(pjtJson, inputdir);
     // compare the current branch to the provided or default branch
     const branch = this.flags.branch || settings.primaryBranch;
@@ -79,8 +82,8 @@ export default class Merge extends SfdxCommand {
     // get the current branch name and set it as the file name if the user did not provide one
     const defaultFileName = await liftShortBranchName(currentBranch, 25, true);
     const name = this.flags.name || defaultFileName;
-    if (!listOnly) await checkName(name, this.ux);
-    if (name.length > 35 && !listOnly) {
+    if (!onlyPrint) await checkName(name, this.ux);
+    if (name.length > 35 && !onlyPrint) {
       throw new SfError(messages.getMessage('errorNameIsToLong'));
     }
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
@@ -94,18 +97,25 @@ export default class Merge extends SfdxCommand {
       return { status: 'no existing suites found' };
     }
 
-    if (listOnly) {
+    if (onlyPrint) {
       this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) were found:');
     } else {
       this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) will me merged into the ' + name + ' test suite:');
     }
     let allTests: Set<string> = await liftGetTestsFromSuites(suitesToMerge);
     allTests = new Set(Array.from(allTests).sort());
-    if (listOnly) {
-      this.ux.log('The following test classes were found: ');
-      allTests.forEach(test => {
-        this.ux.log(chalk.blue(test));
-      });
+    if (onlyPrint) {
+      if (this.flags.list) {
+        this.ux.log(chalk.dim.blue('Listed'));
+        allTests.forEach(test => {
+          this.ux.log(chalk.blue(test));
+        });
+      }
+      if (this.flags.string) {
+        const testString = Array.from(allTests).join(",");
+        this.ux.log(chalk.dim.green('Single String'));
+        this.ux.log(chalk.green(testString));
+      }
       return { status: 'print and exit' };
     }
     const testArray = [...allTests];
