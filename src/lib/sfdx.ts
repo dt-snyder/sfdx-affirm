@@ -1,5 +1,5 @@
 import { SfError, PollingClient, StatusResult } from '@salesforce/core';
-import { get, AnyJson } from '@salesforce/ts-types';
+import { get, AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import * as child from 'child_process';
 import { UX } from '@salesforce/command';
 import { Duration, parseJson } from '@salesforce/kit';
@@ -18,9 +18,9 @@ export const runCommand = (fullCommand: string, ux?: UX): Promise<AnyJson> => {
   return new Promise((resolve, reject) => {
     if (ux) ux.log(`Running Command: ${chalk.cyan(fullCommand)}`);
     const cmd = child.exec(fullCommand);
-    let stdout: AnyJson;
+    let stdout: string = '';
     cmd.stdout.on('data', data => {
-      stdout = parseJson(data);
+      stdout += data;
     });
 
     cmd.stderr.on('data', data => {
@@ -38,13 +38,13 @@ export const runCommand = (fullCommand: string, ux?: UX): Promise<AnyJson> => {
     });
 
     cmd.on('close', code => {
-      if (code > 0 && !Object.prototype.hasOwnProperty.call(stdout, 'result')) {
+      if (code === 0 && ensureAnyJson(stdout)) {
+        resolve(parseJson(stdout));
+      } else {
         const sfdxError = SfError.wrap(error);
         sfdxError.message = `Command "${commandName}" failed with message: ${get(stdout, 'message', 'Unknown or Unhandled Error')}`;
         sfdxError.setData(stdout);
         reject(sfdxError);
-      } else {
-        resolve(stdout);
       }
     });
   });
@@ -74,8 +74,9 @@ export async function runAsynCommand(fullCommand: string, timeout: number, ux: U
       ux.setSpinnerStatus(`Checking:Attempt#:${attempts}`);
     }
     let stdout: StatusResult = { completed: false, payload: '' };
+    let stdoutstr: string = '';
     cmd.stdout.on('data', data => {
-      stdout.payload = parseJson(data);
+      stdoutstr += data;
     });
 
     cmd.stderr.on('data', data => {
@@ -90,27 +91,42 @@ export async function runAsynCommand(fullCommand: string, timeout: number, ux: U
 
     cmd.on('error', data => {
       const sfdxError = SfError.wrap(error);
-      sfdxError.message = `Command "${commandName}" failed with message: ${data}`;
+      sfdxError.message = `Command "${commandName}" failed ON ERROR with message: ${data}`;
       sfdxError.setData(data);
       return reject(sfdxError);
     });
 
     cmd.on('close', code => {
-      if (code == 0 && Object.prototype.hasOwnProperty.call(stdout.payload, 'result') && Object.prototype.hasOwnProperty.call(stdout.payload['result'], 'done')) {
-        stdout.completed = stdout.payload['result']['done'];
-        if (!verbose && stdout.completed) {
-          ux.stopSpinner(`Completed`);
-        } else if (!verbose) {
-          ux.setSpinnerStatus(`Still Processing`);
-        } else if (verbose) {
-          ux.log(`Command: ${chalk.cyan(commandName)} | Done: ${stdout.completed}`);
+      if (ensureAnyJson(stdoutstr)) {
+        stdout.payload = parseJson(stdoutstr);
+        const currentStatus = stdout.payload['result']['status'];
+        if (currentStatus !== undefined && (currentStatus === 'Done' || currentStatus === 'Failed')) {
+          stdout.completed = true;
+          if (!verbose && stdout.completed) {
+            ux.stopSpinner(`Completed`);
+          } else if (verbose) {
+            ux.log(`Command: ${chalk.cyan(commandName)} | Done: ${stdout.completed}`);
+          }
+        } else if ((currentStatus !== undefined && currentStatus === 'InProgress') || code == 69) {
+          stdout.completed = false;
+          if (!verbose) {
+            ux.setSpinnerStatus(`Still Processing...`);
+          } else if (verbose) {
+            ux.log(`Command: ${chalk.cyan(commandName)} | Done: false`);
+          }
+        } else {
+          ux.stopSpinner(`Done:ERROR`);
+          const sfdxError = SfError.wrap(error);
+          sfdxError.message = `Command "${commandName}" failed UNKNOWN STATUS with message: ${stdoutstr}`;
+          sfdxError.setData(stdoutstr);
+          return reject(sfdxError);
         }
         return resolve(stdout);
       } else {
         ux.stopSpinner(`Done:ERROR`);
         const sfdxError = SfError.wrap(error);
-        sfdxError.message = `Command "${commandName}" failed with message: ${get(stdout.payload, 'message')}`;
-        sfdxError.setData(stdout.payload);
+        sfdxError.message = `Command "${commandName}" failed with UNKNOWN EXCEPTION with message: ${stdoutstr}`;
+        sfdxError.setData(stdoutstr);
         return reject(sfdxError);
       }
     });
