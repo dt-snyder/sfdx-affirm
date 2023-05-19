@@ -100,9 +100,9 @@ export async function runAsynCommand(fullCommand: string, timeout: number, ux: U
       if (ensureAnyJson(stdoutstr)) {
         stdout.payload = parseJson(stdoutstr);
         const currentStatus = stdout.payload['result']['status'];
-        if (currentStatus !== undefined && (currentStatus === 'Done' || currentStatus === 'Failed')) {
+        if (currentStatus !== undefined && (currentStatus === 'Done' || currentStatus === 'Failed' || currentStatus === 'Succeeded')) {
           stdout.completed = true;
-          if (!verbose && stdout.completed) {
+          if (!verbose) {
             ux.stopSpinner(`Completed`);
           } else if (verbose) {
             ux.log(`Command: ${chalk.cyan(commandName)} | Done: ${stdout.completed}`);
