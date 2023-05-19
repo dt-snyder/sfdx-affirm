@@ -23,7 +23,7 @@ export default class Merge extends SfdxCommand {
   public static examples = [
     `$ sfdx affirm:suite:merge
     Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-    Git Diff For: remotes/origin/master...pilot/affirm
+    Git Diff For: remotes/origin/main...pilot/affirm
     The following 3 test suite(s) will me merged into the name-of-epic-branch test suite
     force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
     force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
@@ -33,7 +33,7 @@ export default class Merge extends SfdxCommand {
     `,
     `$ sfdx affirm:suite:merge -n funky_suite_name
     Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-    Git Diff For: remotes/origin/master...pilot/affirm
+    Git Diff For: remotes/origin/main...pilot/affirm
     The following 2 test suite(s) will me merged into the funky_suite_name test suite
     force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
     force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml
@@ -42,7 +42,7 @@ export default class Merge extends SfdxCommand {
     `,
     `$ sfdx affirm:suite:merge -o releaseArtifacts/tests
     Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-    Git Diff For: remotes/origin/master...pilot/affirm
+    Git Diff For: remotes/origin/main...pilot/affirm
     The following 2 test suite(s) will me merged into the name-of-epic-branch test suite
     force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml
     force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml

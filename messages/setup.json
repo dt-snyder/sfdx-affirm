@@ -1,6 +1,6 @@
 {
   "commandDescription": "Allows users to configure project specific settings for Affirm",
-  "primarybranchFlagDescription": "(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.",
+  "primarybranchFlagDescription": "(optional | Default: main) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/main'. Helpful if you use master instead of main.",
   "builddirFlagDescription": "(optional | Default: .releaseArtifacts) The directory where build files are copied to for processing, build packages are saved, and validation results are saved. Default is 'releaseArtifacts'. Would recommend a folder that is ignored by git.",
   "packagedirFlagDescription": "(optional | Default: parcel) The default directory name for new packages. Default is 'parcel'. This folder will always be placed in the default builddir or the one you indicated",
   "waittimeFlagDescription": "(optional | Default: 10) The default wait time for all validation, deployment and test commands. The default is '10' for ten minutes but you can make this lower or higher for your project.",

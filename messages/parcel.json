@@ -1,6 +1,6 @@
 {
   "commandDescription": "Creates a parcel (package) using git diff",
-  "branchFlagDescription": "The branch other than remotes/origin/master to diff against",
+  "branchFlagDescription": "The branch other than remotes/origin/main to diff against",
   "inputdirFlagDescription": "The root directory to compare other than the force-app default",
   "outputdirFlagDescription": "The output directory to store the Metadata API–formatted metadata files in. Default: './parcel'",
   "includedestructiveFlagDescription": "If provided and there are destructive changes you will not be asked if you want to include them",

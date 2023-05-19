@@ -7,7 +7,7 @@ const pathToSettingsFile = './sfdx-affirm.json';
 const logYN = `(${chalk.green('y')}/${chalk.red('n')})`;
 
 const defaultSettings: AffirmSettings = {
-  primaryBranch: 'remotes/origin/master',
+  primaryBranch: 'remotes/origin/main',
   buildDirectory: 'releaseArtifacts',
   packageDirectory: 'parcel',
   waitTime: 10,

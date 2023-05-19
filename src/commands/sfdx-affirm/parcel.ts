@@ -23,7 +23,7 @@ export default class Parcel extends SfdxCommand {
   public static examples = [
     `$ sfdx affirm:parcel
       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-      Diff Against: remotes/origin/master...pilot/affirm... Success:
+      Diff Against: remotes/origin/main...pilot/affirm... Success:
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success
@@ -34,7 +34,7 @@ export default class Parcel extends SfdxCommand {
     `,
     `$ sfdx affirm:parcel -d -t before
       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-      Diff Against: remotes/origin/master...pilot/affirm... Success:
+      Diff Against: remotes/origin/main...pilot/affirm... Success:
       Changes: 5, Insertions: 93, Destructive: 7
       Cloning Files... Success: 100 files ready for convert
       Converting... Success

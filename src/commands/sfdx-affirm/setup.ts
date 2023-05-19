@@ -20,8 +20,8 @@ export default class Setup extends SfdxCommand {
   public static aliases = ['affirm:setup'];
   public static examples = [
     `$ sfdx affirm:setup
-      Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main
-      Primary Branch set to:  remotes/origin/main
+      Provide name of remote branch related to your Production Instance  [remotes/origin/main]: remotes/origin/master
+      Primary Branch set to:  remotes/origin/master
       Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: .superArtifacts
       Build Directory set to:  .superArtifacts
       Provide default directory name for new packages  [parcel]: pack
@@ -32,8 +32,8 @@ export default class Setup extends SfdxCommand {
       Declarative Test Class set to:  Test_DeclarativeDefault
       Settings Saved to: ./sfdx-affirm.json
     `,
-    `$ sfdx affirm:setup -b remotes/origin/main -d .superArtifacts -p pack -w 5 -t Test_DeclarativeDefault -o
-      Primary Branch set to:  remotes/origin/main
+    `$ sfdx affirm:setup -b remotes/origin/master -d .superArtifacts -p pack -w 5 -t Test_DeclarativeDefault -o
+      Primary Branch set to:  remotes/origin/master
       Build Directory set to:  .superArtifacts
       Package Directory set to:  pack
       Wait Time set to:  5

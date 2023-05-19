@@ -1,6 +1,6 @@
 {
   "commandDescription": "returns a diff against the specified branch",
-  "branchFlagDescription": "the branch other than remotes/origin/master to diff against",
+  "branchFlagDescription": "the branch other than remotes/origin/main to diff against",
   "inputdirFlagDescription": "the root directory to compare other than the sfdx-project.json default",
   "showdestructiveFlagDescription": "If provided alone shows destructive changes only.",
   "showinsertionFlagDescription": "If provided alone shows insertion changes only.",

@@ -22,24 +22,24 @@ export default class Changes extends SfdxCommand {
   public static examples = [
     `$ sfdx affirm:changes
             Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-            Git Diff For: remotes/origin/master...pilot/affirm
+            Git Diff For: remotes/origin/main...pilot/affirm
             CHANGED: MyClass.cls,MySecondClass.cls
             INSERTION: MyTestClass.cls
             DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls
         `,
     `$ sfdx affirm:changes --showdestructive
             Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-            Git Diff For: remotes/origin/master...pilot/affirm
+            Git Diff For: remotes/origin/main...pilot/affirm
             DESTRUCTIVE: MyOldClass.cls
         `,
     `$ sfdx affirm:changes --showinsertion
             Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-            Git Diff For: remotes/origin/master...pilot/affirm
+            Git Diff For: remotes/origin/main...pilot/affirm
             INSERTION: MyTestClass.cls
         `,
     `$ sfdx affirm:changes --showchanged
             Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
-            Git Diff For: remotes/origin/master...pilot/affirm
+            Git Diff For: remotes/origin/main...pilot/affirm
             CHANGED: MyClass.cls
         `
   ];
