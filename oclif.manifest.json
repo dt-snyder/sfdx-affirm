@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
+  "version": "3.0.2",
   "commands": {
     "sfdx-affirm:audit": {
       "id": "sfdx-affirm:audit",
@@ -247,10 +247,10 @@
         "affirm:changes"
       ],
       "examples": [
-        "$ sfdx affirm:changes\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls,MySecondClass.cls\n            INSERTION: MyTestClass.cls\n            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls\n        ",
-        "$ sfdx affirm:changes --showdestructive\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            DESTRUCTIVE: MyOldClass.cls\n        ",
-        "$ sfdx affirm:changes --showinsertion\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            INSERTION: MyTestClass.cls\n        ",
-        "$ sfdx affirm:changes --showchanged\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/master...pilot/affirm\n            CHANGED: MyClass.cls\n        "
+        "$ sfdx affirm:changes\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/main...pilot/affirm\n            CHANGED: MyClass.cls,MySecondClass.cls\n            INSERTION: MyTestClass.cls\n            DESTRUCTIVE: MyOldClass.cls,MyOldTestClass.cls\n        ",
+        "$ sfdx affirm:changes --showdestructive\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/main...pilot/affirm\n            DESTRUCTIVE: MyOldClass.cls\n        ",
+        "$ sfdx affirm:changes --showinsertion\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/main...pilot/affirm\n            INSERTION: MyTestClass.cls\n        ",
+        "$ sfdx affirm:changes --showchanged\n            Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n            Git Diff For: remotes/origin/main...pilot/affirm\n            CHANGED: MyClass.cls\n        "
       ],
       "flags": {
         "json": {
@@ -286,7 +286,7 @@
           "name": "branch",
           "type": "option",
           "char": "b",
-          "description": "the branch other than remotes/origin/master to diff against",
+          "description": "the branch other than remotes/origin/main to diff against",
           "multiple": false
         },
         "inputdir": {
@@ -337,7 +337,7 @@
         "branch": {
           "kind": "string",
           "char": "b",
-          "description": "the branch other than remotes/origin/master to diff against",
+          "description": "the branch other than remotes/origin/main to diff against",
           "input": [],
           "multiple": false,
           "type": "option"
@@ -802,8 +802,8 @@
         "affirm:parcel"
       ],
       "examples": [
-        "$ sfdx affirm:parcel\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/master...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      (y/n) There are 7 destructive changes. Create destructive changes xml file? y\n      ? Select when the destructive changes should be deployed: before\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    ",
-        "$ sfdx affirm:parcel -d -t before\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/master...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    "
+        "$ sfdx affirm:parcel\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/main...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      (y/n) There are 7 destructive changes. Create destructive changes xml file? y\n      ? Select when the destructive changes should be deployed: before\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    ",
+        "$ sfdx affirm:parcel -d -t before\n      Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n      Diff Against: remotes/origin/main...pilot/affirm... Success:\n      Changes: 5, Insertions: 93, Destructive: 7\n      Cloning Files... Success: 100 files ready for convert\n      Converting... Success\n      Creating Destructive Package... Success: Created at releaseArtifacts/parcel/destructiveChangesPre.xml\n      Cleaning Up... Success\n    "
       ],
       "flags": {
         "json": {
@@ -852,7 +852,7 @@
           "name": "branch",
           "type": "option",
           "char": "b",
-          "description": "The branch other than remotes/origin/master to diff against",
+          "description": "The branch other than remotes/origin/main to diff against",
           "multiple": false
         },
         "inputdir": {
@@ -899,7 +899,7 @@
         "branch": {
           "kind": "string",
           "char": "b",
-          "description": "The branch other than remotes/origin/master to diff against",
+          "description": "The branch other than remotes/origin/main to diff against",
           "input": [],
           "multiple": false,
           "type": "option"
@@ -1379,8 +1379,8 @@
         "affirm:setup"
       ],
       "examples": [
-        "$ sfdx affirm:setup\n      Provide name of remote branch related to your Production Instance  [remotes/origin/master]: remotes/origin/main\n      Primary Branch set to:  remotes/origin/main\n      Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: .superArtifacts\n      Build Directory set to:  .superArtifacts\n      Provide default directory name for new packages  [parcel]: pack\n      Package Directory set to:  pack\n      Provide default wait time for async commands  [10]: 5\n      Wait Time set to:  5\n      Provide the name of a test class you would like to run for declarative dev by default if no test suite is created : Test_DeclarativeDefault\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    ",
-        "$ sfdx affirm:setup -b remotes/origin/main -d .superArtifacts -p pack -w 5 -t Test_DeclarativeDefault -o\n      Primary Branch set to:  remotes/origin/main\n      Build Directory set to:  .superArtifacts\n      Package Directory set to:  pack\n      Wait Time set to:  5\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    "
+        "$ sfdx affirm:setup\n      Provide name of remote branch related to your Production Instance  [remotes/origin/main]: remotes/origin/master\n      Primary Branch set to:  remotes/origin/master\n      Provide location where temp build folders and packages will be created and stored  [releaseArtifacts]: .superArtifacts\n      Build Directory set to:  .superArtifacts\n      Provide default directory name for new packages  [parcel]: pack\n      Package Directory set to:  pack\n      Provide default wait time for async commands  [10]: 5\n      Wait Time set to:  5\n      Provide the name of a test class you would like to run for declarative dev by default if no test suite is created : Test_DeclarativeDefault\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    ",
+        "$ sfdx affirm:setup -b remotes/origin/master -d .superArtifacts -p pack -w 5 -t Test_DeclarativeDefault -o\n      Primary Branch set to:  remotes/origin/master\n      Build Directory set to:  .superArtifacts\n      Package Directory set to:  pack\n      Wait Time set to:  5\n      Declarative Test Class set to:  Test_DeclarativeDefault\n      Settings Saved to: ./sfdx-affirm.json\n    "
       ],
       "flags": {
         "json": {
@@ -1416,7 +1416,7 @@
           "name": "primarybranch",
           "type": "option",
           "char": "b",
-          "description": "(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.",
+          "description": "(optional | Default: main) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/main'. Helpful if you use master instead of main.",
           "multiple": false
         },
         "builddir": {
@@ -1467,7 +1467,7 @@
         "primarybranch": {
           "kind": "string",
           "char": "b",
-          "description": "(optional | Default: master) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/master'. Helpful if you use main instead of master.",
+          "description": "(optional | Default: main) The primary branch should be the remote branch that is linked to your Production Instance of Salesforce. Default is 'remotes/origin/main'. Helpful if you use master instead of main.",
           "input": [],
           "multiple": false,
           "type": "option"
@@ -1812,9 +1812,9 @@
         "affirm:suite:merge"
       ],
       "examples": [
-        "$ sfdx affirm:suite:merge\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 3 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_3###_some_branch2.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/name-of-epic-branch.testSuite-meta.xml\n    ",
-        "$ sfdx affirm:suite:merge -n funky_suite_name\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 2 test suite(s) will me merged into the funky_suite_name test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml\n    ",
-        "$ sfdx affirm:suite:merge -o releaseArtifacts/tests\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/master...pilot/affirm\n    The following 2 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml\n    "
+        "$ sfdx affirm:suite:merge\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/main...pilot/affirm\n    The following 3 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_3###_some_branch2.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/name-of-epic-branch.testSuite-meta.xml\n    ",
+        "$ sfdx affirm:suite:merge -n funky_suite_name\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/main...pilot/affirm\n    The following 2 test suite(s) will me merged into the funky_suite_name test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: force-app/main/default/testSuites/funky_suite_name.testSuite-meta.xml\n    ",
+        "$ sfdx affirm:suite:merge -o releaseArtifacts/tests\n    Current Remote: origin => git@bitbucket.org:projectName/repo-name.git\n    Git Diff For: remotes/origin/main...pilot/affirm\n    The following 2 test suite(s) will me merged into the name-of-epic-branch test suite\n    force-app/main/default/testSuites/SFDC_1###_some_branch.testSuite-meta.xml\n    force-app/main/default/testSuites/SFDC_2###_some_branch1.testSuite-meta.xml\n    Creating Test Suite... Success\n    New Test Suite Written to: releaseArtifacts/tests/name-of-epic-branch.testSuite-meta.xml\n    "
       ],
       "flags": {
         "json": {
@@ -1871,7 +1871,7 @@
           "name": "branch",
           "type": "option",
           "char": "b",
-          "description": "Optional: the branch other than remotes/origin/master to diff against",
+          "description": "Optional: the branch other than remotes/origin/main to diff against",
           "multiple": false
         },
         "list": {
@@ -1918,7 +1918,7 @@
         "branch": {
           "kind": "string",
           "char": "b",
-          "description": "Optional: the branch other than remotes/origin/master to diff against",
+          "description": "Optional: the branch other than remotes/origin/main to diff against",
           "input": [],
           "multiple": false,
           "type": "option"
