@@ -5,7 +5,7 @@
       "id": "sfdx-affirm:audit",
       "description": "Queries and downloads audit logs from the target org",
       "strict": true,
-      "usage": "<%= command.id %> [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
+      "usage": "<%= command.id %> [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]",
       "pluginName": "sfdx-affirm",
       "pluginAlias": "sfdx-affirm",
       "pluginType": "core",
@@ -138,6 +138,12 @@
           "description": "Optional: provide if you would like to print the results to the terminal only. Can not be used with the 'savedir' flag.",
           "required": false,
           "allowNo": false
+        },
+        "verbose": {
+          "name": "verbose",
+          "type": "boolean",
+          "description": "emit additional command output to stdout",
+          "allowNo": false
         }
       },
       "args": {},
@@ -230,6 +236,13 @@
           "required": false,
           "allowNo": false,
           "type": "boolean"
+        },
+        "verbose": {
+          "type": "boolean",
+          "kind": "boolean",
+          "description": "emit additional command output to stdout",
+          "longDescription": "Emit additional command output to stdout.",
+          "allowNo": false
         }
       },
       "requiresProject": true,

@@ -84,7 +84,7 @@ export default class Parcel extends SfdxCommand {
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
     await sfcoreFindOrAddReleasePath(pjtJson, settings.buildDirectory);
-    const username = await verifyUsername(this.flags.targetusername);
+    const username = await verifyUsername(this.flags.targetusername, verbose, verbose);
     // clone the files to a temp folder for convert... will clean this up later
     const metaDataTypes: DescribeMetadata = await describeMetadata(username, verbose);
     const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);

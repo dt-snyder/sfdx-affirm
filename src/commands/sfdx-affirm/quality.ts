@@ -94,8 +94,9 @@ export default class Quality extends SfdxCommand {
     const logYN = await getYNString();
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
     const silent: boolean = this.flags.silent;
+    const silentUx = this.flags.silent ? this.ux : undefined;
     const verbose = this.flags.verbose ? this.ux : undefined;
-    const username = await verifyUsername(this.flags.targetusername, (silent === true ? undefined : this.ux));
+    const username = await verifyUsername(this.flags.targetusername, silentUx, verbose);
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
     const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
     this.ux.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);

@@ -91,7 +91,8 @@ export default class Tests extends SfdxCommand {
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
 
     const silent = this.flags.silent;
-    const username = await verifyUsername(this.flags.targetusername, (silent === true ? undefined : this.ux));
+    const silentUx = this.flags.silent ? this.ux : undefined;
+    const username = await verifyUsername(this.flags.targetusername, silentUx, verbose);
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
     const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
     this.ux.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
