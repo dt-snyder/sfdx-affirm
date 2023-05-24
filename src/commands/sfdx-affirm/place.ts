@@ -90,8 +90,9 @@ export default class Place extends SfdxCommand {
     const logYN = await getYNString();
     // * get default username and verify that the user wants to use that one unless silent is true
     const silent: boolean = this.flags.silent;
+    const silentUx = this.flags.silent ? this.ux : undefined;
     const verbose = this.flags.verbose ? this.ux : undefined;
-    const username = await verifyUsername(this.flags.targetusername, (silent === true ? undefined : this.ux));
+    const username = await verifyUsername(this.flags.targetusername, silentUx, verbose);
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username);
     if (!orgIsSandbox && this.flags.notestsrun) {
       throw new SfError(messages.getMessage('errorMustRunTestsInProd'));

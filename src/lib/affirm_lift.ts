@@ -221,28 +221,28 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
   // find tests from package
   const suitesToMerge: Set<string> = await fsGetSuitesInParcel(packagedir);
   const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
-  if (allTests) { // use found tests
+  if (allTests.size > 0) { // use found tests
     testsToReturn = Array.from(allTests).join(',');
     ux.log(chalk.yellow(`Found test suite(s) in ${packagedir}`));
   } else {
     if (isSandbox) { // org is sandbox
       if (!settings.declarativeTestClass && silent === false) { // no default... ask
-        const proceedWithoutTests = await this.ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
+        const proceedWithoutTests = await ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
         if (!proceedWithoutTests) {
-          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+          const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
           testsToReturn = await liftCleanProvidedTests(providedTestClasses);
           if (!testsToReturn) {
             throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
           }
         }
       } else if (settings.declarativeTestClass && silent === false) { // has default... ask
-        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declarativeTestClass}`);
+        const proceedWithDefault = await ux.confirm(`${logYN} Would you like to use the default declarative test class? "${settings.declarativeTestClass}"`);
         if (proceedWithDefault) { // use default
           testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
         } else { // do not use default... ask for list of tests
-          const proceedWithoutTests = await this.ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
+          const proceedWithoutTests = await ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
           if (!proceedWithoutTests) {
-            const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+            const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
             testsToReturn = await liftCleanProvidedTests(providedTestClasses);
             if (!testsToReturn) {
               throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
@@ -256,14 +256,14 @@ export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: Affirm
     } else if (!isSandbox) { // is production
       if (silent === false) ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
       if (!settings.declarativeTestClass && silent === false) { // no default... ask
-        const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+        const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
         testsToReturn = await liftCleanProvidedTests(providedTestClasses);
       } else if (settings.declarativeTestClass && silent === false) { // has default... ask
-        const proceedWithDefault = await this.ux.confirm(`${logYN} Would you like to use the default declarative test class: ${settings.declarativeTestClass}`);
+        const proceedWithDefault = await ux.confirm(`${logYN} Would you like to use the default declarative test class? "${settings.declarativeTestClass}"`);
         if (proceedWithDefault) { // use default
           testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
         } else { // ask for list of tests
-          const providedTestClasses = await this.ux.prompt('Provide the test classes as a comma separated string');
+          const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
           testsToReturn = await liftCleanProvidedTests(providedTestClasses);
         }
       } else if (settings.declarativeTestClass && silent && !forDeployment) { // has default and is validation... just use it
@@ -306,13 +306,13 @@ export async function liftGetTestsFromSuites(suitesToMerge: Set<string>): Promis
   return allTests;
 }
 
-export async function verifyUsername(username?: string, ux?: UX): Promise<string> {
+export async function verifyUsername(username?: string, interactiveUx?: UX, verboseUx?: UX): Promise<string> {
   let usernameToReturn;
   if (!username) {
     const aggregator = await ConfigAggregator.create();
     const defaultUsername = aggregator.getPropertyValue('target-org');
-    if (defaultUsername && ux) {
-      const proceedWithDefault = await ux.confirm(`${logYN} Are you sure you want to use the "${chalk.cyanBright(defaultUsername)}" org ?`);
+    if (defaultUsername && interactiveUx) {
+      const proceedWithDefault = await interactiveUx.confirm(`${logYN} Are you sure you want to use the "${chalk.cyanBright(defaultUsername)}" org ?`);
       if (!proceedWithDefault) {
         throw new SfError(messages.getMessage('noToDefaultUserName'));
       }
@@ -321,8 +321,7 @@ export async function verifyUsername(username?: string, ux?: UX): Promise<string
     }
     usernameToReturn = defaultUsername;
   } else {
-    // TODO: v3: add verbose flag that prints each of the sfdx commands that are run by this command.
-    const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`, ux))) as object;
+    const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`, verboseUx))) as object;
     let foundUsername = false;
     orgList['result']['nonScratchOrgs'].forEach(org => {
       if (org['alias'] === username || org['username'] === username) {

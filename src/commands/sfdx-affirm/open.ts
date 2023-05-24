@@ -97,7 +97,7 @@ export default class Open extends SfdxCommand {
     }
 
     const verbose = this.flags.verbose == true ? this.ux : undefined;
-    const username = await verifyUsername(this.flags.targetusername, verbose);
+    const username = await verifyUsername(this.flags.targetusername, verbose, verbose);
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
     const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
     const cmdType = (this.flags.urlonly) ? 'Getting URL for' : 'Opening';

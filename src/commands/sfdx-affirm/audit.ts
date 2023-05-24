@@ -42,7 +42,8 @@ export default class Audit extends SfdxCommand {
     lastndays: flags.number({ char: 'n', description: messages.getMessage('lastndaysFlagDescription'), required: false }),
     where: flags.string({ char: 'w', description: messages.getMessage('whereFlagDescription'), required: false }),
     savedir: flags.string({ char: 'd', description: messages.getMessage('savedirFlagDescription'), required: false }),
-    printonly: flags.boolean({ char: 'o', description: messages.getMessage('printonlyFlagDescription'), required: false })
+    printonly: flags.boolean({ char: 'o', description: messages.getMessage('printonlyFlagDescription'), required: false }),
+    verbose: flags.builtin()
   };
   // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
   protected static requiresProject = true;
@@ -79,7 +80,8 @@ export default class Audit extends SfdxCommand {
     }
 
     const settings: AffirmSettings = await getAffirmSettings();
-    const username = await verifyUsername(this.flags.targetusername);
+    const verbose = this.flags.verbose ? this.ux : undefined;
+    const username = await verifyUsername(this.flags.targetusername, undefined, verbose);
     const fields = 'Id, Action, Section, Display, DelegateUser, CreatedByContext, CreatedById, CreatedBy.Name, CreatedBy.Username, CreatedBy.Profile.Name, CreatedDate, ResponsibleNamespacePrefix';
     const orderBy = 'ORDER BY CreatedDate DESC';
     const query = (whereClause) ? `SELECT ${fields} FROM SetupAuditTrail ${whereClause} ${orderBy}` : `SELECT ${fields} FROM SetupAuditTrail ${orderBy}`;

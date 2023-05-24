@@ -11,7 +11,7 @@ Commands for creating a package from git diff and validating it against a specif
 ## Commands
 <!-- commands -->
 * [`sfdx a:o [-e] [-n] [-d] [-p] [-i <string>] [-o] [-d] [-c] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-ao--e--n--d--p--i-string--o--d--c--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmchanges--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -23,7 +23,7 @@ Commands for creating a package from git diff and validating it against a specif
 * [`sfdx affirm:suite [-t <string>] [-n <string>] [-o <string>] [-a] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsuite--t-string--n-string--o-string--a---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:suite:merge [-n <string>] [-o <string>] [-n <string>] [-b <string>] [-l] [-s] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmsuitemerge--n-string--o-string--n-string--b-string--l--s---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx affirm:tests [-l <string>] [-w <integer>] [-r] [-a] [-e] [-s] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-affirmtests--l-string--w-integer--r--a--e--s--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
-* [`sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
+* [`sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmaudit--a-string--s-string--i-string--c-string--p-string--t-string--n-number--w-string--d-string--o--u-string---apiversion-string---verbose---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:changes [-b <string>] [-n <string>] [-d] [-i] [-c] [-s] [-o <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmchanges--b-string--n-string--d--i--c--s--o-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:form [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmform--u-string---apiversion-string---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
 * [`sfdx sfdx-affirm:jwt -p <string> -i <string> -s <string> -a <string> [-e <number>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`](#sfdx-sfdx-affirmjwt--p-string--i-string--s-string--a-string--e-number---json---loglevel-tracedebuginfowarnerrorfataltracedebuginfowarnerrorfatal)
@@ -116,14 +116,14 @@ EXAMPLES
           Done
 ```
 
-## `sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Queries and downloads audit logs from the target org
 
 ```
 USAGE
   $ sfdx affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n
-    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel
+    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel
     trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
@@ -175,6 +175,9 @@ FLAGS
 
   --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
       [default: warn] logging level for this command invocation
+
+  --verbose
+      emit additional command output to stdout
 
 DESCRIPTION
   Queries and downloads audit logs from the target org
@@ -998,14 +1001,14 @@ EXAMPLES
         (y/n) Would you like to print the results of each test?: n
 ```
 
-## `sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
+## `sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]`
 
 Queries and downloads audit logs from the target org
 
 ```
 USAGE
   $ sfdx sfdx-affirm:audit [-a <string>] [-s <string>] [-i <string>] [-c <string>] [-p <string>] [-t <string>] [-n
-    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--json] [--loglevel
+    <number>] [-w <string>] [-d <string>] [-o] [-u <string>] [--apiversion <string>] [--verbose] [--json] [--loglevel
     trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL]
 
 FLAGS
@@ -1057,6 +1060,9 @@ FLAGS
 
   --loglevel=(trace|debug|info|warn|error|fatal|TRACE|DEBUG|INFO|WARN|ERROR|FATAL)
       [default: warn] logging level for this command invocation
+
+  --verbose
+      emit additional command output to stdout
 
 DESCRIPTION
   Queries and downloads audit logs from the target org
