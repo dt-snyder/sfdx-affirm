@@ -59,7 +59,7 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
     const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
     const fileName = pathCrums[pathCrums.length - 1];
     if (foldersThatShouldBeReviewed.includes(folder)) {
-      if (file.indexOf('.xml') >= 0) {
+      if (file.indexOf('.resource-meta.xml') >= 0) {
         const resourceFile = await fsGetResourceFileFromXML(file, fileName);
         if (!resourceFile) {
           ux.log(`${chalk.red('Warning:')} A file was found in a folder that needs manual review: "${chalk.underline.blue(file)}" Make sure it was copied to the package folder or your package could fail.`);
@@ -332,12 +332,20 @@ export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileNa
   if (obj.StaticResource.contentType !== 'application/zip') {
     if (obj.StaticResource.contentType === 'image/png') {
       fileExtention = '.png';
+    } else if (obj.StaticResource.contentType === 'image/jpeg') {
+      fileExtention = '.jpeg';
     } else if (obj.StaticResource.contentType === 'image/gif') {
       fileExtention = '.gif';
     } else if (obj.StaticResource.contentType === 'image/svg+xml') {
       fileExtention = '.svg';
     } else if (obj.StaticResource.contentType === 'text/javascript') {
       fileExtention = '.js';
+    } else if (obj.StaticResource.contentType === 'application/xml') {
+      fileExtention = '.xml';
+    } else if (obj.StaticResource.contentType === 'font/ttf') {
+      fileExtention = '.ttf';
+    } else if (obj.StaticResource.contentType === 'text/css') {
+      fileExtention = '.css';
     }
     if (fileExtention) {
       const fileToFind = currentPath.replace('.resource-meta.xml', fileExtention);
