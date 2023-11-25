@@ -1,5 +1,5 @@
-import { flags, SfdxCommand, FlagsConfig } from '@salesforce/command';
-import { Messages, SfError } from '@salesforce/core';
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
+import { Messages } from '@salesforce/core';
 import { AnyJson, ensureAnyJson, ensureJsonMap, getJsonMap, JsonMap } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
@@ -13,14 +13,13 @@ import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
 import { openLocations } from '../../lib/affirm_openLocations';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
-// Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
-
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'quality');
 
-export default class Quality extends SfdxCommand {
+
+export type QualityResult = { status: string; };
+
+export default class Quality extends SfCommand<QualityResult> {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:quality'];
@@ -64,76 +63,83 @@ export default class Quality extends SfdxCommand {
     `
   ];
 
-  protected static flagsConfig: FlagsConfig = {
-    packagedir: flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
-    testclasses: flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
-    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
-    waittime: flags.number({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
-    noresults: flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') }),
-    saveresults: flags.boolean({ char: 'e', description: messages.getMessage('saveresultsFlagDescription') }),
-    printall: flags.boolean({ char: 'p', description: messages.getMessage('printallFlagDescription') }),
-    openstatus: flags.boolean({ char: 'o', description: messages.getMessage('openstatusFlagDescription') }),
-    notestsrun: flags.boolean({ char: 'n', description: messages.getMessage('notestsrunFlagDescription') }),
-    verbose: flags.builtin()
+  public static readonly flags = {
+    packagedir: Flags.string({ char: 'd', description: messages.getMessage('packagedirFlagDescription') }),
+    testclasses: Flags.string({ char: 't', description: messages.getMessage('testclassesFlagDescription') }),
+    silent: Flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
+    waittime: Flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
+    noresults: Flags.boolean({ char: 'r', description: messages.getMessage('noresultsFlagDescription') }),
+    saveresults: Flags.boolean({ char: 'e', description: messages.getMessage('saveresultsFlagDescription') }),
+    printall: Flags.boolean({ char: 'p', description: messages.getMessage('printallFlagDescription') }),
+    openstatus: Flags.boolean({ char: 'o', description: messages.getMessage('openstatusFlagDescription') }),
+    notestsrun: Flags.boolean({ char: 'n', description: messages.getMessage('notestsrunFlagDescription') }),
+    verbose: Flags.boolean({ summary: messages.getMessage('flags.verbose'), deprecateAliases: true, default: false, hidden: true }),
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
-  // Comment this out if your command does not require an org username
-  static supportsUsername = true;
-
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
-
-  public async run(): Promise<AnyJson> {
-    if (this.flags.noresults && this.flags.saveresults && this.flags.printall) {
-      throw new SfError(messages.getMessage('errorResultsFlags'));
-    } else if (this.flags.testclasses && this.flags.notestsrun) {
-      throw new SfError(messages.getMessage('errorTestFlags'));
+  public async run(): Promise<QualityResult> {
+    const result: QualityResult = {
+      status: "Processing"
+    };
+    const { flags } = await this.parse(Quality);
+    if (flags.noresults && flags.saveresults && flags.printall) {
+      result.status = "failed";
+      throw messages.createError('errorResultsFlags');
+    } else if (flags.testclasses && flags.notestsrun) {
+      result.status = "failed";
+      throw messages.createError('errorTestFlags');
     }
     let commandResult: MetadataApiDeployStatus;
     const settings: AffirmSettings = await getAffirmSettings();
     const logYN = await getYNString();
     // if the user provides a target user name set it, if they don't get the default username and have them confirm it's use.
-    const silent: boolean = this.flags.silent;
-    const silentUx = this.flags.silent ? this.ux : undefined;
-    const verbose = this.flags.verbose ? this.ux : undefined;
-    const username = await verifyUsername(this.flags.targetusername, silentUx, verbose);
+    const silent: boolean = flags.silent;
+    const silentUx = flags.silent ? new Ux({ jsonEnabled: this.jsonEnabled() }) : undefined;
+    const verbose = flags.verbose ? new Ux({ jsonEnabled: this.jsonEnabled() }) : undefined;
+    const username = flags.targetusername.getUsername();
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
     const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
-    this.ux.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
+    this.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
     // get the package directory provided by the user or the default, have them confirm it's use if it exists, if it doesn't throw an error.
-    const packagedir = this.flags.packagedir || `${settings.buildDirectory}/${settings.packageDirectory}`;
+    const packagedir = flags.packagedir || `${settings.buildDirectory}/${settings.packageDirectory}`;
     const parcelExists = await fs.pathExists(packagedir);
     if (parcelExists && silent === false) {
       const confirmParcelDir = `${logYN} Are you sure you want to validate the package located in the "${chalk.underline.blue(packagedir)}" folder?`;
-      const proceedWithDefault = await this.ux.confirm(confirmParcelDir);
-      if (!proceedWithDefault) return { packageValidated: false, message: `user said no to ${packagedir} folder` };
+      const proceedWithDefault = await this.confirm(confirmParcelDir);
+      if (!proceedWithDefault) {
+        result.status = "exit";
+        return result;
+      }
     } else if (parcelExists === false) {
       const errorType = packagedir === (`${settings.buildDirectory}/${settings.packageDirectory}`) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
-      throw new SfError(messages.getMessage(errorType));
+      result.status = "failed";
+      throw messages.createError(errorType);
     }
-    this.ux.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
+    this.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
     // get the test classes provided by the user, if they didn't provide any tests prompt them to confirm, and allow them to enter tests
-    const testclasses = this.flags.testclasses;
+    const testclasses = flags.testclasses;
     let useTestClasses;
-    if (!testclasses && !this.flags.notestsrun) {
-      useTestClasses = await getTestsFromPackageSettingsOrUser(this.ux, settings, packagedir, orgIsSandbox, silent);
+    if (!testclasses && !flags.notestsrun) {
+      useTestClasses = await getTestsFromPackageSettingsOrUser(new Ux({ jsonEnabled: this.jsonEnabled() }), settings, packagedir, orgIsSandbox, silent);
     } else if (testclasses) {
       useTestClasses = await liftCleanProvidedTests(testclasses);
-    } else if (this.flags.notestsrun && !orgIsSandbox) {
-      throw new SfError(messages.getMessage('errorNoTestProvidedForProd'));
+    } else if (flags.notestsrun && !orgIsSandbox) {
+      result.status = "failed";
+      throw messages.createError('errorNoTestProvidedForProd');
     }
 
     const testClassLog = useTestClasses ? 'Validating Using Provided Test Classes: ' : chalk.red('Validating without test classes!');
-    this.ux.log(testClassLog);
+    this.log(testClassLog);
     if (useTestClasses) {
       const testClasses = useTestClasses.split(',');
       for (const test of testClasses) {
-        this.ux.log(chalk.green(test));
+        this.log(chalk.green(test));
       }
     }
 
     // start the validation of the package
-    const waitTime: number = this.flags.waittime === undefined ? settings.waitTime : this.flags.waittime;
+    const waitTime: number = flags.waittime === undefined ? settings.waitTime : flags.waittime;
     const tests = useTestClasses ? ` -l RunSpecifiedTests -r ${useTestClasses}` : ' -l NoTestRun';
     const startCommand = `sfdx force:mdapi:deploy -c  -u ${username} -d ${packagedir} ${tests}`;
     // TODO: handle timeout more gracefully by implementing @salesforce/source-deploy-retrieve
@@ -142,36 +148,36 @@ export default class Quality extends SfdxCommand {
     const validtionId = validationStartMap['id'];
     let date = new Date().toJSON();
     let currentRunName = `${date.substring(0, date.indexOf('.')).replace('T', '_').split(':').join('_')}_${validtionId}`;
-    if (this.flags.openstatus) {
-      this.ux.log(`Opening Deployment Status page in ${chalk.greenBright(username)} for validation: ${validtionId}`);
+    if (flags.openstatus) {
+      this.log(`Opening Deployment Status page in ${chalk.greenBright(username)} for validation: ${validtionId}`);
       await sfdxOpenToPath(username, `${openLocations.deployment.lightningIdPath}${validtionId}`, false, verbose);
     } else {
-      this.ux.log(`Validation started in ${chalk.greenBright(username)} with Deployment Id: ${validtionId}`);
+      this.log(`Validation started in ${chalk.greenBright(username)} with Deployment Id: ${validtionId}`);
     }
     if (waitTime > 0 && validtionId) {
       const reportCommand = `sfdx force:mdapi:deploy:report -i ${validtionId} -u ${username}`;
-      const validationCommandResult: JsonMap = getJsonMap((await runAsynCommand(reportCommand, waitTime, this.ux, 'Validating Package', 15000, this.flags.verbose)), 'result');
+      const validationCommandResult: JsonMap = getJsonMap((await runAsynCommand(reportCommand, waitTime, new Ux({ jsonEnabled: this.jsonEnabled() }), 'Validating Package', 15000, flags.verbose)), 'result');
       commandResult = validationCommandResult as unknown as MetadataApiDeployStatus;
       currentRunName = `${commandResult.createdDate.substring(0, commandResult.createdDate.indexOf('.')).replace('T', '_').split(':').join('_')}_${validtionId}`;
-      this.ux.log(`Deployment Status Date_Time_Id: ${chalk.cyanBright(currentRunName)}`);
-      this.ux.log(`Total Components: ${chalk.cyan(commandResult.numberComponentsTotal)}`);
-      this.ux.log(`Component Deployed: ${chalk.green(commandResult.numberComponentsDeployed)}`);
-      this.ux.log(`Component With Errors: ${chalk.red(commandResult.numberComponentErrors)}`);
+      this.log(`Deployment Status Date_Time_Id: ${chalk.cyanBright(currentRunName)}`);
+      this.log(`Total Components: ${chalk.cyan(commandResult.numberComponentsTotal)}`);
+      this.log(`Component Deployed: ${chalk.green(commandResult.numberComponentsDeployed)}`);
+      this.log(`Component With Errors: ${chalk.red(commandResult.numberComponentErrors)}`);
       if (useTestClasses) {
-        this.ux.log(`Total Tests Run: ${chalk.cyan(commandResult.numberTestsTotal)}`);
-        this.ux.log(`Successful Tests: ${chalk.green(commandResult.numberTestsCompleted)}`);
-        this.ux.log(`Test Errors: ${chalk.red(commandResult.numberTestErrors)}`);
+        this.log(`Total Tests Run: ${chalk.cyan(commandResult.numberTestsTotal)}`);
+        this.log(`Successful Tests: ${chalk.green(commandResult.numberTestsCompleted)}`);
+        this.log(`Test Errors: ${chalk.red(commandResult.numberTestErrors)}`);
       }
     }
 
-    if (!this.flags.noresults) {
+    if (!flags.noresults) {
       let resultHandlerType: string | undefined;
-      if (this.flags.saveresults) {
+      if (flags.saveresults) {
         resultHandlerType = 'save';
-      } else if (this.flags.printall) {
+      } else if (flags.printall) {
         resultHandlerType = 'printAll';
       } else if (silent === false) {
-        const displayResults: any = await inquirer.prompt([{
+        const displayResults: any = await this.prompt([{
           name: 'selected',
           message: 'Would you like to print or save the any of the validation results?',
           type: 'list',
@@ -188,28 +194,28 @@ export default class Quality extends SfdxCommand {
             if (printAll) {
               displayNext = true;
             } else {
-              displayNext = await this.ux.confirm(`${logYN} Would you like to print the ${printResultType}?`);
+              displayNext = await this.confirm(`${logYN} Would you like to print the ${printResultType}?`);
             }
           }
           if (displayNext === false) continue;
           if (resultType === 'runTestResult') {
-            await liftPrintTestResultTable(commandResult.details[resultType], this.ux);
+            await liftPrintTestResultTable(commandResult.details[resultType], new Ux({ jsonEnabled: this.jsonEnabled() }));
           } else if (resultType === 'componentFailures' || resultType === 'componentSuccesses') {
-            await liftPrintComponentTable(printResultType, commandResult.details[resultType], this.ux);
+            await liftPrintComponentTable(printResultType, commandResult.details[resultType], new Ux({ jsonEnabled: this.jsonEnabled() }));
           }
         }
       } else if (resultHandlerType === 'save') {
         const fileName = `${settings.buildDirectory}/validationResults/${username}/${currentRunName}`;
-        await fsSaveJson(fileName, ensureAnyJson(commandResult), this.ux);
+        await fsSaveJson(fileName, ensureAnyJson(commandResult), new Ux({ jsonEnabled: this.jsonEnabled() }));
       }
     }
     if (!Object.prototype.hasOwnProperty.call(commandResult, 'details')) {
-      this.ux.log('Since a waittime of zero (0) was provided only initial results are printed');
-      this.ux.log(`Validation Status: ${chalk.cyanBright(commandResult.status)}`);
-      if (this.flags.printall) this.ux.logJson(ensureJsonMap(ensureAnyJson(commandResult)));
-      this.ux.log(`Run "sfdx force:mdapi:deploy:cancel -i ${validtionId} -u ${username}" to cancel the validation deployment.`);
-      this.ux.log(`Run "sfdx force:mdapi:deploy:report -i ${validtionId} -u ${username}" to get the latest status.`);
+      this.log('Since a waittime of zero (0) was provided only initial results are printed');
+      this.log(`Validation Status: ${chalk.cyanBright(commandResult.status)}`);
+      if (flags.printall) this.logJson(ensureJsonMap(ensureAnyJson(commandResult)));
+      this.log(`Run "sfdx force:mdapi:deploy:cancel -i ${validtionId} -u ${username}" to cancel the validation deployment.`);
+      this.log(`Run "sfdx force:mdapi:deploy:report -i ${validtionId} -u ${username}" to get the latest status.`);
     }
-    return ensureAnyJson(commandResult);
+    return result;
   }
 }

@@ -1,17 +1,16 @@
-import { SfdxCommand } from '@salesforce/command';
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { AnyJson } from '@salesforce/ts-types';
 import { Messages } from '@salesforce/core';
 import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
 import { verifyUsername } from '../../lib/affirm_lift';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
-// Initialize Messages with the current plugin directory
-Messages.importMessagesDirectory(__dirname);
 
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
+Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'form');
 
-export default class Form extends SfdxCommand {
+export type FormResult = { status: string; };
+
+export default class Form extends SfCommand<FormResult> {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:form'];
@@ -27,18 +26,20 @@ export default class Form extends SfdxCommand {
       Org prodAlias is a Production instance
     `,
   ];
+  
+  public static readonly flags = {
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
+  };
 
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
-  protected static supportsUsername = true;
-
-  public async run(): Promise<AnyJson> {
-    const username = await verifyUsername(this.flags.targetusername);
-    const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, this.ux);
+  public async run(): Promise<FormResult> {
+    const { flags } = await this.parse(Form);
+    const username = flags.targetusername.getUsername();
+    const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, new Ux({jsonEnabled: this.jsonEnabled()}));
     const booleanToPrint = orgIsSandbox ? chalk.greenBright(orgIsSandbox) : chalk.redBright(orgIsSandbox);
-    this.ux.log(`Organization.IsSandbox = ${booleanToPrint}`);
+    this.log(`Organization.IsSandbox = ${booleanToPrint}`);
     const messageToPrint = orgIsSandbox ? `${chalk.greenBright('Sandbox')}` : `${chalk.redBright('Production')}`;
-    this.ux.log(`Org ${chalk.blueBright(username)} is a ${messageToPrint} instance`);
+    this.log(`Org ${chalk.blueBright(username)} is a ${messageToPrint} instance`);
     return JSON.stringify(orgIsSandbox);
   }
 }

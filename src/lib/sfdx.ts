@@ -1,11 +1,11 @@
 import { SfError, PollingClient, StatusResult } from '@salesforce/core';
 import { get, AnyJson, ensureAnyJson } from '@salesforce/ts-types';
 import * as child from 'child_process';
-import { UX } from '@salesforce/command';
+import { Ux } from '@salesforce/sf-plugins-core'
 import { Duration, parseJson } from '@salesforce/kit';
 import { sleep } from './affirm_lift';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
-export const runCommand = (fullCommand: string, ux?: UX): Promise<AnyJson> => {
+export const runCommand = (fullCommand: string, ux?: Ux): Promise<AnyJson> => {
   const error = new Error();
 
   if (!fullCommand.includes('--json')) {
@@ -50,7 +50,7 @@ export const runCommand = (fullCommand: string, ux?: UX): Promise<AnyJson> => {
   });
 };
 
-export async function runAsynCommand(fullCommand: string, timeout: number, ux: UX, spinnerMessage: string, frequency?: number, verbose?: boolean): Promise<AnyJson> {
+export async function runAsynCommand(fullCommand: string, timeout: number, ux: Ux, spinnerMessage: string, frequency?: number, verbose?: boolean): Promise<AnyJson> {
   const error = new Error();
   const parts = fullCommand.split(' ');
   const commandName = parts[0] + ' ' + parts[1];

@@ -1,5 +1,5 @@
-import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
-import { Messages, SfError, SfProjectJson } from '@salesforce/core';
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
+import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../../lib/affirm_fs';
@@ -9,14 +9,17 @@ import { AffirmSettings, DiffObj } from '../../../lib/affirm_interfaces';
 import { getAffirmSettings } from '../../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
-// Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
-
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'merge');
 
-export default class Merge extends SfdxCommand {
+export type MergeResult = {
+  status: string;
+  suitesToMerge?: Set<string>;
+  pathToSuite: string | undefined;
+  result: string;
+};
+
+export default class Merge extends SfCommand<MergeResult> {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:suite:merge'];
@@ -51,85 +54,94 @@ export default class Merge extends SfdxCommand {
     `,
   ];
 
-  protected static flagsConfig: FlagsConfig = {
-    name: flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
-    outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
-    inputdir: flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
-    branch: flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
-    list: flags.boolean({ char: 'l', description: messages.getMessage('listFlagDescription'), default: false }),
-    string: flags.boolean({ char: 's', description: messages.getMessage('stringFlagDescription'), default: false })
+  public static readonly flags = {
+    name: Flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
+    outputdir: Flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
+    inputdir: Flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
+    branch: Flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
+    list: Flags.boolean({ char: 'l', description: messages.getMessage('listFlagDescription'), default: false }),
+    string: Flags.boolean({ char: 's', description: messages.getMessage('stringFlagDescription'), default: false }),
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
-
-  public async run(): Promise<AnyJson> {
-
+  public async run(): Promise<MergeResult> {
+    const { flags } = await this.parse(Merge);
+    const result: MergeResult = {
+      status: 'not started',
+      suitesToMerge: undefined,
+      pathToSuite: undefined,
+      result: undefined
+    }
     const settings: AffirmSettings = await getAffirmSettings();
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo();
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
+    // TODO: fix this
     const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
-    const inputdir = this.flags.inputdir || defaultPath;
-    const onlyPrint = this.flags.list || this.flags.string;
+    const inputdir = flags.inputdir || defaultPath;
+    const onlyPrint = flags.list || flags.string;
 
     await sfcoreIsPathProject(pjtJson, inputdir);
     // compare the current branch to the provided or default branch
-    const branch = this.flags.branch || settings.primaryBranch;
+    const branch = flags.branch || settings.primaryBranch;
     const currentBranch = await getCurrentBranchName();
-    await printBranchesCompared(this.ux, branch, currentBranch);
+    await printBranchesCompared(new Ux({ jsonEnabled: this.jsonEnabled() }), branch, currentBranch);
     // get the current branch name and set it as the file name if the user did not provide one
     const defaultFileName = await liftShortBranchName(currentBranch, 25, true);
-    const name = this.flags.name || defaultFileName;
-    if (!onlyPrint) await checkName(name, this.ux);
+    const name = flags.name || defaultFileName;
+    if (!onlyPrint) await checkName(name, new Ux({ jsonEnabled: this.jsonEnabled() }));
     if (name.length > 35 && !onlyPrint) {
-      throw new SfError(messages.getMessage('errorNameIsToLong'));
+      throw messages.createError('errorNameIsToLong');
     }
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
+    const outputdir = flags.outputdir || defaultPath + '/main/default/testSuites/';
     const hasExistingSuite: string = await fsCheckForExistingSuite(outputdir, name);
     // get diff and collect suite file locations
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
-    const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
-    if (suitesToMerge.size === 0) {
-      this.ux.log('Could not find existing Suites to Merge: Exit Command');
-      return { status: 'no existing suites found' };
+    result.suitesToMerge = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
+    if (result.suitesToMerge.size === 0) {
+      this.log('Could not find existing Suites to Merge: Exit Command');
+      result.status = 'Complete: no existing suites found';
+      return result;
     }
 
     if (onlyPrint) {
-      this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) were found:');
+      this.log('The following ' + chalk.green(result.suitesToMerge.size) + ' test suite(s) were found:');
     } else {
-      this.ux.log('The following ' + chalk.green(suitesToMerge.size) + ' test suite(s) will me merged into the ' + name + ' test suite:');
+      this.log('The following ' + chalk.green(result.suitesToMerge.size) + ' test suite(s) will me merged into the ' + name + ' test suite:');
     }
-    let allTests: Set<string> = await liftGetTestsFromSuites(suitesToMerge);
+    let allTests: Set<string> = await liftGetTestsFromSuites(result.suitesToMerge);
     allTests = new Set(Array.from(allTests).sort());
-    if (onlyPrint) {
-      if (this.flags.list) {
-        this.ux.log(chalk.dim.blue('Listed'));
-        allTests.forEach(test => {
-          this.ux.log(chalk.blue(test));
-        });
-      }
-      if (this.flags.string) {
-        const testString = Array.from(allTests).join(",");
-        this.ux.log(chalk.dim.green('Single String'));
-        this.ux.log(chalk.green(testString));
-      }
-      return { status: 'print and exit' };
-    }
     const testArray = [...allTests];
     const allTestsString: string = testArray.join(',');
-    const cleanTests = await liftCleanProvidedTests(allTestsString);
-    let pathToSuite;
-    this.ux.startSpinner('Creating Test Suite');
-    if (!hasExistingSuite) {
-      pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, name);
-    } else {
-      pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, name);
+    result.result = await liftCleanProvidedTests(allTestsString);
+    if (onlyPrint) {
+      if (flags.list) {
+        this.log(chalk.dim.blue('Listed'));
+        allTests.forEach(test => {
+          this.log(chalk.blue(test));
+        });
+      }
+      if (flags.string) {
+        const testString = Array.from(allTests).join(",");
+        this.log(chalk.dim.green('Single String'));
+        this.log(chalk.green(testString));
+      }
+      result.status = 'Complete: print and exit';
+      return result;
     }
-    this.ux.stopSpinner('Success');
-    this.ux.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
-    return { status: 'complete', pathToSuite: pathToSuite };
+
+    this.spinner.start('Creating Test Suite');
+    if (!hasExistingSuite) {
+      result.pathToSuite = await fsCreateNewTestSuite(result.result, outputdir, name);
+    } else {
+      result.pathToSuite = await fsUpdateExistingTestSuite(result.result, outputdir, name);
+    }
+    this.spinner.stop('Success');
+    this.log('New Test Suite Written to: ' + chalk.underline.blue(result.pathToSuite));
+    result.status = 'Complete: Saved to File';
+    return result;
   }
 }

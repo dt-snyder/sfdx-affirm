@@ -1,4 +1,4 @@
-import { UX } from '@salesforce/command';
+import { Ux } from '@salesforce/sf-plugins-core'
 import chalk = require('chalk');
 import * as fs from 'fs-extra';
 import { AffirmSettings } from './affirm_interfaces';
@@ -51,7 +51,7 @@ export async function getDefaultAffirmSettings(): Promise<AffirmSettings> {
   return defaultSettings;
 }
 
-export async function confirmAndUpdateSettings(settings: AffirmSettings, settingsKey: string, ux: UX, acceptDefaults: boolean, overWrite: boolean, providedSetting?: string): Promise<string | undefined> {
+export async function confirmAndUpdateSettings(settings: AffirmSettings, settingsKey: string, ux: Ux, acceptDefaults: boolean, overWrite: boolean, providedSetting?: string): Promise<string | undefined> {
   let returnVal: string | undefined = undefined;
   if (!providedSetting && !acceptDefaults) {
     returnVal = await ux.prompt(settingsLabels[settingsKey].prompt, { default: defaultSettings[settingsKey], required: false });

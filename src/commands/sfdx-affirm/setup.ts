@@ -1,4 +1,4 @@
-import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { AnyJson } from '@salesforce/ts-types';
 import { AffirmSettings } from '../../lib/affirm_interfaces';
 import * as fs from 'fs-extra';
@@ -7,14 +7,12 @@ import { Messages } from '@salesforce/core';
 import { confirmAndUpdateSettings, getAffirmSettings, getDefaultAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
-// Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
-
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'setup');
 
-export default class Setup extends SfdxCommand {
+export type SetupResult = { status: string; };
+
+export default class Setup extends SfCommand<SetupResult> {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:setup'];
@@ -41,53 +39,54 @@ export default class Setup extends SfdxCommand {
       Settings Saved to: ./sfdx-affirm.json
     `,
   ];
-  protected static flagsConfig: FlagsConfig = {
-    primarybranch: flags.string({ char: 'b', description: messages.getMessage('primarybranchFlagDescription') }),
-    builddir: flags.string({ char: 'd', description: messages.getMessage('builddirFlagDescription') }),
-    packagedir: flags.string({ char: 'p', description: messages.getMessage('packagedirFlagDescription') }),
-    waittime: flags.number({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
-    declarativetestclass: flags.string({ char: 't', description: messages.getMessage('declarativetestclassFlagDescription') }),
-    acceptdefaults: flags.boolean({ char: 'a', description: messages.getMessage('acceptdefaultsFlagDescription'), default: false }),
-    overwrite: flags.boolean({ char: 'o', description: messages.getMessage('overwriteFlagDescription'), default: false })
+  public static readonly flags = {
+    primarybranch: Flags.string({ char: 'b', description: messages.getMessage('primarybranchFlagDescription') }),
+    builddir: Flags.string({ char: 'd', description: messages.getMessage('builddirFlagDescription') }),
+    packagedir: Flags.string({ char: 'p', description: messages.getMessage('packagedirFlagDescription') }),
+    waittime: Flags.integer({ char: 'w', description: messages.getMessage('waittimeFlagDescription') }),
+    declarativetestclass: Flags.string({ char: 't', description: messages.getMessage('declarativetestclassFlagDescription') }),
+    acceptdefaults: Flags.boolean({ char: 'a', description: messages.getMessage('acceptdefaultsFlagDescription'), default: false }),
+    overwrite: Flags.boolean({ char: 'o', description: messages.getMessage('overwriteFlagDescription'), default: false }),
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
 
-  public async run(): Promise<AnyJson> {
+  public async run(): Promise<SetupResult> {
+    const { flags } = await this.parse(Setup);
     const logYN = await getYNString();
     const saveToFile = './sfdx-affirm.json';
     const defaultSettings: AffirmSettings = await getDefaultAffirmSettings();
     const settings: AffirmSettings = await getAffirmSettings();
-    const primaryBranch = await confirmAndUpdateSettings(settings, 'primaryBranch', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.primarybranch);
+    const primaryBranch = await confirmAndUpdateSettings(settings, 'primaryBranch', new Ux({jsonEnabled: this.jsonEnabled()}), flags.acceptdefaults, flags.overwrite, flags.primarybranch);
     if (primaryBranch) {
       settings.primaryBranch = primaryBranch;
     }
-    const buildDirectory = await confirmAndUpdateSettings(settings, 'buildDirectory', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.builddir);
+    const buildDirectory = await confirmAndUpdateSettings(settings, 'buildDirectory', new Ux({jsonEnabled: this.jsonEnabled()}), flags.acceptdefaults, flags.overwrite, flags.builddir);
     if (buildDirectory) {
       settings.buildDirectory = buildDirectory;
     }
-    const packageDirectory = await confirmAndUpdateSettings(settings, 'packageDirectory', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.packagedir);
+    const packageDirectory = await confirmAndUpdateSettings(settings, 'packageDirectory', new Ux({jsonEnabled: this.jsonEnabled()}), flags.acceptdefaults, flags.overwrite, flags.packagedir);
     if (packageDirectory) {
       settings.packageDirectory = packageDirectory;
     }
-    const waitTimeString = await confirmAndUpdateSettings(settings, 'waitTime', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.waittime);
+    const waitTimeString = await confirmAndUpdateSettings(settings, 'waitTime', new Ux({jsonEnabled: this.jsonEnabled()}), flags.acceptdefaults, flags.overwrite, flags.waittime);
     const waitTime: number = +waitTimeString;
     if (waitTime) {
       settings.waitTime = waitTime;
     }
-    const declarativeTestClass = await confirmAndUpdateSettings(settings, 'declarativeTestClass', this.ux, this.flags.acceptdefaults, this.flags.overwrite, this.flags.declarativetestclass);
+    const declarativeTestClass = await confirmAndUpdateSettings(settings, 'declarativeTestClass', new Ux({jsonEnabled: this.jsonEnabled()}), flags.acceptdefaults, flags.overwrite, flags.declarativetestclass);
     if (declarativeTestClass) {
       settings.declarativeTestClass = declarativeTestClass;
     }
 
     const dirExists = await fs.pathExists(saveToFile);
-    if (dirExists && !this.flags.overwrite && (settings.primaryBranch !== defaultSettings.primaryBranch || settings.buildDirectory !== defaultSettings.buildDirectory || settings.packageDirectory !== defaultSettings.packageDirectory || settings.waitTime !== defaultSettings.waitTime)) {
-      const youSure = await this.ux.confirm(logYN + ' Are you sure you want to overwrite the existing settings with the selections you have made?');
+    if (dirExists && !flags.overwrite && (settings.primaryBranch !== defaultSettings.primaryBranch || settings.buildDirectory !== defaultSettings.buildDirectory || settings.packageDirectory !== defaultSettings.packageDirectory || settings.waitTime !== defaultSettings.waitTime)) {
+      const youSure = await this.confirm(logYN + ' Are you sure you want to overwrite the existing settings with the selections you have made?');
       if (!youSure) return { result: 'User ended Command' };
     }
     await fs.outputJson(saveToFile, settings);
-    this.ux.log('Settings Saved to: ' + chalk.underline.blue(saveToFile));
+    this.log('Settings Saved to: ' + chalk.underline.blue(saveToFile));
     return settings as unknown as AnyJson;
   }
 }

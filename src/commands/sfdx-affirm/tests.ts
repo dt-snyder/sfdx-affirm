@@ -1,5 +1,5 @@
-import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
-import { Messages, SfError, SfProjectJson } from "@salesforce/core";
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
+import { Messages, SfProjectJson } from "@salesforce/core";
 import { AnyJson, ensureAnyJson, getJsonMap } from "@salesforce/ts-types";
 import { fsSaveJson } from "../../lib/affirm_fs";
 import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from "../../lib/affirm_git";
@@ -15,14 +15,12 @@ import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
 const chalk = require("chalk"); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 
-// Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
-
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages("sfdx-affirm", "tests");
 
-export default class Tests extends SfdxCommand {
+export type TestsResult = { status: string; };
+
+export default class Tests extends SfCommand<TestsResult> {
   public static description = messages.getMessage("commandDescription");
   public static aliases = ["affirm:tests"];
   public static examples = [
@@ -62,45 +60,42 @@ export default class Tests extends SfdxCommand {
     `,
   ];
 
-  protected static flagsConfig: FlagsConfig = {
-    list: flags.string({ char: "l", description: messages.getMessage("listFlagDescription"), }),
-    waittime: flags.integer({ char: "w", description: messages.getMessage("waittimeFlagDescription"), }),
-    printresults: flags.boolean({ char: "r", description: messages.getMessage("printresultsFlagDescription"), }),
-    alltestsuites: flags.boolean({ char: "a", description: messages.getMessage("alltestsuitesFlagDescription"), default: false, }),
-    saveresults: flags.boolean({ char: "e", description: messages.getMessage("saveresultsFlagDescription"), }),
-    silent: flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
-    verbose: flags.builtin()
+  public static readonly flags = {
+    list: Flags.string({ char: "l", description: messages.getMessage("listFlagDescription"), }),
+    waittime: Flags.integer({ char: "w", description: messages.getMessage("waittimeFlagDescription"), }),
+    printresults: Flags.boolean({ char: "r", description: messages.getMessage("printresultsFlagDescription"), }),
+    alltestsuites: Flags.boolean({ char: "a", description: messages.getMessage("alltestsuitesFlagDescription"), default: false, }),
+    saveresults: Flags.boolean({ char: "e", description: messages.getMessage("saveresultsFlagDescription"), }),
+    silent: Flags.boolean({ char: 's', description: messages.getMessage('silentFlagDescription'), default: false }),
+    verbose: Flags.boolean({ summary: messages.getMessage('flags.verbose'), deprecateAliases: true, default: false, hidden: true }),
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
-
-  // Comment this out if your command does not require an org username
-  protected static supportsUsername = true;
-
-  public async run(): Promise<AnyJson> {
-    if (this.flags.saveresults && this.flags.printall) {
-      throw new SfError(messages.getMessage('errorConflictingResultsFlags'));
-    } else if (this.flags.alltestsuites && this.flags.list) {
-      throw new SfError(messages.getMessage('errorConflictingUseTestFlags'));
+  public async run(): Promise<TestsResult> {
+    const { flags } = await this.parse(Tests);
+    if (flags.saveresults && flags.printall) {
+      throw messages.createError('errorConflictingResultsFlags');
+    } else if (flags.alltestsuites && flags.list) {
+      throw messages.createError('errorConflictingUseTestFlags');
     }
     const settings: AffirmSettings = await getAffirmSettings();
 
-    const verbose = this.flags.verbose ? this.ux : undefined;
+    const verbose = flags.verbose ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
     const logYN = await getYNString();
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
 
-    const silent = this.flags.silent;
-    const silentUx = this.flags.silent ? this.ux : undefined;
-    const username = await verifyUsername(this.flags.targetusername, silentUx, verbose);
+    const silent = flags.silent;
+    const silentUx = flags.silent ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
+    const username = flags.targetusername.getUsername();
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
     const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
-    this.ux.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
+    this.log(`Selected ${orgType} Org: ${chalk.greenBright(username)}`);
     // if the user provides tests then skip getting them from the suite
-    const list = this.flags.list;
+    const list = flags.list;
     let testsToUse;
     if (!list) {
-      if (this.flags.alltestsuites) {
+      if (flags.alltestsuites) {
         // make sure we are in a repo and that it has a remote set
         await getRemoteInfo();
         // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
@@ -113,7 +108,7 @@ export default class Tests extends SfdxCommand {
       } else {
         testsToUse = await getTestsFromSuiteOrUser(this.ux, silent);
         if (!testsToUse) {
-          this.ux.log("End Command. No Tests Provided");
+          this.log("End Command. No Tests Provided");
           return { result: "User ended Command" };
         }
       }
@@ -121,40 +116,40 @@ export default class Tests extends SfdxCommand {
       testsToUse = await liftCleanProvidedTests(list);
     }
     const numberOfTests = (testsToUse) ? testsToUse.split(",").length : 0;
-    this.ux.log("Count of Test Classes: " + chalk.green(numberOfTests));
+    this.log("Count of Test Classes: " + chalk.green(numberOfTests));
     if (numberOfTests > 10 && !silent) {
-      const youSure = await this.ux.confirm(`${logYN} Are you sure that you want to run the test methods in all ${chalk.yellow(numberOfTests)} test classes?`);
+      const youSure = await this.confirm(`${logYN} Are you sure that you want to run the test methods in all ${chalk.yellow(numberOfTests)} test classes?`);
       if (!youSure) return { result: "User ended Command" };
     } else if (numberOfTests === 0) {
-      this.ux.log("End Command. No Tests Provided or Found");
+      this.log("End Command. No Tests Provided or Found");
       return { result: "NO TESTS PROVIDED OR FOUND" };
     } else {
-      this.ux.log("Test Classes: " + chalk.cyan(testsToUse));
+      this.log("Test Classes: " + chalk.cyan(testsToUse));
     }
-    const waitTime = this.flags.waittime === undefined ? settings.waitTime : this.flags.waittime;
+    const waitTime = flags.waittime === undefined ? settings.waitTime : flags.waittime;
     // run force:apex:test:run command
-    this.ux.startSpinner("Running Tests");
+    this.spinner.start("Running Tests");
     const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -c -n ${testsToUse} -u ${username} -w ${waitTime}`;
     const testCommandResults = getJsonMap((await runCommand(testCommand, verbose)), 'result');
     const testResults: SfdxTestResult = testCommandResults as unknown as SfdxTestResult;
 
-    this.ux.stopSpinner("Done");
+    this.spinner.stop("Done");
     // this.ux.logJson(testResults.tests);
-    this.ux.log("Outcome: " + chalk.cyanBright(testResults.summary.outcome));
-    this.ux.log("Tests Ran: " + chalk.cyan(testResults.summary.testsRan));
-    this.ux.log("Passing: " + chalk.green(testResults.summary.passing));
-    this.ux.log("Failing: " + chalk.red(testResults.summary.failing));
-    this.ux.log("Skipped: " + chalk.yellow(testResults.summary.skipped));
-    this.ux.log("PassRate: " + chalk.green(testResults.summary.passRate));
-    this.ux.log("FailRate: " + chalk.red(testResults.summary.failRate));
-    this.ux.log(
+    this.log("Outcome: " + chalk.cyanBright(testResults.summary.outcome));
+    this.log("Tests Ran: " + chalk.cyan(testResults.summary.testsRan));
+    this.log("Passing: " + chalk.green(testResults.summary.passing));
+    this.log("Failing: " + chalk.red(testResults.summary.failing));
+    this.log("Skipped: " + chalk.yellow(testResults.summary.skipped));
+    this.log("PassRate: " + chalk.green(testResults.summary.passRate));
+    this.log("FailRate: " + chalk.red(testResults.summary.failRate));
+    this.log(
       "Test Total Time: " + chalk.cyan(testResults.summary.testTotalTime)
     );
-    const printResults = this.flags.printresults;
-    const saveResults = this.flags.saveresults;
+    const printResults = flags.printresults;
+    const saveResults = flags.saveresults;
     let printTestResults;
     if (!printResults && !saveResults && !silent) {
-      const printMore = await this.ux.confirm(
+      const printMore = await this.confirm(
         logYN + " Would you like to print the results of each test?"
       );
       printTestResults = printMore;
@@ -173,13 +168,13 @@ export default class Tests extends SfdxCommand {
         "Test Results",
         testResults.tests,
         whatToPrint,
-        this.ux
+        new Ux({jsonEnabled: this.jsonEnabled()})
       );
     } else if (saveResults) {
       const dateString = await getAffirmFormattedDate();
       const currentBranchName = await getCurrentBranchName();
       const fileName = `${settings.buildDirectory}/testResults/${username}/${dateString}_${currentBranchName}`;
-      await fsSaveJson(fileName, ensureAnyJson(testResults), this.ux);
+      await fsSaveJson(fileName, ensureAnyJson(testResults), new Ux({jsonEnabled: this.jsonEnabled()}));
     }
     return testResults as unknown as AnyJson;
   }

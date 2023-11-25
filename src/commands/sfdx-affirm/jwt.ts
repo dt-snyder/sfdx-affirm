@@ -1,19 +1,17 @@
-import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
-import { Messages, SfError } from '@salesforce/core';
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
+import { Messages } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 // Use this file to store all fs-extra helper methods
 /// <reference types="fs-extra" />
 import * as fs from 'fs-extra';
 import { create } from 'njwt'; // Docs: https://github.com/jwtk/njwt
 
-// Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
-
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'jwt');
 
-export default class Jwt extends SfdxCommand {
+export type JwtResult = { status: string; };
+
+export default class Jwt extends SfCommand<JwtResult> {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:jwt'];
@@ -29,37 +27,37 @@ export default class Jwt extends SfdxCommand {
   ];
 
 
-  protected static flagsConfig: FlagsConfig = {
-    privatekey: flags.string({ char: 'p', description: messages.getMessage('privatekeyFlagDescription'), required: true }),
-    iss: flags.string({ char: 'i', description: messages.getMessage('issFlagDescription'), required: true }),
-    sub: flags.string({ char: 's', description: messages.getMessage('subDescription'), required: true }),
-    aud: flags.string({ char: 'a', description: messages.getMessage('audFlagDescription'), required: true }),
-    exp: flags.number({ char: 'e', description: messages.getMessage('expDescription'), required: false })
+  public static readonly flags = {
+    privatekey: Flags.string({ char: 'p', description: messages.getMessage('privatekeyFlagDescription'), required: true }),
+    iss: Flags.string({ char: 'i', description: messages.getMessage('issFlagDescription'), required: true }),
+    sub: Flags.string({ char: 's', description: messages.getMessage('subDescription'), required: true }),
+    aud: Flags.string({ char: 'a', description: messages.getMessage('audFlagDescription'), required: true }),
+    exp: Flags.integer({ char: 'e', description: messages.getMessage('expDescription'), required: false }),
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
-
-  public async run(): Promise<AnyJson> {
-    const pathExists = await fs.pathExists(this.flags.privatekey);
+  public async run(): Promise<JwtResult> {
+    const { flags } = await this.parse(Jwt);
+    const pathExists = await fs.pathExists(flags.privatekey);
     if (!pathExists) {
-      throw new SfError(messages.getMessage('dirmissingErrorMessage'));
+      throw messages.createError('dirmissingErrorMessage');
     }
-    if (this.flags.exp && this.flags.exp > 3) {
-      throw new SfError(messages.getMessage('exptobigErrorMessage'));
+    if (flags.exp && flags.exp > 3) {
+      throw messages.createError('exptobigErrorMessage');
     }
-    const file = await fs.readFile(this.flags.privatekey, 'utf8');
-    const useExp = this.flags.exp || 3;
+    const file = await fs.readFile(flags.privatekey, 'utf8');
+    const useExp = flags.exp || 3;
     const claims = {
-      iss: this.flags.iss,  // The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.
-      aud: this.flags.aud, // Use the authorization server’s URL for the audience value:
-      sub: this.flags.sub,    // The subject must contain the username
+      iss: flags.iss,  // The issuer must contain the OAuth client_id or the connected app for which you registered the certificate.
+      aud: flags.aud, // Use the authorization server’s URL for the audience value:
+      sub: flags.sub,    // The subject must contain the username
       exp: new Date().getTime() + (useExp * 60 * 1000)
     };
     const jwt = create(claims, file, 'RS256');
     const token = jwt.compact();
-    this.ux.log('Token Created:');
-    this.ux.log(token);
+    this.log('Token Created:');
+    this.log(token);
     return JSON.stringify({ fullToken: jwt, compactToken: token });
   }
 }

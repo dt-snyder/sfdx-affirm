@@ -1,6 +1,6 @@
 // Use this file to store all SFDX commands that are run using util.promisify(child.exec)
 import { runCommand } from './sfdx';
-import { UX } from '@salesforce/command';
+import { Ux } from '@salesforce/sf-plugins-core'
 import { AnyJson, ensureAnyJson, ensureJsonMap, get } from '@salesforce/ts-types';
 import { DescribeMetadata } from './affirm_interfaces';
 

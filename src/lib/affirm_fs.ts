@@ -2,7 +2,7 @@
 /// <reference types="fs-extra" />
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
 const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
-import { UX } from '@salesforce/command';
+import { Ux } from '@salesforce/sf-plugins-core'
 import { SfError, Messages } from '@salesforce/core';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata, AffirmSettings } from './affirm_interfaces';
 import { getAffirmSettings } from './affirm_settings';
@@ -35,14 +35,14 @@ export async function getPrintableDiffObject(diff: DiffObj): Promise<PrintableDi
   return printableDiff;
 }
 
-export async function fsSaveJson(fileName: string, json: AnyJson, ux?: UX): Promise<string> {
+export async function fsSaveJson(fileName: string, json: AnyJson, ux?: Ux): Promise<string> {
   const saveToFile: string = `./${fileName}.json`;
   await fs.outputJson(saveToFile, json);
   if (ux) ux.log(`File Saved to: ${chalk.underline.blue(saveToFile)}`);
   return saveToFile;
 }
 
-export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: UX): Promise<number> {
+export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: Ux): Promise<number> {
   const settings: AffirmSettings = await getAffirmSettings();
   let fileSet: Set<string> = new Set();
   Object.keys(diff).forEach(key => {

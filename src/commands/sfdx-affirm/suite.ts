@@ -1,5 +1,5 @@
-import { flags, FlagsConfig, SfdxCommand } from '@salesforce/command';
-import { Messages, SfError, SfProjectJson } from '@salesforce/core';
+import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
+import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import { getCurrentBranchName, gitDiffSum } from '../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../lib/affirm_fs';
@@ -10,14 +10,12 @@ import { AffirmSettings, DiffObj } from '../../lib/affirm_interfaces';
 import { getAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
-// Initialize Messages with the current plugin directory
 Messages.importMessagesDirectory(__dirname);
-
-// Load the specific messages for this file. Messages from @salesforce/command, @salesforce/core,
-// or any library that is using the messages framework can also be loaded this way.
 const messages = Messages.loadMessages('sfdx-affirm', 'suite');
 
-export default class Suite extends SfdxCommand {
+export type SuiteResult = { status: string; };
+
+export default class Suite extends SfCommand<SuiteResult> {
 
   public static description = messages.getMessage('commandDescription');
   public static aliases = ['affirm:suite'];
@@ -39,26 +37,26 @@ export default class Suite extends SfdxCommand {
     `,
   ];
 
-  protected static flagsConfig: FlagsConfig = {
-    tests: flags.string({ char: 't', description: messages.getMessage('testsFlagDescription') }),
-    name: flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
-    outputdir: flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
-    addtotests: flags.boolean({ char: 'a', description: messages.getMessage('addtotestsFlagDescription') })
+  public static readonly flags = {
+    tests: Flags.string({ char: 't', description: messages.getMessage('testsFlagDescription') }),
+    name: Flags.string({ char: 'n', description: messages.getMessage('nameFlagDescription') }),
+    outputdir: Flags.string({ char: 'o', description: messages.getMessage('outputdirFlagDescription') }),
+    addtotests: Flags.boolean({ char: 'a', description: messages.getMessage('addtotestsFlagDescription') }),
+    targetusername: Flags.requiredOrg({ char: 'u', required: false }),
+    apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
-  // Set this to true if your command requires a project workspace; 'requiresProject' is false by default
-  protected static requiresProject = true;
-
-  public async run(): Promise<AnyJson> {
+  public async run(): Promise<SuiteResult> {
+    const { flags } = await this.parse(Suite);
     const settings: AffirmSettings = await getAffirmSettings();
     // get the values of flags set by the user
-    const tests = this.flags.tests;
+    const tests = flags.tests;
     // if the user did not provide the --tests flag then ask them to provide a list of tests
     let useTests;
     if (!tests) {
       useTests = await this.ux.prompt('Please provide a comma separated list of the test names to add to the suite');
       if (!useTests) {
-        throw new SfError(messages.getMessage('errorNoTestsProvided'));
+        throw messages.createError('errorNoTestsProvided');
       }
     } else {
       useTests = tests;
@@ -70,24 +68,24 @@ export default class Suite extends SfdxCommand {
     const defaultFileName = await liftShortBranchName(currentBranch, 25);
     // console.log('defaultFileName: ' + defaultFileName);
 
-    const name = this.flags.name || defaultFileName;
-    await checkName(name, this.ux);
+    const name = flags.name || defaultFileName;
+    await checkName(name, new Ux({jsonEnabled: this.jsonEnabled()}));
     if (name.length > 35) {
-      throw new SfError(messages.getMessage('errorNameIsToLong'));
+      throw messages.createError('errorNameIsToLong');
     }
     let nameToUse = name;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
     const defaultPath = await sfcoreGetDefaultPath(pjtJson);
-    const outputdir = this.flags.outputdir || defaultPath + '/main/default/testSuites/';
-    const addtotests = this.flags.addtotests;
+    const outputdir = flags.outputdir || defaultPath + '/main/default/testSuites/';
+    const addtotests = flags.addtotests;
     const hasExistingSuite = await fsCheckForExistingSuite(outputdir, nameToUse);
     let existingTestSuiteToUse: string | undefined;
     if (!hasExistingSuite) {
       const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, defaultPath);
       const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
       if (suitesToMerge.size > 1) {
-        throw new SfError(messages.getMessage('errorTooManySuites'));
+        throw messages.createError('errorTooManySuites');
       } else if (suitesToMerge.size === 1) {
         existingTestSuiteToUse = Array.from(suitesToMerge)[0];
         nameToUse = existingTestSuiteToUse.substring(existingTestSuiteToUse.indexOf('testSuites/') + 11);
@@ -98,8 +96,8 @@ export default class Suite extends SfdxCommand {
     }
     let pathForward = (addtotests && existingTestSuiteToUse) ? 'Update' : 'Overwrite';
     if (existingTestSuiteToUse && !addtotests) {
-      this.ux.log('Found existing suite at ' + chalk.underline.blue(existingTestSuiteToUse));
-      const displayResults: any = await inquirer.prompt([{
+      this.log('Found existing suite at ' + chalk.underline.blue(existingTestSuiteToUse));
+      const displayResults: any = await this.prompt([{
         name: 'selected',
         message: 'Would you like to update the list of tests, overwrite it completely, or keep the current list and exit?',
         type: 'list',
@@ -109,22 +107,22 @@ export default class Suite extends SfdxCommand {
     }
 
     if (pathForward === 'Keep') {
-      this.ux.log('Keeping existing test suite: Exit Command');
+      this.log('Keeping existing test suite: Exit Command');
       return { status: 'user exit' };
     }
     // create the xml file and save to the the outputdir
     let pathToSuite;
-    this.ux.startSpinner('Creating Test Suite');
+    this.spinner.start('Creating Test Suite');
     if (pathForward === 'Overwrite') {
       pathToSuite = await fsCreateNewTestSuite(cleanTests, outputdir, nameToUse);
     } else if (pathForward === 'Update') {
       pathToSuite = await fsUpdateExistingTestSuite(cleanTests, outputdir, nameToUse);
     } else {
-      this.ux.stopSpinner('FAIL');
-      throw new SfError(messages.getMessage('errorUnknown'));
+      this.spinner.stop('FAIL');
+      throw messages.createError('errorUnknown');
     }
-    this.ux.stopSpinner('Success');
-    this.ux.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
+    this.spinner.stop('Success');
+    this.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
     return { status: 'complete', pathToSuite: pathToSuite };
   }
 }

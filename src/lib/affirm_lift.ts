@@ -1,6 +1,6 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
 import { SfError, SfProject, SfProjectJson, Messages, ConfigAggregator } from '@salesforce/core';
-import { UX, TableColumns } from '@salesforce/command';
+import { Ux } from '@salesforce/sf-plugins-core'
 import { AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
@@ -51,7 +51,7 @@ export async function cleanSuiteName(currentBranch: string): Promise<string> {
   return currentBranch;
 }
 
-export async function checkName(name: string, ux?: UX): Promise<void> {
+export async function checkName(name: string, ux?: Ux): Promise<void> {
   const letterNumberUnderScore = new RegExp(/^[a-zA-Z0-9_]*$/);
   const startsWithLetter = new RegExp(/^[a-zA-Z]/);
   if (!letterNumberUnderScore.test(name)) {
@@ -70,7 +70,7 @@ export async function liftCleanProvidedTests(tests: string): Promise<string> {
   return tests.trim().replace(/\s+/g, '');
 }
 
-export async function liftPrintTable(tableName: string, data: any[], options: TableColumns, ux: UX): Promise<void> {
+export async function liftPrintTable(tableName: string, data: any[], options: TableColumns, ux: Ux): Promise<void> {
   const start = '_______________________Start ' + tableName + '_______________________';
   const end = '_______________________End ' + tableName + '_______________________';
   ux.log(chalk.green(start));
@@ -78,7 +78,7 @@ export async function liftPrintTable(tableName: string, data: any[], options: Ta
   ux.log(chalk.red(end));
 }
 
-export async function liftPrintComponentTable(tableName: string, data: DeployMessage | DeployMessage[], ux: UX): Promise<void> {
+export async function liftPrintComponentTable(tableName: string, data: DeployMessage | DeployMessage[], ux: Ux): Promise<void> {
   const start = `_______________________Start ${tableName}_______________________`;
   const end = `_________________________End ${tableName}_______________________`;
   let dataArray: any[] = [];
@@ -92,7 +92,7 @@ export async function liftPrintComponentTable(tableName: string, data: DeployMes
   ux.log(chalk.red(end));
 }
 
-export async function liftPrintTestResultTable(data: RunTestResult | RunTestResult[], ux: UX): Promise<void> {
+export async function liftPrintTestResultTable(data: RunTestResult | RunTestResult[], ux: Ux): Promise<void> {
 
   const keysToPrint: string[] = ['codeCoverage', 'failures', 'successes'];
   for (const key in data) {
@@ -128,7 +128,7 @@ export async function liftPrintTestResultTable(data: RunTestResult | RunTestResu
   }
 }
 
-export async function showDiffSum(ux: UX, diff: PrintableDiffObj, whatToPrint: WhatToPrint): Promise<void> {
+export async function showDiffSum(ux: Ux, diff: PrintableDiffObj, whatToPrint: WhatToPrint): Promise<void> {
   Object.keys(diff).forEach(key => {
     const colorKey = (key === 'changed') ? chalk.yellow(key) : (key === 'insertion') ? chalk.green(key) : chalk.red(key);
     if (diff[key].length === 0 && (whatToPrint[key] || whatToPrint.showAll)) {
@@ -152,7 +152,7 @@ export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boo
   return whatToPrint;
 }
 
-export async function printBranchesCompared(ux: UX, providedBranch: string, currentBranch: string): Promise<void> {
+export async function printBranchesCompared(ux: Ux, providedBranch: string, currentBranch: string): Promise<void> {
   const beingCompared = chalk.magenta(providedBranch) + '...' + chalk.cyan(currentBranch);
   ux.log('Git Diff For: ' + beingCompared);
 }
@@ -162,7 +162,7 @@ export async function getYNString(): Promise<string> {
 }
 
 
-export async function getTestsFromParcel(ux: UX, silent?: boolean): Promise<string> {
+export async function getTestsFromParcel(ux: Ux, silent?: boolean): Promise<string> {
   let testsToReturn: string;
   const defaultPath = 'releaseArtifacts/parcel';
   const defaultOutputDir = defaultPath + '/testSuites/';
@@ -184,7 +184,7 @@ export async function getTestsFromParcel(ux: UX, silent?: boolean): Promise<stri
   return testsToReturn;
 }
 
-export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean): Promise<string> {
+export async function getTestsFromSuiteOrUser(ux: Ux, silent?: boolean): Promise<string> {
   let testsToReturn: string;
   // get current branch name
   const currentBranch = await getCurrentBranchName();
@@ -216,7 +216,7 @@ export async function getTestsFromSuiteOrUser(ux: UX, silent?: boolean): Promise
   return testsToReturn;
 }
 
-export async function getTestsFromPackageSettingsOrUser(ux: UX, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean, forDeployment?: boolean): Promise<string> {
+export async function getTestsFromPackageSettingsOrUser(ux: Ux, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean, forDeployment?: boolean): Promise<string> {
   let testsToReturn: string;
   // find tests from package
   const suitesToMerge: Set<string> = await fsGetSuitesInParcel(packagedir);
@@ -306,7 +306,7 @@ export async function liftGetTestsFromSuites(suitesToMerge: Set<string>): Promis
   return allTests;
 }
 
-export async function verifyUsername(username?: string, interactiveUx?: UX, verboseUx?: UX): Promise<string> {
+export async function verifyUsername(username?: string, interactiveUx?: Ux, verboseUx?: Ux): Promise<string> {
   let usernameToReturn;
   if (!username) {
     const aggregator = await ConfigAggregator.create();
@@ -336,7 +336,7 @@ export async function verifyUsername(username?: string, interactiveUx?: UX, verb
   return usernameToReturn;
 }
 
-export function sleep(ms: number, ux?: UX) {
+export function sleep(ms: number, ux?: Ux) {
   if (ux) { ux.log(chalk.dim.yellow(`Sleep for ${ms} ms`)); }
   return new Promise(resolve => setTimeout(resolve, ms));
 }

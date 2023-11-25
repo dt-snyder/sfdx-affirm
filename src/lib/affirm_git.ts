@@ -1,7 +1,7 @@
 // Use this file to store all simple-git helper methods
 import { simpleGit, SimpleGit, StatusResult, DiffResult, DiffResultTextFile, DiffResultBinaryFile } from 'simple-git';// Docs: https://github.com/steveukx/git-js#readme
 import { SfError, Messages } from '@salesforce/core';
-import { UX } from '@salesforce/command';
+import { Ux } from '@salesforce/sf-plugins-core'
 import { DiffObj } from './affirm_interfaces';
 const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
 const git: SimpleGit = simpleGit();
@@ -24,7 +24,7 @@ export async function checkForRepoAndRemote() {
   }
 }
 
-export async function getCurrentBranchName(ux?: UX): Promise<string> {
+export async function getCurrentBranchName(ux?: Ux): Promise<string> {
   await checkForRepoAndRemote();
   const repoStatus: StatusResult = await git.status();
   const currentBranch = repoStatus.current;
@@ -32,7 +32,7 @@ export async function getCurrentBranchName(ux?: UX): Promise<string> {
   return currentBranch;
 }
 
-export async function getRemoteInfo(ux?: UX): Promise<string> {
+export async function getRemoteInfo(ux?: Ux): Promise<string> {
   await checkForRepoAndRemote();
   const remotes = await git.getRemotes(true);
 
