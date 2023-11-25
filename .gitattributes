@@ -1,2 +1,4 @@
 /.yarn/releases/** binary
 /.yarn/plugins/** binary
+
+* text=auto eol=lf
