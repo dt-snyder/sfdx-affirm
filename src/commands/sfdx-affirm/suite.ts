@@ -1,11 +1,11 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
+import * as inquirer from 'inquirer'
 import { getCurrentBranchName, gitDiffSum } from '../../lib/affirm_git';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
 import { liftShortBranchName, liftCleanProvidedTests, checkName, liftGetAllSuitesInBranch } from '../../lib/affirm_lift';
-import * as inquirer from 'inquirer'
 import { AffirmSettings, DiffObj } from '../../lib/affirm_interfaces';
 import { getAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
@@ -13,13 +13,14 @@ const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'suite');
 
-export type SuiteResult = { status: string; };
+export type SuiteResult = { status: string };
 
 export default class Suite extends SfCommand<SuiteResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:suite'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:suite'];
+  public static readonly examples = [
     `$ sfdx affirm:suite
     Please provide a comma separated list of the test names to add to the suite: testClassNameOne,TestClassNameTwo
     Creating Test Suite... Success
@@ -54,9 +55,15 @@ export default class Suite extends SfCommand<SuiteResult> {
     // if the user did not provide the --tests flag then ask them to provide a list of tests
     let useTests;
     if (!tests) {
-      useTests = await this.ux.prompt('Please provide a comma separated list of the test names to add to the suite');
-      if (!useTests) {
+      const testsInput = await this.prompt<{ confirm: string }>({
+        type: 'input',
+        name: 'confirm',
+        message: 'Please provide a comma separated list of the test names to add to the suite',
+      });
+      if (!testsInput.confirm) {
         throw messages.createError('errorNoTestsProvided');
+      } else {
+        useTests = testsInput.confirm;
       }
     } else {
       useTests = tests;
@@ -69,7 +76,7 @@ export default class Suite extends SfCommand<SuiteResult> {
     // console.log('defaultFileName: ' + defaultFileName);
 
     const name = flags.name || defaultFileName;
-    await checkName(name, new Ux({jsonEnabled: this.jsonEnabled()}));
+    await checkName(name, new Ux({ jsonEnabled: this.jsonEnabled() }));
     if (name.length > 35) {
       throw messages.createError('errorNameIsToLong');
     }
@@ -97,7 +104,7 @@ export default class Suite extends SfCommand<SuiteResult> {
     let pathForward = (addtotests && existingTestSuiteToUse) ? 'Update' : 'Overwrite';
     if (existingTestSuiteToUse && !addtotests) {
       this.log('Found existing suite at ' + chalk.underline.blue(existingTestSuiteToUse));
-      const displayResults: any = await this.prompt([{
+      const displayResults = await this.prompt<{ selected: string }>([{
         name: 'selected',
         message: 'Would you like to update the list of tests, overwrite it completely, or keep the current list and exit?',
         type: 'list',
@@ -123,6 +130,6 @@ export default class Suite extends SfCommand<SuiteResult> {
     }
     this.spinner.stop('Success');
     this.log('New Test Suite Written to: ' + chalk.underline.blue(pathToSuite));
-    return { status: 'complete', pathToSuite: pathToSuite };
+    return { status: 'complete', pathToSuite };
   }
 }

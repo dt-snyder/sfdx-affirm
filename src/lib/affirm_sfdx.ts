@@ -1,11 +1,11 @@
 // Use this file to store all SFDX commands that are run using util.promisify(child.exec)
-import { runCommand } from './sfdx';
 import { Ux } from '@salesforce/sf-plugins-core'
 import { AnyJson, ensureAnyJson, ensureJsonMap, get } from '@salesforce/ts-types';
+import { runCommand } from './sfdx';
 import { DescribeMetadata } from './affirm_interfaces';
 
 export async function sfdxOpenToPath(username: string, path: string, urlonly?: boolean, ux?: UX): Promise<AnyJson> {
-  let urlOnly = urlonly ? ' -r ' : '';
+  const urlOnly = urlonly ? ' -r ' : '';
   const response: AnyJson = ensureAnyJson((await runCommand(`sfdx force:org:open -p ${path} -u ${username} ${urlOnly}`, ux)));
   return response;
 }

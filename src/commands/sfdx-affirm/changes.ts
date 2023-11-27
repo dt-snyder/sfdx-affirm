@@ -12,13 +12,14 @@ import { getAffirmSettings } from '../../lib/affirm_settings';
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'changes');
 
-export type ChangesResult = { status: string; };
+export type ChangesResult = { status: string };
 
 export default class Changes extends SfCommand<ChangesResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:changes'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:changes'];
+  public static readonly examples = [
     `$ sfdx affirm:changes
             Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
             Git Diff For: remotes/origin/main...pilot/affirm

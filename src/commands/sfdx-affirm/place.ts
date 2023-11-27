@@ -3,26 +3,27 @@ import { Messages } from '@salesforce/core';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra';
 import { AnyJson, ensureAnyJson, ensureJsonMap, getJsonMap, JsonMap } from '@salesforce/ts-types';
+import chalk = require('chalk');
+import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
 import { getYNString, verifyUsername, getTestsFromPackageSettingsOrUser, liftCleanProvidedTests, liftPrintTestResultTable, liftPrintComponentTable } from '../../lib/affirm_lift';
 import { AffirmSettings } from '../../lib/affirm_interfaces';
 import { getAffirmSettings } from '../../lib/affirm_settings';
-import chalk = require('chalk');
 import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../lib/affirm_sfdx';
 import { runAsynCommand, runCommand } from '../../lib/sfdx';
-import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
 import { openLocations } from '../../lib/affirm_openLocations';
 import { fsSaveJson } from '../../lib/affirm_fs';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'place');
 
-export type PlaceResult = { status: string; };
+export type PlaceResult = { status: string };
 
 export default class Place extends SfCommand<PlaceResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:place'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:place'];
+  public static readonly examples = [
     `$ sfdx affirm:place
       Selected Production Instance: personalDev
       (y/n) Are you sure you want to deploy the package located in the "releaseArtifacts/parcel" folder?: y
@@ -74,6 +75,7 @@ export default class Place extends SfCommand<PlaceResult> {
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
 
+  // eslint-disable-next-line complexity
   public async run(): Promise<PlaceResult> {
     const { flags } = await this.parse(Place);
     if (flags.testclasses && flags.notestsrun) {
@@ -84,7 +86,6 @@ export default class Place extends SfCommand<PlaceResult> {
     const logYN = await getYNString();
     // * get default username and verify that the user wants to use that one unless silent is true
     const silent: boolean = flags.silent;
-    const silentUx = flags.silent ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
     const verbose = flags.verbose ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
     const username = flags.targetusername;
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username);
@@ -113,7 +114,7 @@ export default class Place extends SfCommand<PlaceResult> {
     } else if (!flags.notestsrun && testclasses) {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     }
-    const numberOfTests = (useTestClasses) ? useTestClasses.split(",").length : 0;
+    const numberOfTests = (useTestClasses) ? useTestClasses.split(',').length : 0;
     if (numberOfTests === 0 && !orgIsSandbox) {
       throw messages.createError('errorNoTestsFoundProdBuild');
     }
@@ -137,7 +138,7 @@ export default class Place extends SfCommand<PlaceResult> {
 
     commandResult = validationStartMap as unknown as MetadataApiDeployStatus;
     const validtionId = validationStartMap['id'];
-    let date = new Date().toJSON();
+    const date = new Date().toJSON();
     let currentRunName = `${date.substring(0, date.indexOf('.')).replace('T', '_').split(':').join('_')}_${validtionId}`;
     if (flags.openstatus) {
       this.log(`Opening Deployment Status page in ${chalk.greenBright(username)} for deployment: ${validtionId}`);
@@ -168,7 +169,7 @@ export default class Place extends SfCommand<PlaceResult> {
       } else if (flags.printall) {
         resultHandlerType = 'printAll';
       } else if (silent === false) {
-        const displayResults: any = await this.prompt([{
+        const displayResults = await this.prompt<{ selected: string }>([{
           name: 'selected',
           message: 'Would you like to print or save the any of the deployment results?',
           type: 'list',
@@ -180,7 +181,7 @@ export default class Place extends SfCommand<PlaceResult> {
         const printAll = resultHandlerType === 'printAll';
         for (const resultType of Object.keys(commandResult.details)) {
           const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-          let displayNext: boolean = false;
+          let displayNext = false;
           if ((resultType === 'runTestResult' && commandResult.details[resultType].numTestsRun !== '0') || commandResult.details[resultType]) {
             if (printAll) {
               displayNext = true;
@@ -203,7 +204,7 @@ export default class Place extends SfCommand<PlaceResult> {
     if (!Object.prototype.hasOwnProperty.call(commandResult, 'details')) {
       this.log('Since a waittime of zero (0) was provided only initial results are printed');
       this.log(`Deployment Status: ${chalk.cyanBright(commandResult.status)}`);
-      if (flags.printall) this.ux.logJson(ensureJsonMap(ensureAnyJson(commandResult)));
+      if (flags.printall) this.styledJSON(ensureJsonMap(ensureAnyJson(commandResult)));
       this.log(`Run "sfdx force:mdapi:deploy:cancel -i ${validtionId} -u ${username}" to cancel the deployment.`);
       this.log(`Run "sfdx force:mdapi:deploy:report -i ${validtionId} -u ${username}" to get the latest status.`);
     }

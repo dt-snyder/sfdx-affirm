@@ -1,18 +1,18 @@
 // use this file to store all helper methods that doesn't have a specific dependency or can't be grouped into the other helper files.
 import { SfError, SfProject, SfProjectJson, Messages, ConfigAggregator } from '@salesforce/core';
 import { Ux } from '@salesforce/sf-plugins-core'
+import { ensureAnyJson } from '@salesforce/ts-types';
+import { DeployMessage, RunTestResult } from '@salesforce/source-deploy-retrieve';
 import { AffirmSettings, DiffObj, PrintableDiffObj, WhatToPrint } from './affirm_interfaces';
 import { getCurrentBranchName } from './affirm_git';
 import { sfcoreGetDefaultPath } from './affirm_sfcore';
 import { fsCheckForExistingSuite, fsGetSuitesInParcel, fsGetTestSetFromSuiteXml, fsGetTestStringFromSuiteXml, fsCheckPathExists, fsGetTestsStringFromTestSuiteFolder } from './affirm_fs';
 import { runCommand } from './sfdx';
-import { ensureAnyJson } from '@salesforce/ts-types';
-import { DeployMessage, RunTestResult } from '@salesforce/source-deploy-retrieve';
 import { componentTable, codeCoverageTable, successesTable, failuresTable } from './affirm_tables';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'helper_files');
-const charToRemove: Array<string> = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
+const charToRemove: string[] = ['.', '!', '?', ')', '(', '&', '^', '%', '$', '#', '@', '~', '`', '+', '=', '>', '<', ',', ']', '[', '{', '}', ':', ';', '*', '|', '--'];
 const logYN = '(' + chalk.green('y') + '/' + chalk.red('n') + ')';
 export async function liftShortBranchName(currentBranch: string, topCharCount: number, keepBranchType?: boolean): Promise<string> {
   let branchName: string;
@@ -39,13 +39,13 @@ export async function liftShortBranchName(currentBranch: string, topCharCount: n
 
 export async function cleanSuiteName(currentBranch: string): Promise<string> {
   for (const char of charToRemove) {
-    if (currentBranch.indexOf(char) >= 0) {
-      while (currentBranch.indexOf(char) >= 0) {
+    if (currentBranch.includes(char)) {
+      while (currentBranch.includes(char)) {
         currentBranch = currentBranch.replace(char, '-');
       }
     }
   }
-  while (currentBranch.indexOf('-') >= 0) {
+  while (currentBranch.includes('-')) {
     currentBranch = currentBranch.replace('-', '_');
   }
   return currentBranch;
@@ -116,7 +116,7 @@ export async function liftPrintTestResultTable(data: RunTestResult | RunTestResu
       }
       let dataArray: any[] = [];
       if (Array.isArray(element)) {
-        dataArray = element as any[];
+        dataArray = element;
       } else {
         dataArray = [element];
       }
@@ -142,7 +142,7 @@ export async function showDiffSum(ux: Ux, diff: PrintableDiffObj, whatToPrint: W
   });
 }
 
-export async function createWhatToPrint(onlyChanged: Boolean, onlyInsertion: Boolean, onlyDestructive: Boolean): Promise<WhatToPrint> {
+export async function createWhatToPrint(onlyChanged: boolean, onlyInsertion: boolean, onlyDestructive: boolean): Promise<WhatToPrint> {
   const whatToPrint: WhatToPrint = {
     changed: onlyChanged,
     insertion: onlyInsertion,
@@ -215,18 +215,30 @@ export async function getTestsFromSuiteOrUser(ux: Ux, silent?: boolean): Promise
   }
   return testsToReturn;
 }
-
+// eslint-disable-next-line complexity
 export async function getTestsFromPackageSettingsOrUser(ux: Ux, settings: AffirmSettings, packagedir: string, isSandbox: boolean, silent?: boolean, forDeployment?: boolean): Promise<string> {
   let testsToReturn: string;
   // find tests from package
   const suitesToMerge: Set<string> = await fsGetSuitesInParcel(packagedir);
-  const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
+  const allTests: Set<string> = await liftGetTestsFromSuites(suitesToMerge);
   if (allTests.size > 0) { // use found tests
     testsToReturn = Array.from(allTests).join(',');
     ux.log(chalk.yellow(`Found test suite(s) in ${packagedir}`));
-  } else {
-    if (isSandbox) { // org is sandbox
-      if (!settings.declarativeTestClass && silent === false) { // no default... ask
+  } else if (isSandbox) { // org is sandbox
+    if (!settings.declarativeTestClass && silent === false) { // no default... ask
+      const proceedWithoutTests = await ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
+      if (!proceedWithoutTests) {
+        const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
+        testsToReturn = await liftCleanProvidedTests(providedTestClasses);
+        if (!testsToReturn) {
+          throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
+        }
+      }
+    } else if (settings.declarativeTestClass && silent === false) { // has default... ask
+      const proceedWithDefault = await ux.confirm(`${logYN} Would you like to use the default declarative test class? "${settings.declarativeTestClass}"`);
+      if (proceedWithDefault) { // use default
+        testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
+      } else { // do not use default... ask for list of tests
         const proceedWithoutTests = await ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
         if (!proceedWithoutTests) {
           const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
@@ -235,54 +247,40 @@ export async function getTestsFromPackageSettingsOrUser(ux: Ux, settings: Affirm
             throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
           }
         }
-      } else if (settings.declarativeTestClass && silent === false) { // has default... ask
-        const proceedWithDefault = await ux.confirm(`${logYN} Would you like to use the default declarative test class? "${settings.declarativeTestClass}"`);
-        if (proceedWithDefault) { // use default
-          testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
-        } else { // do not use default... ask for list of tests
-          const proceedWithoutTests = await ux.confirm(`${logYN} Are you sure you want to validate without running any tests?`);
-          if (!proceedWithoutTests) {
-            const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
-            testsToReturn = await liftCleanProvidedTests(providedTestClasses);
-            if (!testsToReturn) {
-              throw new SfError(messages.getMessage('noTestProvidedAfterRequest'));
-            }
-          }
-        }
-      } else if (settings.declarativeTestClass && silent) { // has default... just use it
-        testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
-        ux.log(chalk.yellow('Found default declarative test class in AffirmSettings'));
       }
-    } else if (!isSandbox) { // is production
-      if (silent === false) ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
-      if (!settings.declarativeTestClass && silent === false) { // no default... ask
+    } else if (settings.declarativeTestClass && silent) { // has default... just use it
+      testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
+      ux.log(chalk.yellow('Found default declarative test class in AffirmSettings'));
+    }
+  } else if (!isSandbox) { // is production
+    if (silent === false) ux.log(chalk.redBright('The selected org is a production org. You must provide test classes to proceed.'));
+    if (!settings.declarativeTestClass && silent === false) { // no default... ask
+      const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
+      testsToReturn = await liftCleanProvidedTests(providedTestClasses);
+    } else if (settings.declarativeTestClass && silent === false) { // has default... ask
+      const proceedWithDefault = await ux.confirm(`${logYN} Would you like to use the default declarative test class? "${settings.declarativeTestClass}"`);
+      if (proceedWithDefault) { // use default
+        testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
+      } else { // ask for list of tests
         const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
         testsToReturn = await liftCleanProvidedTests(providedTestClasses);
-      } else if (settings.declarativeTestClass && silent === false) { // has default... ask
-        const proceedWithDefault = await ux.confirm(`${logYN} Would you like to use the default declarative test class? "${settings.declarativeTestClass}"`);
-        if (proceedWithDefault) { // use default
-          testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
-        } else { // ask for list of tests
-          const providedTestClasses = await ux.prompt('Provide the test classes as a comma separated string');
-          testsToReturn = await liftCleanProvidedTests(providedTestClasses);
-        }
-      } else if (settings.declarativeTestClass && silent && !forDeployment) { // has default and is validation... just use it
-        testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
-        ux.log(chalk.yellow('Found default declarative test class(s) in AffirmSettings'));
-      } else if (settings.declarativeTestClass && silent && forDeployment) { // has default and is deployment... throw error
-        ux.log(chalk.brightRed('The Default Declaritve Test found in AffirmSettings will NOT be used for this silent deployment.'));
-        ux.log(chalk.brightRed('Add test suites to your package or use the --testclasses flag and try again.'));
       }
-      if (!testsToReturn) { // no tests provided for prod.... throw error
-        throw new SfError(messages.getMessage('productionRequiresTestClasses'));
-      }
+    } else if (settings.declarativeTestClass && silent && !forDeployment) { // has default and is validation... just use it
+      testsToReturn = await liftCleanProvidedTests(settings.declarativeTestClass);
+      ux.log(chalk.yellow('Found default declarative test class(s) in AffirmSettings'));
+    } else if (settings.declarativeTestClass && silent && forDeployment) { // has default and is deployment... throw error
+      ux.log(chalk.brightRed('The Default Declaritve Test found in AffirmSettings will NOT be used for this silent deployment.'));
+      ux.log(chalk.brightRed('Add test suites to your package or use the --testclasses flag and try again.'));
+    }
+    if (!testsToReturn) { // no tests provided for prod.... throw error
+      throw new SfError(messages.getMessage('productionRequiresTestClasses'));
     }
   }
   return testsToReturn;
 }
 
 export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuite?: string): Promise<Set<string>> {
-  let tests: Set<string> = new Set();
+  const tests: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
     diff[key].forEach(element => {
@@ -296,7 +294,7 @@ export async function liftGetAllSuitesInBranch(diff: DiffObj, existingMergedSuit
 }
 
 export async function liftGetTestsFromSuites(suitesToMerge: Set<string>): Promise<Set<string>> {
-  let allTests: Set<string> = new Set();
+  const allTests: Set<string> = new Set();
   for (const suite of suitesToMerge) {
     const currentTests: Set<string> = await fsGetTestSetFromSuiteXml(suite);
     currentTests.forEach(test => {
@@ -321,7 +319,7 @@ export async function verifyUsername(username?: string, interactiveUx?: Ux, verb
     }
     usernameToReturn = defaultUsername;
   } else {
-    const orgList: object = ensureAnyJson((await runCommand(`sfdx force:org:list --json`, verboseUx))) as object;
+    const orgList: object = ensureAnyJson((await runCommand('sfdx force:org:list --json', verboseUx))) as object;
     let foundUsername = false;
     orgList['result']['nonScratchOrgs'].forEach(org => {
       if (org['alias'] === username || org['username'] === username) {

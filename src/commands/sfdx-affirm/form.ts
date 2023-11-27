@@ -8,13 +8,14 @@ const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'form');
 
-export type FormResult = { status: string; };
+export type FormResult = { status: string };
 
 export default class Form extends SfCommand<FormResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:form'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:form'];
+  public static readonly examples = [
     `$ sfdx affirm:place:form
       Running Command: sfdx force:data:soql:query -q "SELECT Id, IsSandbox FROM Organization LIMIT 1" -u defaultOrgAlias --json
       Organization.IsSandbox = true
@@ -26,7 +27,7 @@ export default class Form extends SfCommand<FormResult> {
       Org prodAlias is a Production instance
     `,
   ];
-  
+
   public static readonly flags = {
     targetusername: Flags.requiredOrg({ char: 'u', required: false }),
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })

@@ -1,13 +1,13 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core'
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
+import * as inquirer from 'inquirer'
 import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
 import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../lib/affirm_sfcore';
 import { runCommand } from '../../lib/sfdx';
 import { AffirmSettings, DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
 import { printBranchesCompared, getYNString, verifyUsername } from '../../lib/affirm_lift';
-import * as inquirer from 'inquirer'
 import { getAffirmSettings } from '../../lib/affirm_settings';
 import { describeMetadata } from '../../lib/affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
@@ -15,13 +15,14 @@ const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'parcel');
 
-export type ParcelResult = { status: string; };
+export type ParcelResult = { status: string };
 
 export default class Parcel extends SfCommand<ParcelResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:parcel'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:parcel'];
+  public static readonly examples = [
     `$ sfdx affirm:parcel
       Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
       Diff Against: remotes/origin/main...pilot/affirm... Success:
@@ -56,7 +57,7 @@ export default class Parcel extends SfCommand<ParcelResult> {
     targetusername: Flags.requiredOrg({ char: 'u', required: false }),
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
-
+  // eslint-disable-next-line complexity
   public async run(): Promise<ParcelResult> {
     const { flags } = await this.parse(Parcel);
     const settings: AffirmSettings = await getAffirmSettings();
@@ -108,7 +109,7 @@ export default class Parcel extends SfCommand<ParcelResult> {
       if (includedestructive || includeDestructivePrompt) {
         let destructivetiming = flags.destructivetiming;
         if (!destructivetiming) {
-          let responses: any = await this.prompt([{
+          const responses = await this.prompt<{ destructivetiming: string }>([{
             name: 'destructivetiming',
             message: 'Select when the destructive changes should be deployed:',
             type: 'list',

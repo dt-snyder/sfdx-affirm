@@ -9,13 +9,14 @@ import { create } from 'njwt'; // Docs: https://github.com/jwtk/njwt
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'jwt');
 
-export type JwtResult = { status: string; };
+export type JwtResult = { status: string };
 
 export default class Jwt extends SfCommand<JwtResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:jwt'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:jwt'];
+  public static readonly examples = [
     `$ sfdx affirm:jwt -p server.key -i 3MVG99OxTyEMCQ3gNp2PjkqeZKxnmAiG1xV4oHh9AKL_rSK.BoSVPGZHQukXnVjzRgSuQqGn75NL7yfkQcyy7  -s my@email.com -a https://login.salesforce.com
       Token Created:
       eyJpc3MiOiAiM01WRz...[omitted for brevity]...ZT

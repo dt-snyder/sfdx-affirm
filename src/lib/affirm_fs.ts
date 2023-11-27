@@ -1,12 +1,12 @@
 // Use this file to store all fs-extra helper methods
 /// <reference types="fs-extra" />
 import * as fs from 'fs-extra'; // Docs: https://github.com/jprichardson/node-fs-extra
-const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 import { Ux } from '@salesforce/sf-plugins-core'
 import { SfError, Messages } from '@salesforce/core';
+import { AnyJson } from '@salesforce/ts-types';
 import { DiffObj, DestructiveXMLMain, DestructiveXMLType, DestructiveXMLTypeEntry, PrintableDiffObj, TestSuiteXMLMain, TestSuiteXMLTests, DescribeMetadata, AffirmSettings } from './affirm_interfaces';
 import { getAffirmSettings } from './affirm_settings';
-import { AnyJson } from '@salesforce/ts-types';
+const { create, convert } = require('xmlbuilder2'); // Docs: https://oozcitak.github.io/xmlbuilder2/
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // TODO: add https://www.npmjs.com/package/extract-zip for zipping and unzipping packages
 Messages.importMessagesDirectory(__dirname);
@@ -15,15 +15,15 @@ const foldersNeedingFolder = ['aura', 'lwc', 'documents', 'bots'];
 const foldersThatShouldBeReviewed = ['staticresources'];
 const ignoreMissingFile = ['emailFolder'];
 const customObjectChildren = {
-  fields: "CustomField",
-  businessProcesses: "BusinessProcess",
-  recordTypes: "RecordType",
-  compactLayouts: "CompactLayout",
-  webLinks: "WebLink",
-  validationRules: "ValidationRule",
-  sharingReasons: "SharingReason",
-  listViews: "ListView",
-  fieldSets: "FieldSet"
+  fields: 'CustomField',
+  businessProcesses: 'BusinessProcess',
+  recordTypes: 'RecordType',
+  compactLayouts: 'CompactLayout',
+  webLinks: 'WebLink',
+  validationRules: 'ValidationRule',
+  sharingReasons: 'SharingReason',
+  listViews: 'ListView',
+  fieldSets: 'FieldSet'
 };
 
 export async function getPrintableDiffObject(diff: DiffObj): Promise<PrintableDiffObj> {
@@ -36,30 +36,30 @@ export async function getPrintableDiffObject(diff: DiffObj): Promise<PrintableDi
 }
 
 export async function fsSaveJson(fileName: string, json: AnyJson, ux?: Ux): Promise<string> {
-  const saveToFile: string = `./${fileName}.json`;
+  const saveToFile = `./${fileName}.json`;
   await fs.outputJson(saveToFile, json);
   if (ux) ux.log(`File Saved to: ${chalk.underline.blue(saveToFile)}`);
   return saveToFile;
 }
-
+// eslint-disable-next-line complexity
 export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMetadata, ux?: Ux): Promise<number> {
   const settings: AffirmSettings = await getAffirmSettings();
-  let fileSet: Set<string> = new Set();
+  const fileSet: Set<string> = new Set();
   Object.keys(diff).forEach(key => {
     if (key === 'destructive') return;
     diff[key].forEach(fileName => {
       fileSet.add(fileName);
     });
   });
-  let copiedPaths: Set<string> = new Set();
+  const copiedPaths: Set<string> = new Set();
   for (const file of fileSet.values()) {
-    const fileString: String = file as string;
+    const fileString: string = file;
     const pathCrums = fileString.split('/');
     const folder = pathCrums[3];
     const folderMdtInfo = mdtJson.metadataObjects.find(mdt => mdt.directoryName === folder);
     const fileName = pathCrums[pathCrums.length - 1];
     if (foldersThatShouldBeReviewed.includes(folder)) {
-      if (file.indexOf('.xml') >= 0) {
+      if (file.includes('.xml')) {
         const resourceFile = await fsGetResourceFileFromXML(file, fileName);
         if (!resourceFile) {
           ux.log(`${chalk.red('Warning:')} A file was found in a folder that needs manual review: "${chalk.underline.blue(file)}" Make sure it was copied to the package folder or your package could fail.`);
@@ -77,8 +77,8 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
       if (!copiedPaths.has(newPath)) copiedPaths.add(newPath);
       continue;
     }
-    if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') < 0 && !foldersThatShouldBeReviewed.includes(folder)) {
-      if (folderMdtInfo.suffix && file.indexOf(folderMdtInfo.suffix.toLowerCase()) < 0) {
+    if (folderMdtInfo.metaFile && !file.includes('-meta.xml') && !foldersThatShouldBeReviewed.includes(folder)) {
+      if (folderMdtInfo.suffix && !file.includes(folderMdtInfo.suffix.toLowerCase())) {
         const metaDataPath = file + folderMdtInfo.suffix.toLowerCase() + '-meta.xml';
         if (!copiedPaths.has(metaDataPath)) copiedPaths.add(metaDataPath);
       } else {
@@ -87,13 +87,13 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
       }
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
-    } else if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && !foldersThatShouldBeReviewed.includes(folder)) {
+    } else if (folderMdtInfo.metaFile && file.includes('-meta.xml') && !foldersThatShouldBeReviewed.includes(folder)) {
       const parentFile = file.replace('-meta.xml', '');
       const fileType = parentFile.substring((parentFile.indexOf('.') + 1));
       if (!copiedPaths.has(parentFile) && !ignoreMissingFile.includes(fileType)) copiedPaths.add(parentFile);
       if (!copiedPaths.has(file)) copiedPaths.add(file);
       continue;
-    } else if (folderMdtInfo.metaFile && file.indexOf('-meta.xml') >= 0 && foldersThatShouldBeReviewed.includes(folder)) {
+    } else if (folderMdtInfo.metaFile && file.includes('-meta.xml') && foldersThatShouldBeReviewed.includes(folder)) {
       const suffix = '.' + folderMdtInfo.suffix.toLowerCase() + '-meta.xml';
       const parentFile = file.replace(suffix, '');
       if (!copiedPaths.has(parentFile)) copiedPaths.add(parentFile);
@@ -137,9 +137,10 @@ export async function fsCopyChangesToNewDir(diff: DiffObj, mdtJson: DescribeMeta
 
 // TODO: don't assume specific lengths for checking metadata type and subfolder. Pipelines adds path values
 // TODO: break this out into smaller methods and add more error handling
-export async function fsCreateDestructiveChangeFile(files: Set<String>, metaDataTypes: DescribeMetadata, savePath: string, deployAfter: boolean): Promise<string> {
+// eslint-disable-next-line complexity
+export async function fsCreateDestructiveChangeFile(files: Set<string>, metaDataTypes: DescribeMetadata, savePath: string, deployAfter: boolean): Promise<string> {
   const shouldBeAfter: boolean = deployAfter || false;
-  let destructiveChanges = {};
+  const destructiveChanges = {};
   for (const file of files.values()) {
     const pathCrums = file.split('/');
     const fileName = pathCrums[pathCrums.length - 1];
@@ -148,7 +149,7 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
     if (!folderMdtInfo) {
       throw new SfError(messages.getMessage('errorMdapiFindFailed'));
     }
-    if (fileName.indexOf('-meta.xml') >= 0 && folderMdtInfo.metaFile) continue;
+    if (fileName.includes('-meta.xml') && folderMdtInfo.metaFile) continue;
     let xmlName;
     let newMembers;
     if (pathCrums.length === 6 && foldersNeedingFolder.includes(folder)) {
@@ -197,7 +198,7 @@ export async function fsCreateDestructiveChangeFile(files: Set<String>, metaData
       destructiveChanges[xmlName] = members;
     }
   }
-  const newTypes: DestructiveXMLType = { types: [], '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
+  const newTypes: DestructiveXMLType = { types: [], '@xmlns': 'http://soap.sforce.com/2006/04/metadata' };
   Object.keys(destructiveChanges).forEach(mdt => {
     const entry: DestructiveXMLTypeEntry = { name: mdt, members: [] };
     destructiveChanges[mdt].forEach(file => {
@@ -239,18 +240,18 @@ export async function fsCleanProvidedOutputDir(outputDir: string) {
 
 export async function fsCreateNewTestSuite(tests: string, outputDir: string, fileName: string): Promise<string> {
   const testArray = tests.split(',');
-  const newTests: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
+  const newTests: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': 'http://soap.sforce.com/2006/04/metadata' };
   const xmlFile: TestSuiteXMLMain = { ApexTestSuite: newTests };
   const newTestSuite = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
   await fs.ensureDir(outputDir);
-  const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
+  const outputFileName = `${outputDir}${fileName}.testSuite-meta.xml`;
   await fs.outputFile(outputFileName, newTestSuite.end({ prettyPrint: true, group: true }));
   return outputFileName;
 }
 
 export async function fsUpdateExistingTestSuite(newTests: string, outputDir: string, fileName: string): Promise<string> {
   await fs.ensureDir(outputDir);
-  const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
+  const outputFileName = `${outputDir}${fileName}.testSuite-meta.xml`;
   let allTests = await fsGetTestSetFromSuiteXml(outputFileName);
   newTests.split(',').forEach(test => {
     if (!allTests.has(test)) allTests.add(test);
@@ -258,7 +259,7 @@ export async function fsUpdateExistingTestSuite(newTests: string, outputDir: str
   // TODO: improve sort by implementing custom function that ignores case.
   allTests = new Set(Array.from(allTests).sort());
   const testArray = [...allTests];
-  const testSuite: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': "http://soap.sforce.com/2006/04/metadata" };
+  const testSuite: TestSuiteXMLTests = { testClassName: testArray, '@xmlns': 'http://soap.sforce.com/2006/04/metadata' };
   const xmlFile: TestSuiteXMLMain = { ApexTestSuite: testSuite };
   const newTestSuite = create({ version: '1.0', encoding: 'UTF-8' }, JSON.stringify(xmlFile));
   await fs.outputFile(outputFileName, newTestSuite.end({ prettyPrint: true, group: true }));
@@ -266,7 +267,7 @@ export async function fsUpdateExistingTestSuite(newTests: string, outputDir: str
 }
 
 export async function fsCheckForExistingSuite(outputDir: string, fileName: string): Promise<string | null> {
-  const outputFileName: string = `${outputDir}${fileName}.testSuite-meta.xml`;
+  const outputFileName = `${outputDir}${fileName}.testSuite-meta.xml`;
   const folderStillExists = await fs.pathExists(outputFileName);
   if (!folderStillExists) return null;
   return outputFileName;
@@ -278,20 +279,18 @@ export async function fsCheckPathExists(outputDir: string): Promise<boolean> {
 }
 
 export async function fsGetTestsStringFromTestSuiteFolder(pathToFolder: string): Promise<string> {
-  let tests: Set<string> = new Set();
+  const tests: Set<string> = new Set();
   fs.readdirSync(pathToFolder).forEach(file => {
-    let testFilePath = pathToFolder + file;
+    const testFilePath = pathToFolder + file;
     const testSuite = fs.readFileSync(testFilePath, 'utf8');
     const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
     if (Array.isArray(obj.ApexTestSuite.testClassName)) {
       obj.ApexTestSuite.testClassName.forEach(test => {
         if (!tests.has(test)) tests.add(test);
       });
-    } else {
-      if (!tests.has(obj.ApexTestSuite.testClassName)) tests.add(obj.ApexTestSuite.testClassName);
-    }
+    } else if (!tests.has(obj.ApexTestSuite.testClassName)) tests.add(obj.ApexTestSuite.testClassName);
   });
-  let testsArray = Array.from(tests);
+  const testsArray = Array.from(tests);
   return testsArray.join(',');
 }
 
@@ -312,14 +311,12 @@ export async function fsGetTestStringFromSuiteXml(pathToSuite: string): Promise<
 export async function fsGetTestSetFromSuiteXml(pathToSuite: string): Promise<Set<string>> {
   const testSuite = await fs.readFile(pathToSuite, 'utf8');
   const obj = convert({ encoding: 'UTF-8' }, testSuite, { format: 'object' });
-  let tests: Set<string> = new Set();
+  const tests: Set<string> = new Set();
   if (Array.isArray(obj.ApexTestSuite.testClassName)) {
     obj.ApexTestSuite.testClassName.forEach(test => {
       if (!tests.has(test)) tests.add(test);
     });
-  } else {
-    if (!tests.has(obj.ApexTestSuite.testClassName)) tests.add(obj.ApexTestSuite.testClassName);
-  }
+  } else if (!tests.has(obj.ApexTestSuite.testClassName)) tests.add(obj.ApexTestSuite.testClassName);
   return tests;
 }
 
@@ -357,11 +354,11 @@ export async function fsGetResourceFileFromXML(pathToResourceXML: string, fileNa
 }
 export async function fsGetSuitesInParcel(packageDir: string): Promise<Set<string>> {
   const pathExists = await fs.pathExists(`${packageDir}/testSuites`);
-  let setOfFiles: Set<string> = new Set();
+  const setOfFiles: Set<string> = new Set();
   if (pathExists) {
     const listOfFiles = await fs.readdir(`${packageDir}/testSuites`);
     listOfFiles.forEach(file => {
-      const filePath: string = `${packageDir}/testSuites/${file}`;
+      const filePath = `${packageDir}/testSuites/${file}`;
       if (!setOfFiles.has(filePath)) setOfFiles.add(filePath);
     });
   }

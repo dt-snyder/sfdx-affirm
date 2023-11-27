@@ -10,13 +10,14 @@ import { fsSaveJson } from '../../lib/affirm_fs';
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'audit');
 
-export type AuditResult = { status: string; };
+export type AuditResult = { status: string };
 
 export default class Audit extends SfCommand<AuditResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:audit'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:audit'];
+  public static readonly examples = [
     `$ sfdx affirm:place:audit
       Running Command:
       sfdx force:data:soql:query -q "SELECT Id, ...[omitted for brevity]... FROM SetupAuditTrail ORDER BY CreatedDate DESC" -u defaultUser --json
@@ -58,9 +59,9 @@ export default class Audit extends SfCommand<AuditResult> {
     }
     let whereClause;
     if (flags.where) {
-      whereClause = (flags.where.indexOf('where') >= 0) ? flags.where : `WHERE ${flags.where}`;
+      whereClause = (flags.where.includes('where')) ? flags.where : `WHERE ${flags.where}`;
     } else {
-      let filters: Array<string> = [];
+      let filters: string[] = [];
       if (flags.date) {
         const parsedDate = Date.parse(flags.date);
         const providedDate: Date = new Date(parsedDate);
@@ -87,12 +88,12 @@ export default class Audit extends SfCommand<AuditResult> {
     this.spinner.start('Processing Query Results');
     const response: JsonMap = ensureJsonMap((await sfdxQuery(username, query, new Ux({ jsonEnabled: this.jsonEnabled() }))));
 
-    if ("status" in response && response["status"] == 0 && "result" in response) {
+    if ('status' in response && response['status'] == 0 && 'result' in response) {
       const result: JsonMap = ensureJsonMap(response.result);
-      let resultList: Array<JsonMap> = [];
-      const records: Array<JsonMap> = asJsonArray(result.records, Array<JsonMap>()) as Array<JsonMap>;
+      let resultList: JsonMap[] = [];
+      const records: JsonMap[] = asJsonArray(result.records, Array<JsonMap>()) as JsonMap[];
       if (records.length === 0) {
-        this.spinner.stop(`Query ran successfully but returned zero (0) results.`);
+        this.spinner.stop('Query ran successfully but returned zero (0) results.');
       } else if (flags.section) {
         records.forEach(record => {
           const recordMap: JsonMap = ensureJsonMap(record);
@@ -119,7 +120,7 @@ export default class Audit extends SfCommand<AuditResult> {
       const auditResult: AffirmAuditResult = {
         currentRunConfiguration: {
           dateOfRun: (new Date).toLocaleString('en-US'),
-          username: username,
+          username,
           queryUsed: query,
           totalResults: records.length,
           filteredResults: resultList.length,
@@ -131,7 +132,7 @@ export default class Audit extends SfCommand<AuditResult> {
           dateFlag: flags.date,
           lastndaysFlag: flags.lastndays.toString(),
           savedirFlag: flags.savedir,
-          printonlyFlag: flags.printonly ? "true" : "false",
+          printonlyFlag: flags.printonly ? 'true' : 'false',
           whereFlag: flags.where
         },
         results: resultList

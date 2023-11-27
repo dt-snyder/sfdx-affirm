@@ -3,7 +3,7 @@ import { simpleGit, SimpleGit, StatusResult, DiffResult, DiffResultTextFile, Dif
 import { SfError, Messages } from '@salesforce/core';
 import { Ux } from '@salesforce/sf-plugins-core'
 import { DiffObj } from './affirm_interfaces';
-const GIT_SSH_COMMAND = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
+const GIT_SSH_COMMAND = 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no';
 const git: SimpleGit = simpleGit();
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);

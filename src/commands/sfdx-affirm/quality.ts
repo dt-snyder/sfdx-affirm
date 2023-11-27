@@ -3,13 +3,13 @@ import { Messages } from '@salesforce/core';
 import { AnyJson, ensureAnyJson, ensureJsonMap, getJsonMap, JsonMap } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
+import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
 import { liftCleanProvidedTests, getYNString, getTestsFromPackageSettingsOrUser, verifyUsername, liftPrintComponentTable, liftPrintTestResultTable } from '../../lib/affirm_lift';
 import { fsSaveJson } from '../../lib/affirm_fs';
 import { runAsynCommand, runCommand } from '../../lib/sfdx';
 import { getAffirmSettings } from '../../lib/affirm_settings';
 import { AffirmSettings } from '../../lib/affirm_interfaces';
 import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../lib/affirm_sfdx';
-import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
 import { openLocations } from '../../lib/affirm_openLocations';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
@@ -17,13 +17,14 @@ Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'quality');
 
 
-export type QualityResult = { status: string; };
+export type QualityResult = { status: string };
 
 export default class Quality extends SfCommand<QualityResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:quality'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:quality'];
+  public static readonly examples = [
     `$ sfdx affirm:quality
       (y/n) Are you sure you want to use the "personalDev" org ?: y
       Selected Production Org: personalDev
@@ -77,17 +78,17 @@ export default class Quality extends SfCommand<QualityResult> {
     targetusername: Flags.requiredOrg({ char: 'u', required: false }),
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
-
+  // eslint-disable-next-line complexity
   public async run(): Promise<QualityResult> {
     const result: QualityResult = {
-      status: "Processing"
+      status: 'Processing'
     };
     const { flags } = await this.parse(Quality);
     if (flags.noresults && flags.saveresults && flags.printall) {
-      result.status = "failed";
+      result.status = 'failed';
       throw messages.createError('errorResultsFlags');
     } else if (flags.testclasses && flags.notestsrun) {
-      result.status = "failed";
+      result.status = 'failed';
       throw messages.createError('errorTestFlags');
     }
     let commandResult: MetadataApiDeployStatus;
@@ -108,12 +109,12 @@ export default class Quality extends SfCommand<QualityResult> {
       const confirmParcelDir = `${logYN} Are you sure you want to validate the package located in the "${chalk.underline.blue(packagedir)}" folder?`;
       const proceedWithDefault = await this.confirm(confirmParcelDir);
       if (!proceedWithDefault) {
-        result.status = "exit";
+        result.status = 'exit';
         return result;
       }
     } else if (parcelExists === false) {
       const errorType = packagedir === (`${settings.buildDirectory}/${settings.packageDirectory}`) ? 'errorDefaultPathPackageMissing' : 'errorPackageMissing';
-      result.status = "failed";
+      result.status = 'failed';
       throw messages.createError(errorType);
     }
     this.log(`Package Directory: "${chalk.underline.blue(packagedir)}"`);
@@ -125,7 +126,7 @@ export default class Quality extends SfCommand<QualityResult> {
     } else if (testclasses) {
       useTestClasses = await liftCleanProvidedTests(testclasses);
     } else if (flags.notestsrun && !orgIsSandbox) {
-      result.status = "failed";
+      result.status = 'failed';
       throw messages.createError('errorNoTestProvidedForProd');
     }
 
@@ -146,7 +147,7 @@ export default class Quality extends SfCommand<QualityResult> {
     const validationStartMap = getJsonMap((await runCommand(startCommand, verbose)), 'result');
     commandResult = validationStartMap as unknown as MetadataApiDeployStatus;
     const validtionId = validationStartMap['id'];
-    let date = new Date().toJSON();
+    const date = new Date().toJSON();
     let currentRunName = `${date.substring(0, date.indexOf('.')).replace('T', '_').split(':').join('_')}_${validtionId}`;
     if (flags.openstatus) {
       this.log(`Opening Deployment Status page in ${chalk.greenBright(username)} for validation: ${validtionId}`);
@@ -177,7 +178,7 @@ export default class Quality extends SfCommand<QualityResult> {
       } else if (flags.printall) {
         resultHandlerType = 'printAll';
       } else if (silent === false) {
-        const displayResults: any = await this.prompt([{
+        const displayResults = await this.prompt<{ selected: string }>([{
           name: 'selected',
           message: 'Would you like to print or save the any of the validation results?',
           type: 'list',
@@ -189,7 +190,7 @@ export default class Quality extends SfCommand<QualityResult> {
         const printAll = resultHandlerType === 'printAll';
         for (const resultType of Object.keys(commandResult.details)) {
           const printResultType = resultType.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-          let displayNext: boolean = false;
+          let displayNext = false;
           if ((resultType === 'runTestResult' && commandResult.details[resultType].numTestsRun !== '0') || commandResult.details[resultType]) {
             if (printAll) {
               displayNext = true;

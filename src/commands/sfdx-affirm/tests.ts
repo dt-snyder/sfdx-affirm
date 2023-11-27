@@ -1,29 +1,30 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
-import { Messages, SfProjectJson } from "@salesforce/core";
-import { AnyJson, ensureAnyJson, getJsonMap } from "@salesforce/ts-types";
-import { fsSaveJson } from "../../lib/affirm_fs";
-import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from "../../lib/affirm_git";
-import { AffirmSettings, DiffObj, SfdxTestResult } from "../../lib/affirm_interfaces";
+import { Messages, SfProjectJson } from '@salesforce/core';
+import { AnyJson, ensureAnyJson, getJsonMap } from '@salesforce/ts-types';
 import { CliUx } from '@oclif/core';
+import { fsSaveJson } from '../../lib/affirm_fs';
+import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../lib/affirm_git';
+import { AffirmSettings, DiffObj, SfdxTestResult } from '../../lib/affirm_interfaces';
 import {
   liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getAffirmFormattedDate, verifyUsername
-} from "../../lib/affirm_lift";
-import { getAffirmSettings } from "../../lib/affirm_settings";
-import { sfcoreGetDefaultPath } from "../../lib/affirm_sfcore";
-import { runCommand } from "../../lib/sfdx";
+} from '../../lib/affirm_lift';
+import { getAffirmSettings } from '../../lib/affirm_settings';
+import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
+import { runCommand } from '../../lib/sfdx';
 import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
-const chalk = require("chalk"); // https://github.com/chalk/chalk#readme
+const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 
 Messages.importMessagesDirectory(__dirname);
-const messages = Messages.loadMessages("sfdx-affirm", "tests");
+const messages = Messages.loadMessages('sfdx-affirm', 'tests');
 
-export type TestsResult = { status: string; };
+export type TestsResult = { status: string };
 
 export default class Tests extends SfCommand<TestsResult> {
-  public static description = messages.getMessage("commandDescription");
-  public static aliases = ["affirm:tests"];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:tests'];
+  public static readonly examples = [
     `$ sfdx affirm:tests
       (y/n) Are you sure you want to run tests against myOrg@example.com.sandbox?: y
       Selected Org: myOrg@example.com.sandbox
@@ -71,7 +72,7 @@ export default class Tests extends SfCommand<TestsResult> {
     targetusername: Flags.requiredOrg({ char: 'u', required: false }),
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
-
+  // eslint-disable-next-line complexity
   public async run(): Promise<TestsResult> {
     const { flags } = await this.parse(Tests);
     if (flags.saveresults && flags.printall) {
@@ -81,12 +82,12 @@ export default class Tests extends SfCommand<TestsResult> {
     }
     const settings: AffirmSettings = await getAffirmSettings();
 
-    const verbose = flags.verbose ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
+    const verbose = flags.verbose ? new Ux({ jsonEnabled: this.jsonEnabled() }) : undefined;
     const logYN = await getYNString();
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
 
     const silent = flags.silent;
-    const silentUx = flags.silent ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
+    const silentUx = flags.silent ? new Ux({ jsonEnabled: this.jsonEnabled() }) : undefined;
     const username = flags.targetusername.getUsername();
     const orgIsSandbox: boolean = await sfdxGetIsSandbox(username, verbose);
     const orgType = (!orgIsSandbox) ? chalk.redBright('Production') : chalk.blueBright('Sandbox');
@@ -103,54 +104,54 @@ export default class Tests extends SfCommand<TestsResult> {
         const defaultPath = await sfcoreGetDefaultPath(projectJson);
         const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, defaultPath);
         const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult);
-        const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
-        testsToUse = Array.from(allTests).join(",");
+        const allTests: Set<string> = await liftGetTestsFromSuites(suitesToMerge);
+        testsToUse = Array.from(allTests).join(',');
       } else {
-        testsToUse = await getTestsFromSuiteOrUser(new Ux({jsonEnabled: this.jsonEnabled()}), silent);
+        testsToUse = await getTestsFromSuiteOrUser(new Ux({ jsonEnabled: this.jsonEnabled() }), silent);
         if (!testsToUse) {
-          this.log("End Command. No Tests Provided");
-          return { result: "User ended Command" };
+          this.log('End Command. No Tests Provided');
+          return { result: 'User ended Command' };
         }
       }
     } else {
       testsToUse = await liftCleanProvidedTests(list);
     }
-    const numberOfTests = (testsToUse) ? testsToUse.split(",").length : 0;
-    this.log("Count of Test Classes: " + chalk.green(numberOfTests));
+    const numberOfTests = (testsToUse) ? testsToUse.split(',').length : 0;
+    this.log('Count of Test Classes: ' + chalk.green(numberOfTests));
     if (numberOfTests > 10 && !silent) {
       const youSure = await this.confirm(`${logYN} Are you sure that you want to run the test methods in all ${chalk.yellow(numberOfTests)} test classes?`);
-      if (!youSure) return { result: "User ended Command" };
+      if (!youSure) return { result: 'User ended Command' };
     } else if (numberOfTests === 0) {
-      this.log("End Command. No Tests Provided or Found");
-      return { result: "NO TESTS PROVIDED OR FOUND" };
+      this.log('End Command. No Tests Provided or Found');
+      return { result: 'NO TESTS PROVIDED OR FOUND' };
     } else {
-      this.log("Test Classes: " + chalk.cyan(testsToUse));
+      this.log('Test Classes: ' + chalk.cyan(testsToUse));
     }
     const waitTime = flags.waittime === undefined ? settings.waitTime : flags.waittime;
     // run force:apex:test:run command
-    this.spinner.start("Running Tests");
+    this.spinner.start('Running Tests');
     const testCommand = `sfdx force:apex:test:run -l RunSpecifiedTests -c -n ${testsToUse} -u ${username} -w ${waitTime}`;
     const testCommandResults = getJsonMap((await runCommand(testCommand, verbose)), 'result');
     const testResults: SfdxTestResult = testCommandResults as unknown as SfdxTestResult;
 
-    this.spinner.stop("Done");
+    this.spinner.stop('Done');
     // this.ux.logJson(testResults.tests);
-    this.log("Outcome: " + chalk.cyanBright(testResults.summary.outcome));
-    this.log("Tests Ran: " + chalk.cyan(testResults.summary.testsRan));
-    this.log("Passing: " + chalk.green(testResults.summary.passing));
-    this.log("Failing: " + chalk.red(testResults.summary.failing));
-    this.log("Skipped: " + chalk.yellow(testResults.summary.skipped));
-    this.log("PassRate: " + chalk.green(testResults.summary.passRate));
-    this.log("FailRate: " + chalk.red(testResults.summary.failRate));
+    this.log('Outcome: ' + chalk.cyanBright(testResults.summary.outcome));
+    this.log('Tests Ran: ' + chalk.cyan(testResults.summary.testsRan));
+    this.log('Passing: ' + chalk.green(testResults.summary.passing));
+    this.log('Failing: ' + chalk.red(testResults.summary.failing));
+    this.log('Skipped: ' + chalk.yellow(testResults.summary.skipped));
+    this.log('PassRate: ' + chalk.green(testResults.summary.passRate));
+    this.log('FailRate: ' + chalk.red(testResults.summary.failRate));
     this.log(
-      "Test Total Time: " + chalk.cyan(testResults.summary.testTotalTime)
+      'Test Total Time: ' + chalk.cyan(testResults.summary.testTotalTime)
     );
     const printResults = flags.printresults;
     const saveResults = flags.saveresults;
     let printTestResults;
     if (!printResults && !saveResults && !silent) {
       const printMore = await this.confirm(
-        logYN + " Would you like to print the results of each test?"
+        logYN + ' Would you like to print the results of each test?'
       );
       printTestResults = printMore;
     } else if (printResults) {
@@ -158,23 +159,23 @@ export default class Tests extends SfCommand<TestsResult> {
     }
     if (printTestResults) {
       const whatToPrint: CliUx.Table.table.Columns<any> = {
-        "FullName": { header: "Name" },
-        "Outcome": { header: "Outcome" },
-        "RunTime": { header: " Run Time (ms)" },
-        "StackTrace": { header: "Stack Trace" },
-        "Message": { header: "Message" },
+        'FullName': { header: 'Name' },
+        'Outcome': { header: 'Outcome' },
+        'RunTime': { header: ' Run Time (ms)' },
+        'StackTrace': { header: 'Stack Trace' },
+        'Message': { header: 'Message' },
       };
       await liftPrintTable(
-        "Test Results",
+        'Test Results',
         testResults.tests,
         whatToPrint,
-        new Ux({jsonEnabled: this.jsonEnabled()})
+        new Ux({ jsonEnabled: this.jsonEnabled() })
       );
     } else if (saveResults) {
       const dateString = await getAffirmFormattedDate();
       const currentBranchName = await getCurrentBranchName();
       const fileName = `${settings.buildDirectory}/testResults/${username}/${dateString}_${currentBranchName}`;
-      await fsSaveJson(fileName, ensureAnyJson(testResults), new Ux({jsonEnabled: this.jsonEnabled()}));
+      await fsSaveJson(fileName, ensureAnyJson(testResults), new Ux({ jsonEnabled: this.jsonEnabled() }));
     }
     return testResults as unknown as AnyJson;
   }

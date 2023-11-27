@@ -10,13 +10,14 @@ const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'open');
 
-export type OpenResult = { status: string; };
+export type OpenResult = { status: string };
 
 export default class Open extends SfCommand<OpenResult> {
 
-  public static description = messages.getMessage('commandFlagDescription');
-  public static aliases = ['affirm:open', 'a:o'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandFlagDescription');
+  public static readonly description = messages.getMessage('commandFlagDescription');
+  public static readonly aliases = ['affirm:open', 'a:o'];
+  public static readonly examples = [
     `$ sfdx affirm:open
         Opening Setup Home in Production Org: defaultOrg
         Done
@@ -60,7 +61,7 @@ export default class Open extends SfCommand<OpenResult> {
     targetusername: Flags.requiredOrg({ char: 'u', required: false }),
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
-
+  // eslint-disable-next-line complexity
   public async run(): Promise<OpenResult> {
     const { flags } = await this.parse(Open);
     if (flags.email && (flags.network || flags.deployment || flags.profile)) {
@@ -72,7 +73,7 @@ export default class Open extends SfCommand<OpenResult> {
     } else if (flags.profile && (flags.email || flags.network || flags.deployment)) {
       throw messages.createError('toManyFlagsProfileErrorFlag');
     }
-    
+
     let pathKey: string | undefined;
     if (!flags.email && !flags.network && !flags.deployment && !flags.profile) {
       pathKey = 'home';
@@ -85,7 +86,7 @@ export default class Open extends SfCommand<OpenResult> {
     } else if (flags.deployment) {
       pathKey = 'deployment';
     }
-    let currentPath: AffirmOpenLocation = openLocations[pathKey];
+    const currentPath: AffirmOpenLocation = openLocations[pathKey];
     if (flags.id && currentPath.supportsId === false) {
       throw messages.createError('idFlagUnsupportedErrorFlag');
     }

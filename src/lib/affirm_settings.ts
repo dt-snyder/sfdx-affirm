@@ -52,7 +52,7 @@ export async function getDefaultAffirmSettings(): Promise<AffirmSettings> {
 }
 
 export async function confirmAndUpdateSettings(settings: AffirmSettings, settingsKey: string, ux: Ux, acceptDefaults: boolean, overWrite: boolean, providedSetting?: string): Promise<string | undefined> {
-  let returnVal: string | undefined = undefined;
+  let returnVal: string | undefined;
   if (!providedSetting && !acceptDefaults) {
     returnVal = await ux.prompt(settingsLabels[settingsKey].prompt, { default: defaultSettings[settingsKey], required: false });
   } else if (!overWrite && acceptDefaults && !providedSetting && defaultSettings[settingsKey] !== settings[settingsKey]) {

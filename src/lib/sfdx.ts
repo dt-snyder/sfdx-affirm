@@ -1,6 +1,6 @@
+import * as child from 'node:child_process';
 import { SfError, PollingClient, StatusResult } from '@salesforce/core';
 import { get, AnyJson, ensureAnyJson } from '@salesforce/ts-types';
-import * as child from 'child_process';
 import { Ux } from '@salesforce/sf-plugins-core'
 import { Duration, parseJson } from '@salesforce/kit';
 import { sleep } from './affirm_lift';
@@ -18,15 +18,15 @@ export const runCommand = (fullCommand: string, ux?: Ux): Promise<AnyJson> => {
   return new Promise((resolve, reject) => {
     if (ux) ux.log(`Running Command: ${chalk.cyan(fullCommand)}`);
     const cmd = child.exec(fullCommand);
-    let stdout: string = '';
+    let stdout = '';
     cmd.stdout.on('data', data => {
       stdout += data;
     });
 
     cmd.stderr.on('data', data => {
       const dataAsString: string = data;
-      if (ux && dataAsString.indexOf('Warning:') >= 0) {
-        let toPrint = dataAsString.substring(dataAsString.indexOf('Warning:'), (dataAsString.indexOf('\n') - 1));
+      if (ux && dataAsString.includes('Warning:')) {
+        const toPrint = dataAsString.substring(dataAsString.indexOf('Warning:'), (dataAsString.indexOf('\n') - 1));
         ux.log(chalk.dim.yellow(toPrint));
       } else if (ux) {
         ux.log(chalk.dim.yellow(dataAsString));
@@ -73,16 +73,16 @@ export async function runAsynCommand(fullCommand: string, timeout: number, ux: U
     } else {
       ux.setSpinnerStatus(`Checking:Attempt#:${attempts}`);
     }
-    let stdout: StatusResult = { completed: false, payload: '' };
-    let stdoutstr: string = '';
+    const stdout: StatusResult = { completed: false, payload: '' };
+    let stdoutstr = '';
     cmd.stdout.on('data', data => {
       stdoutstr += data;
     });
 
     cmd.stderr.on('data', data => {
       const dataAsString: string = data;
-      if (verbose && dataAsString.indexOf('Warning:') >= 0) {
-        let toPrint = dataAsString.substring(dataAsString.indexOf('Warning:'), (dataAsString.indexOf('\n') - 1));
+      if (verbose && dataAsString.includes('Warning:')) {
+        const toPrint = dataAsString.substring(dataAsString.indexOf('Warning:'), (dataAsString.indexOf('\n') - 1));
         ux.log(chalk.dim.yellow(toPrint));
       } else if (verbose) {
         ux.log(chalk.dim.yellow(dataAsString));
@@ -103,19 +103,19 @@ export async function runAsynCommand(fullCommand: string, timeout: number, ux: U
         if (currentStatus !== undefined && (currentStatus === 'Done' || currentStatus === 'Failed' || currentStatus === 'Succeeded')) {
           stdout.completed = true;
           if (!verbose) {
-            ux.stopSpinner(`Completed`);
+            ux.stopSpinner('Completed');
           } else if (verbose) {
             ux.log(`Command: ${chalk.cyan(commandName)} | Done: ${stdout.completed}`);
           }
         } else if ((currentStatus !== undefined && currentStatus === 'InProgress') || code == 69) {
           stdout.completed = false;
           if (!verbose) {
-            ux.setSpinnerStatus(`Still Processing...`);
+            ux.setSpinnerStatus('Still Processing...');
           } else if (verbose) {
             ux.log(`Command: ${chalk.cyan(commandName)} | Done: false`);
           }
         } else {
-          ux.stopSpinner(`Done:ERROR`);
+          ux.stopSpinner('Done:ERROR');
           const sfdxError = SfError.wrap(error);
           sfdxError.message = `Command "${commandName}" failed UNKNOWN STATUS with message: ${stdoutstr}`;
           sfdxError.setData(stdoutstr);
@@ -123,7 +123,7 @@ export async function runAsynCommand(fullCommand: string, timeout: number, ux: U
         }
         return resolve(stdout);
       } else {
-        ux.stopSpinner(`Done:ERROR`);
+        ux.stopSpinner('Done:ERROR');
         const sfdxError = SfError.wrap(error);
         sfdxError.message = `Command "${commandName}" failed with UNKNOWN EXCEPTION with message: ${stdoutstr}`;
         sfdxError.setData(stdoutstr);

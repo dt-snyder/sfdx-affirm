@@ -1,7 +1,6 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, SfProject, SfProjectJson } from '@salesforce/core';
-import { AnyJson } from '@salesforce/ts-types';
-import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib/affirm_git';
+import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib';
 import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../../lib/affirm_fs';
 import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../../lib/affirm_sfcore';
 import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch, liftGetTestsFromSuites } from '../../../lib/affirm_lift';
@@ -15,15 +14,16 @@ const messages = Messages.loadMessages('sfdx-affirm', 'merge');
 export type MergeResult = {
   status: string;
   suitesToMerge?: Set<string>;
-  pathToSuite: string | undefined;
-  result: string;
+  pathToSuite?: string;
+  result?: string;
 };
 
 export default class Merge extends SfCommand<MergeResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:suite:merge'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:suite:merge'];
+  public static readonly examples = [
     `$ sfdx affirm:suite:merge
     Current Remote: origin => git@bitbucket.org:projectName/repo-name.git
     Git Diff For: remotes/origin/main...pilot/affirm
@@ -96,7 +96,7 @@ export default class Merge extends SfCommand<MergeResult> {
     }
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
     const outputdir = flags.outputdir || defaultPath + '/main/default/testSuites/';
-    const hasExistingSuite: string = await fsCheckForExistingSuite(outputdir, name);
+    const hasExistingSuite = await fsCheckForExistingSuite(outputdir, name);
     // get diff and collect suite file locations
     const diffResult: DiffObj = await gitDiffSum(branch, inputdir);
     result.suitesToMerge = await liftGetAllSuitesInBranch(diffResult, hasExistingSuite);
@@ -124,7 +124,7 @@ export default class Merge extends SfCommand<MergeResult> {
         });
       }
       if (flags.string) {
-        const testString = Array.from(allTests).join(",");
+        const testString = Array.from(allTests).join(',');
         this.log(chalk.dim.green('Single String'));
         this.log(chalk.green(testString));
       }

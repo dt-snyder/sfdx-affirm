@@ -1,22 +1,23 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { AnyJson } from '@salesforce/ts-types';
-import { AffirmSettings } from '../../lib/affirm_interfaces';
 import * as fs from 'fs-extra';
-import { getYNString } from '../../lib/affirm_lift';
 import { Messages } from '@salesforce/core';
+import { AffirmSettings } from '../../lib/affirm_interfaces';
+import { getYNString } from '../../lib/affirm_lift';
 import { confirmAndUpdateSettings, getAffirmSettings, getDefaultAffirmSettings } from '../../lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'setup');
 
-export type SetupResult = { status: string; };
+export type SetupResult = { status: string };
 
 export default class Setup extends SfCommand<SetupResult> {
 
-  public static description = messages.getMessage('commandDescription');
-  public static aliases = ['affirm:setup'];
-  public static examples = [
+  public static readonly summary = messages.getMessage('commandDescription');
+  public static readonly description = messages.getMessage('commandDescription');
+  public static readonly aliases = ['affirm:setup'];
+  public static readonly examples = [
     `$ sfdx affirm:setup
       Provide name of remote branch related to your Production Instance  [remotes/origin/main]: remotes/origin/master
       Primary Branch set to:  remotes/origin/master

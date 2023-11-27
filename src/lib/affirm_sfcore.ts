@@ -15,7 +15,7 @@ export async function sfcoreGetDefaultPath(projectJson: SfProjectJson): Promise<
 
 export async function sfcoreIsPathProject(projectJson: SfProjectJson, providedPath: string): Promise<void> {
   const dirs = await projectJson.getPackageDirectories();
-  let foundPath: boolean = false;
+  let foundPath = false;
   dirs.forEach(element => {
     if (element.path === providedPath) foundPath = true;
   });
@@ -25,7 +25,7 @@ export async function sfcoreIsPathProject(projectJson: SfProjectJson, providedPa
 
 export async function sfcoreFindOrAddReleasePath(projectJson: SfProjectJson, buildDirectory: string): Promise<void> {
   const dirs = await projectJson.getPackageDirectories();
-  let foundTempdir: Boolean = false;
+  let foundTempdir = false;
   dirs.forEach(element => {
     if (element.path === `${buildDirectory}/tempParcel/force-app` || element.path === `${buildDirectory}\\tempParcel\\force-app`)
       foundTempdir = true;
@@ -33,7 +33,7 @@ export async function sfcoreFindOrAddReleasePath(projectJson: SfProjectJson, bui
   if (foundTempdir) return;
   const newConfig = await projectJson.read();
   const newPath: PackageDir = { path: `${buildDirectory}/tempParcel/force-app`, default: false };
-  let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
+  let packageDirectories: PackageDir[] = newConfig.packageDirectories as PackageDir[];
   packageDirectories = [...packageDirectories, newPath];
   projectJson.set('packageDirectories', packageDirectories as ConfigValue);
   await projectJson.write();
@@ -41,8 +41,8 @@ export async function sfcoreFindOrAddReleasePath(projectJson: SfProjectJson, bui
 
 export async function sfcoreRemoveReleasePath(projectJson: SfProjectJson, buildDirectory: string): Promise<void> {
   const newConfig = await projectJson.read();
-  let newPaths: Array<PackageDir> = [];
-  let packageDirectories: Array<PackageDir> = newConfig.packageDirectories as Array<PackageDir>;
+  let newPaths: PackageDir[] = [];
+  const packageDirectories: PackageDir[] = newConfig.packageDirectories as PackageDir[];
   packageDirectories.forEach(element => {
     if (element.path === `${buildDirectory}/tempParcel/force-app` || element.path === `${buildDirectory}\\tempParcel\\force-app`)
       return;
