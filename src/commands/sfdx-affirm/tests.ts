@@ -2,16 +2,16 @@ import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson, ensureAnyJson, getJsonMap } from '@salesforce/ts-types';
 import { CliUx } from '@oclif/core';
-import { fsSaveJson } from '../../lib/affirm_fs';
-import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../lib/affirm_git';
-import { AffirmSettings, DiffObj, SfdxTestResult } from '../../lib/affirm_interfaces';
+import { fsSaveJson } from '../../affirm-lib/affirm_fs';
+import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../affirm-lib/affirm_git';
+import { AffirmSettings, DiffObj, SfdxTestResult } from '../../affirm-lib/affirm_interfaces';
 import {
   liftCleanProvidedTests, getYNString, liftPrintTable, getTestsFromSuiteOrUser, liftGetAllSuitesInBranch, liftGetTestsFromSuites, getAffirmFormattedDate, verifyUsername
-} from '../../lib/affirm_lift';
-import { getAffirmSettings } from '../../lib/affirm_settings';
-import { sfcoreGetDefaultPath } from '../../lib/affirm_sfcore';
-import { runCommand } from '../../lib/sfdx';
-import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
+} from '../../affirm-lib/affirm_lift';
+import { getAffirmSettings } from '../../affirm-lib/affirm_settings';
+import { sfcoreGetDefaultPath } from '../../affirm-lib/affirm_sfcore';
+import { runCommand } from '../../affirm-lib/sfdx';
+import { sfdxGetIsSandbox } from '../../affirm-lib/affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 // import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 

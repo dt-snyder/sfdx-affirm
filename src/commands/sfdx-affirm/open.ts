@@ -1,10 +1,10 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
-import { verifyUsername } from '../../lib/affirm_lift';
-import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../lib/affirm_sfdx';
-import { openLocations } from '../../lib/affirm_openLocations';
-import { AffirmOpenLocation } from '../../lib/affirm_interfaces';
+import { verifyUsername } from '../../affirm-lib/affirm_lift';
+import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../affirm-lib/affirm_sfdx';
+import { openLocations } from '../../affirm-lib/affirm_openLocations';
+import { AffirmOpenLocation } from '../../affirm-lib/affirm_interfaces';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);

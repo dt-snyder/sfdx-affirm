@@ -1,11 +1,11 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, SfProject, SfProjectJson } from '@salesforce/core';
-import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../lib';
-import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../../lib/affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../../lib/affirm_sfcore';
-import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch, liftGetTestsFromSuites } from '../../../lib/affirm_lift';
-import { AffirmSettings, DiffObj } from '../../../lib/affirm_interfaces';
-import { getAffirmSettings } from '../../../lib/affirm_settings';
+import { getCurrentBranchName, getRemoteInfo, gitDiffSum } from '../../../affirm-lib';
+import { fsCreateNewTestSuite, fsCheckForExistingSuite, fsUpdateExistingTestSuite } from '../../../affirm-lib/affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../../affirm-lib/affirm_sfcore';
+import { liftShortBranchName, liftCleanProvidedTests, checkName, printBranchesCompared, liftGetAllSuitesInBranch, liftGetTestsFromSuites } from '../../../affirm-lib/affirm_lift';
+import { AffirmSettings, DiffObj } from '../../../affirm-lib/affirm_interfaces';
+import { getAffirmSettings } from '../../../affirm-lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);

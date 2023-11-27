@@ -2,9 +2,9 @@ import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as fs from 'fs-extra';
 import { Messages } from '@salesforce/core';
-import { AffirmSettings } from '../../lib/affirm_interfaces';
-import { getYNString } from '../../lib/affirm_lift';
-import { confirmAndUpdateSettings, getAffirmSettings, getDefaultAffirmSettings } from '../../lib/affirm_settings';
+import { AffirmSettings } from '../../affirm-lib/affirm_interfaces';
+import { getYNString } from '../../affirm-lib/affirm_lift';
+import { confirmAndUpdateSettings, getAffirmSettings, getDefaultAffirmSettings } from '../../affirm-lib/affirm_settings';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);

@@ -1,11 +1,11 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { AnyJson, asJsonArray, ensureAnyJson, ensureJsonMap, JsonMap } from '@salesforce/ts-types';
 import { Messages } from '@salesforce/core';
-import { sfdxQuery } from '../../lib/affirm_sfdx';
-import { verifyUsername } from '../../lib/affirm_lift';
-import { getAffirmSettings } from '../../lib/affirm_settings';
-import { AffirmSettings, AffirmAuditResult } from '../../lib/affirm_interfaces';
-import { fsSaveJson } from '../../lib/affirm_fs';
+import { sfdxQuery } from '../../affirm-lib/affirm_sfdx';
+import { verifyUsername } from '../../affirm-lib/affirm_lift';
+import { getAffirmSettings } from '../../affirm-lib/affirm_settings';
+import { AffirmSettings, AffirmAuditResult } from '../../affirm-lib/affirm_interfaces';
+import { fsSaveJson } from '../../affirm-lib/affirm_fs';
 
 Messages.importMessagesDirectory(__dirname);
 const messages = Messages.loadMessages('sfdx-affirm', 'audit');
@@ -47,7 +47,7 @@ export default class Audit extends SfCommand<AuditResult> {
     targetusername: Flags.requiredOrg({ char: 'u', required: false }),
     apiversion: Flags.orgApiVersion({ description: 'api version for the org', required: false })
   };
-
+  // eslint-disable-next-line complexity
   public async run(): Promise<AuditResult> {
     const { flags } = await this.parse(Audit);
     if (flags.date && flags.lastndays) {

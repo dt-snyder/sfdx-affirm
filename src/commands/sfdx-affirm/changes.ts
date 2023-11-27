@@ -1,12 +1,12 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson, ensureAnyJson } from '@salesforce/ts-types';
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
-import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../lib/affirm_lift';
-import { fsSaveJson, getPrintableDiffObject } from '../../lib/affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../lib/affirm_sfcore';
-import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../lib/affirm_interfaces';
-import { getAffirmSettings } from '../../lib/affirm_settings';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm-lib/affirm_git';
+import { showDiffSum, createWhatToPrint, printBranchesCompared } from '../../affirm-lib/affirm_lift';
+import { fsSaveJson, getPrintableDiffObject } from '../../affirm-lib/affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject } from '../../affirm-lib/affirm_sfcore';
+import { AffirmSettings, DiffObj, PrintableDiffObj } from '../../affirm-lib/affirm_interfaces';
+import { getAffirmSettings } from '../../affirm-lib/affirm_settings';
 
 
 Messages.importMessagesDirectory(__dirname);

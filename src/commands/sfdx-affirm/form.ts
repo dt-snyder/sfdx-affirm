@@ -1,8 +1,8 @@
 import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core';
 import { AnyJson } from '@salesforce/ts-types';
 import { Messages } from '@salesforce/core';
-import { sfdxGetIsSandbox } from '../../lib/affirm_sfdx';
-import { verifyUsername } from '../../lib/affirm_lift';
+import { sfdxGetIsSandbox } from '../../affirm-lib/affirm_sfdx';
+import { verifyUsername } from '../../affirm-lib/affirm_lift';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);

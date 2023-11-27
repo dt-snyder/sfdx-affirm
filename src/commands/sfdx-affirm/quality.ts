@@ -4,13 +4,13 @@ import { AnyJson, ensureAnyJson, ensureJsonMap, getJsonMap, JsonMap } from '@sal
 import * as inquirer from 'inquirer'
 import * as fs from 'fs-extra' // Docs: https://github.com/jprichardson/node-fs-extra
 import { MetadataApiDeployStatus } from '@salesforce/source-deploy-retrieve';
-import { liftCleanProvidedTests, getYNString, getTestsFromPackageSettingsOrUser, verifyUsername, liftPrintComponentTable, liftPrintTestResultTable } from '../../lib/affirm_lift';
-import { fsSaveJson } from '../../lib/affirm_fs';
-import { runAsynCommand, runCommand } from '../../lib/sfdx';
-import { getAffirmSettings } from '../../lib/affirm_settings';
-import { AffirmSettings } from '../../lib/affirm_interfaces';
-import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../lib/affirm_sfdx';
-import { openLocations } from '../../lib/affirm_openLocations';
+import { liftCleanProvidedTests, getYNString, getTestsFromPackageSettingsOrUser, verifyUsername, liftPrintComponentTable, liftPrintTestResultTable } from '../../affirm-lib/affirm_lift';
+import { fsSaveJson } from '../../affirm-lib/affirm_fs';
+import { runAsynCommand, runCommand } from '../../affirm-lib/sfdx';
+import { getAffirmSettings } from '../../affirm-lib/affirm_settings';
+import { AffirmSettings } from '../../affirm-lib/affirm_interfaces';
+import { sfdxGetIsSandbox, sfdxOpenToPath } from '../../affirm-lib/affirm_sfdx';
+import { openLocations } from '../../affirm-lib/affirm_openLocations';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);

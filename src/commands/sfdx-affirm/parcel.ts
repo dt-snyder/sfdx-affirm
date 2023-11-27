@@ -2,14 +2,14 @@ import { Ux, Flags, SfCommand } from '@salesforce/sf-plugins-core'
 import { Messages, SfProjectJson } from '@salesforce/core';
 import { AnyJson } from '@salesforce/ts-types';
 import * as inquirer from 'inquirer'
-import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../lib/affirm_git';
-import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../lib/affirm_fs';
-import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../lib/affirm_sfcore';
-import { runCommand } from '../../lib/sfdx';
-import { AffirmSettings, DescribeMetadata, DiffObj } from '../../lib/affirm_interfaces';
-import { printBranchesCompared, getYNString, verifyUsername } from '../../lib/affirm_lift';
-import { getAffirmSettings } from '../../lib/affirm_settings';
-import { describeMetadata } from '../../lib/affirm_sfdx';
+import { gitDiffSum, getRemoteInfo, getCurrentBranchName } from '../../affirm-lib/affirm_git';
+import { fsCopyChangesToNewDir, fsCleanupTempDirectory, fsCreateDestructiveChangeFile, fsCleanProvidedOutputDir } from '../../affirm-lib/affirm_fs';
+import { sfcoreGetDefaultPath, sfcoreIsPathProject, sfcoreFindOrAddReleasePath, sfcoreRemoveReleasePath } from '../../affirm-lib/affirm_sfcore';
+import { runCommand } from '../../affirm-lib/sfdx';
+import { AffirmSettings, DescribeMetadata, DiffObj } from '../../affirm-lib/affirm_interfaces';
+import { printBranchesCompared, getYNString, verifyUsername } from '../../affirm-lib/affirm_lift';
+import { getAffirmSettings } from '../../affirm-lib/affirm_settings';
+import { describeMetadata } from '../../affirm-lib/affirm_sfdx';
 const chalk = require('chalk'); // https://github.com/chalk/chalk#readme
 
 Messages.importMessagesDirectory(__dirname);
