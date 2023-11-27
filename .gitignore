@@ -1,12 +1,4 @@
-*-debug.log
-*-error.log
-/.nyc_output
 /dist
-/lib
-/tmp
-node_modules
-/package-lock.json
-
 # for yarn >v2
 .pnp.*
 .yarn/*
@@ -15,3 +7,49 @@ node_modules
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+# -- CLEAN
+tmp/
+# use yarn by default, so ignore npm
+package-lock.json
+
+# never checkin npm config
+.npmrc
+
+# debug logs
+npm-error.log
+yarn-error.log
+
+
+# compile source
+lib
+
+# test artifacts
+*xunit.xml
+*checkstyle.xml
+*unitcoverage
+.nyc_output
+coverage
+test_session*
+
+# generated docs
+docs
+
+# ignore sfdx-trust files
+*.tgz
+*.sig
+package.json.bak.
+
+# -- CLEAN ALL
+*.tsbuildinfo
+.eslintcache
+.wireit
+node_modules
+
+# --
+# put files here you don't want cleaned with sf-clean
+
+# os specific files
+.DS_Store
+.idea
+
+oclif.manifest.json
