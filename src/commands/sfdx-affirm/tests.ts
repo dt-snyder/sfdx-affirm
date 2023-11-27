@@ -99,14 +99,14 @@ export default class Tests extends SfCommand<TestsResult> {
         // make sure we are in a repo and that it has a remote set
         await getRemoteInfo();
         // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-        const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
-        const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+        const projectJson: SfProjectJson = await this.project.retrieveSfProjectJson();
+        const defaultPath = await sfcoreGetDefaultPath(projectJson);
         const diffResult: DiffObj = await gitDiffSum(settings.primaryBranch, defaultPath);
         const suitesToMerge: Set<string> = await liftGetAllSuitesInBranch(diffResult);
         const allTests: Set<String> = await liftGetTestsFromSuites(suitesToMerge);
         testsToUse = Array.from(allTests).join(",");
       } else {
-        testsToUse = await getTestsFromSuiteOrUser(this.ux, silent);
+        testsToUse = await getTestsFromSuiteOrUser(new Ux({jsonEnabled: this.jsonEnabled()}), silent);
         if (!testsToUse) {
           this.log("End Command. No Tests Provided");
           return { result: "User ended Command" };

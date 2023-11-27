@@ -45,7 +45,6 @@ export default class Changes extends SfCommand<ChangesResult> {
 
   // public static args = [{ branch: 'file', silent: 'boolean', outfilename: 'file' }];
   public static readonly flags = {
-    // flag with a value (-n, --name=VALUE)
     branch: Flags.string({ char: 'b', description: messages.getMessage('branchFlagDescription') }),
     inputdir: Flags.string({ char: 'n', description: messages.getMessage('inputdirFlagDescription') }),
     showdestructive: Flags.boolean({ char: 'd', description: messages.getMessage('showdestructiveFlagDescription') }),
@@ -63,10 +62,10 @@ export default class Changes extends SfCommand<ChangesResult> {
     // make sure we are in a repo and that it has a remote set
     await getRemoteInfo(new Ux({jsonEnabled: this.jsonEnabled()}));
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
-    const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+    const projectJson: SfProjectJson = await this.project.retrieveSfProjectJson();
+    const defaultPath = await sfcoreGetDefaultPath(projectJson);
     const inputdir = flags.inputdir || defaultPath;
-    await sfcoreIsPathProject(pjtJson, inputdir);
+    await sfcoreIsPathProject(projectJson, inputdir);
     // compare the current branch to the provided or default branch
     const branch = flags.branch || settings.primaryBranch;
     const currentBranch = await getCurrentBranchName();

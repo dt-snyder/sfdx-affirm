@@ -64,11 +64,11 @@ export default class Parcel extends SfCommand<ParcelResult> {
     await getRemoteInfo(new Ux({jsonEnabled: this.jsonEnabled()}));
     const branch = flags.branch || settings.primaryBranch;
     // get the default sfdx project path and use it or the users provided path, check that the path is in the projects sfdx-project.json file
-    const pjtJson: SfProjectJson = await this.project.retrieveSfProjectJson();
-    const defaultPath = await sfcoreGetDefaultPath(pjtJson);
+    const projectJson: SfProjectJson = await this.project.retrieveSfProjectJson();
+    const defaultPath = await sfcoreGetDefaultPath(projectJson);
     const verbose = flags.verbose ? new Ux({jsonEnabled: this.jsonEnabled()}) : undefined;
     const inputdir = flags.inputdir || defaultPath;
-    await sfcoreIsPathProject(pjtJson, inputdir);
+    await sfcoreIsPathProject(projectJson, inputdir);
     // use the users provided dir name or the default of parcel for saving the package.
     const outputdir = flags.outputdir ? `${settings.buildDirectory}/${flags.outputdir}` : `${settings.buildDirectory}/${settings.packageDirectory}`;
     // tell user what we are going to run git diff on and do it
@@ -81,11 +81,11 @@ export default class Parcel extends SfCommand<ParcelResult> {
     await fsCleanProvidedOutputDir(outputdir);
     // overwrite the sfdx project settings to include the temp directory.
     // force:source:convert requires that the folder being converted is in the sfdx-project.json file
-    await sfcoreFindOrAddReleasePath(pjtJson, settings.buildDirectory);
+    await sfcoreFindOrAddReleasePath(projectJson, settings.buildDirectory);
     const username = flags.targetusername.getUsername();
     // clone the files to a temp folder for convert... will clean this up later
     const metaDataTypes: DescribeMetadata = await describeMetadata(username, verbose);
-    const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, this.ux);
+    const fsFilesMoved: number = await fsCopyChangesToNewDir(diffResult, metaDataTypes, new Ux({jsonEnabled: this.jsonEnabled()}));
     const logYN = await getYNString();
     // convert the temp folder to a package
     if (fsFilesMoved > 0) {
@@ -125,7 +125,7 @@ export default class Parcel extends SfCommand<ParcelResult> {
     // delete the temp folder that we made before and remove the temp folder from the sfdx-project.json file
     this.spinner.start('Cleaning Up');
     await fsCleanupTempDirectory();
-    await sfcoreRemoveReleasePath(pjtJson, settings.buildDirectory);
+    await sfcoreRemoveReleasePath(projectJson, settings.buildDirectory);
     this.spinner.stop('Success');
     return { localBranch: currentBranch, inputBranch: branch, outputDir: outputdir, inputDir: inputdir, filesMoved: fsFilesMoved, includeDestructive: includedestructive || includeDestructivePrompt };
   }
